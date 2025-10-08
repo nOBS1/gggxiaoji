@@ -1,0 +1,128 @@
+# 小趣闻·啄米鸡 - AI 编辑器规则
+
+## Context7 自动使用规则
+Always use context7 when I need:
+- Code generation
+- Setup or configuration steps
+- Library/API documentation
+- Framework-specific implementations
+
+This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
+
+## 项目技术栈
+- **前端框架**: Vanilla JavaScript (ES6+)
+- **构建工具**: Vite
+- **模块化**: ES Modules
+- **CSS**: 原生 CSS (CSS Variables)
+- **存储**: localStorage
+
+## 常用库（使用 Context7 获取文档）
+当涉及以下技术时，自动使用 Context7：
+- Vite: use library /vitejs/vite
+- JavaScript: use library /mdn/javascript
+- CSS: use library /mdn/css
+
+## 代码规范
+1. **命名约定**
+   - 变量和函数: camelCase (如 `updateTopBar`, `getIdleRate`)
+   - 常量: UPPER_SNAKE_CASE (如 `CONFIG`, `MAX_SAFE_NUMBER`)
+   - 文件名: camelCase.js (如 `gameLogic.js`, `state.js`)
+
+2. **模块导出**
+   - 使用 named exports: `export function functionName()`
+   - 配置使用 `export const CONFIG = {...}`
+   - 状态使用 `export const state = {...}`
+
+3. **注释风格**
+   - 使用中文注释
+   - 每个主要功能块前添加分隔注释
+   ```javascript
+   // ==================== 功能模块名称 ====================
+   ```
+
+4. **错误处理**
+   - 所有可能失败的操作都要 try-catch
+   - DOM 操作前检查元素是否存在
+   - 数值操作使用 safeAdd() 防止溢出
+
+5. **性能优化**
+   - 批量操作时避免多次 saveGame()
+   - DOM 更新前先检查元素存在性
+   - 使用事件委托处理动态生成的元素
+
+## 国际化 (i18n)
+- 支持中文和英文
+- 所有用户可见文本都要通过 i18n 系统
+- 使用 `t(i18n, state.language, 'key')` 获取翻译
+- 新增文本需要同时添加中英文翻译
+
+## 游戏逻辑规范
+1. **状态管理**
+   - 所有状态集中在 `state.js`
+   - 修改状态后调用 `saveGame()`
+   - 重置状态使用 `resetStateToDefault()`
+
+2. **数值平衡**
+   - 初始被动产蛋: 0.2 蛋/分钟
+   - 使用 `idleEggAccumulator` 处理小数累积
+   - 最大安全数值: 1e15 (CONFIG.MAX_SAFE_NUMBER)
+
+3. **UI 更新**
+   - 所有 UI 函数添加空值检查
+   - 使用 `updateAllDisplays()` 统一更新
+   - 动态生成的元素使用事件委托
+
+## 测试要求
+在实现新功能时，考虑：
+1. 边界条件（如资源为 0、最大值等）
+2. 用户反馈（操作成功/失败提示）
+3. 错误处理（网络失败、数据损坏等）
+4. 兼容性（旧存档升级、新字段默认值）
+
+## 文件结构
+```
+src/
+├── js/
+│   ├── config.js      # 游戏配置和常量
+│   ├── state.js       # 状态管理和存档
+│   ├── gameLogic.js   # 游戏核心逻辑
+│   ├── ui.js          # UI 更新函数
+│   ├── i18n.js        # 国际化翻译
+│   └── main.js        # 入口和事件绑定
+└── css/
+    └── main.css       # 样式文件
+```
+
+## 常见任务模板
+
+### 添加新功能
+1. 在 `config.js` 添加配置
+2. 在 `state.js` 添加状态字段
+3. 在 `gameLogic.js` 实现逻辑
+4. 在 `ui.js` 添加 UI 更新
+5. 在 `i18n.js` 添加翻译
+6. 在 `main.js` 绑定事件
+
+### 修复 Bug
+1. 确认问题所在的文件和函数
+2. 添加错误处理和边界检查
+3. 测试修复效果
+4. 更新相关文档
+
+### 优化性能
+1. 使用浏览器开发者工具 Profile
+2. 减少 DOM 操作频率
+3. 批量处理避免频繁保存
+4. 使用节流/防抖优化高频操作
+
+## 注意事项
+- 重置游戏时设置 `state.isResetting = true` 防止定时器竞态
+- 批量掉落蛋时使用 `dropEgg(false, true)` 跳过单次保存
+- loadGame 时检查旧存档并补充缺失字段
+- 跨日自动重置在 `checkDailyReset()` 中处理
+
+## 代码质量要求
+- 代码要健壮、可维护、可扩展
+- 遵循 DRY (Don't Repeat Yourself) 原则
+- 函数保持单一职责
+- 适当添加注释说明复杂逻辑

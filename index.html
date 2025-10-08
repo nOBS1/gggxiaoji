@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="小游戏·小鸡生蛋 - 一款轻度挂机放置类游戏">
+  <meta name="keywords" content="小游戏,放置游戏,挂机游戏,点击游戏">
+  <meta name="author" content="Xiaoji Game">
+  
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="小游戏·小鸡生蛋">
+  <meta property="og:description" content="点击小鸡产蛋，收集稀有蛋类，升级属性">
+  <meta property="og:type" content="website">
+  
+  <title>小游戏·小鸡生蛋 | Chicken Egg Laying Game</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐔</text></svg>">
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <h1 class="title" data-i18n="title">🐔 小游戏·小鸡生蛋</h1>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="label" data-i18n="totalEggs">总蛋数</span>: 
+        <span id="totalEggsDisplay">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="label" data-i18n="coins">金币</span>: 
+        <span id="coinsDisplay">0</span> 💰
+      </div>
+      <div class="stat-item">
+        <span class="label" data-i18n="chickenLevel">小鸡等级</span>: 
+        <span id="levelDisplay">1</span>
+      </div>
+      <div class="stat-item">
+        <span class="label" data-i18n="feed">饲料</span>: 
+        <span id="feedDisplay">普通</span>
+      </div>
+      <div class="stat-item">
+        <span class="label" data-i18n="idleRate">被动</span>: 
+        <span id="idleRateDisplay">1</span>/min
+      </div>
+      <div class="stat-item">
+        <span class="label" data-i18n="clickPower">点击力</span>: 
+        <span id="clickPowerDisplay">1</span>%
+      </div>
+      <!-- 语言切换按钮 -->
+      <button class="lang-btn" id="langToggle" title="Switch Language / 切换语言">
+        <span id="currentLang">🌍 CN</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 标签页导航 -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="main" data-i18n="tabMain">主界面</button>
+    <button class="tab-btn" data-tab="inventory" data-i18n="tabInventory">背包</button>
+    <button class="tab-btn" data-tab="shop" data-i18n="tabShop">商店</button>
+    <button class="tab-btn" data-tab="upgrade" data-i18n="tabUpgrade">升级</button>
+    <button class="tab-btn" data-tab="tasks" data-i18n="tabTasks">任务</button>
+    <button class="tab-btn" data-tab="settings" data-i18n="tabSettings">设置</button>
+  </div>
+
+  <!-- 主界面 - 点击小鸡 -->
+  <div class="tab-content active" data-content="main">
+    <!-- 公告横幅 -->
+    <div class="announcement-banner" id="announcementBanner">
+      <div class="announcement-content">
+        <span class="announcement-icon">🎉</span>
+        <span class="announcement-text" data-i18n="announcementMain">欢迎来到小游戏·小鸡生蛋！点击小鸡开始你的养鸡之旅！</span>
+      </div>
+      <button class="announcement-close" id="closeAnnouncement" title="关闭">×</button>
+    </div>
+    
+    <div class="chicken-container" id="chickenContainer">
+      <div class="chicken"><img src="/chick/chick.webp" alt="小鸡" class="chicken-img" /></div>
+      <div class="peck-progress">
+        <div class="peck-bar" id="peckBar" style="width: 0%;">
+0%</div>
+      </div>
+      <p class="hint" data-i18n="clickHint">点击小鸡产蛋！</p>
+    </div>
+  </div>
+  <!-- 背包界面 -->
+  <div class="tab-content" data-content="inventory">
+    <h2 data-i18n="myInventory">我的背包</h2>
+    <div class="inventory-grid" id="inventoryGrid">
+      <!-- 动态生成蛋卡片 -->
+    </div>
+  </div>
+
+  <!-- 商店界面 -->
+  <div class="tab-content" data-content="shop">
+    <h2 data-i18n="shop">商店</h2>
+    <p class="shop-desc" data-i18n="shopDesc">出售你的蛋换取金币</p>
+    <div class="shop-grid" id="shopGrid">
+      <!-- 动态生成商店卡片 -->
+    </div>
+  </div>
+
+  <!-- 升级界面 -->
+  <div class="tab-content" data-content="upgrade">
+    <h2 data-i18n="upgradeTitle">升级小鸡</h2>
+    <p class="upgrade-desc" data-i18n="upgradeSubtitle">使用蛋提升小鸡能力</p>
+    <div class="upgrade-grid" id="upgradeGrid">
+      <!-- 动态生成升级卡片 -->
+    </div>
+  </div>
+
+  <!-- 任务界面 -->
+  <div class="tab-content" data-content="tasks">
+    <h2 data-i18n="tasksTitle">每日任务</h2>
+    <p class="tasks-desc" data-i18n="tasksDesc">完成任务获得奖励</p>
+    <div class="task-list" id="taskList">
+      <!-- 动态生成任务卡片 -->
+    </div>
+  </div>
+
+  <!-- 设置界面 -->
+  <div class="tab-content" data-content="settings">
+    <h2 data-i18n="settingsTitle">设置</h2>
+    <div class="settings-panel">
+      <!-- 音效开关 -->
+      <div class="setting-item">
+        <span data-i18n="soundEffects">音效</span>
+        <button class="toggle-btn active" id="soundToggle">
+          <span class="toggle-on">🔊</span>
+          <span class="toggle-off">🔇</span>
+        </button>
+      </div>
+
+      <!-- 存档管理 -->
+      <div class="setting-group">
+        <h3 data-i18n="saveManagement">存档管理</h3>
+        <button class="btn" id="exportBtn" data-i18n="exportSave">导出存档</button>
+        <button class="btn" id="importBtn" data-i18n="importSave">导入存档</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+        <button class="btn btn-danger" id="resetBtn" data-i18n="resetGame">重置游戏</button>
+      </div>
+
+      <!-- 广告区域 -->
+      <div class="ad-container">
+        <h3 data-i18n="adTitle">广告奖励</h3>
+        <p data-i18n="adDesc">观看30秒广告获得5个白蛋</p>
+        <button class="btn btn-ad" id="watchAdBtn" data-i18n="watchAd">观看广告</button>
+        <div class="ad-cooldown">
+          <span data-i18n="cooldown">冷却时间</span>: 
+          <span id="adCooldown">0</span>s
+        </div>
+      </div>
+
+      <!-- 游戏信息 -->
+      <div class="game-info">
+        <h3 data-i18n="about">关于游戏</h3>
+        <p><strong data-i18n="version">版本</strong>: 2.1.0</p>
+        <p><strong data-i18n="developer">开发者</strong>: Xiaoji Game Team</p>
+        <p><strong data-i18n="description">说明</strong>: <span data-i18n="gameDescription">一款轻度挂机放置类游戏</span></p>
+      </div>
+      
+      <!-- 更新日志 -->
+      <div class="changelog">
+        <h3 data-i18n="changelog">更新日志</h3>
+        
+        <div class="changelog-item">
+          <div class="changelog-version">v2.1.0 <span class="changelog-date">2025-10-07</span></div>
+          <ul class="changelog-list">
+            <li data-i18n="changelogV210Item1">✨ 添加真实音效系统，体验更佳</li>
+            <li data-i18n="changelogV210Item2">🐔 替换为真实小鸡和鸡蛋图片</li>
+            <li data-i18n="changelogV210Item3">🌍 优化国际化支持，流畅切换中英文</li>
+            <li data-i18n="changelogV210Item4">📱 修复移动端小鸡图片显示问题</li>
+            <li data-i18n="changelogV210Item5">📢 新增公告系统，及时了解游戎动态</li>
+          </ul>
+        </div>
+        
+        <div class="changelog-item">
+          <div class="changelog-version">v2.0.0 <span class="changelog-date">2025-09-30</span></div>
+          <ul class="changelog-list">
+            <li data-i18n="changelogV200Item1">🎉 全新界面设计，更加美观</li>
+            <li data-i18n="changelogV200Item2">⬆️ 添加更多升级选项</li>
+            <li data-i18n="changelogV200Item3">🎯 新增每日任务系统</li>
+            <li data-i18n="changelogV200Item4">💾 优化存档系统</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- 游戏指南 -->
+      <div class="game-guide">
+        <h3 data-i18n="gameGuide">游戏指南</h3>
+        <div class="guide-section">
+          <h4 data-i18n="guideBasic">🐣 基本玩法</h4>
+          <p data-i18n="guideBasicDesc">点击小鸡积累进度，达到 100% 后产出鸡蛋。收集不同稀有度的鸡蛋，出售换取金币。</p>
+        </div>
+        <div class="guide-section">
+          <h4 data-i18n="guideUpgrade">⬆️ 升级系统</h4>
+          <p data-i18n="guideUpgradeDesc">使用鸡蛋或金币升级小鸡能力，提升点击效率、被动产蛋速度和稀有蛋掉落率。</p>
+        </div>
+        <div class="guide-section">
+          <h4 data-i18n="guideTasks">🎯 任务系统</h4>
+          <p data-i18n="guideTasksDesc">每日完成任务可获得额外奖励，别忘记领取哦！</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态层（用于通知） -->
+  <div class="modal-overlay" id="modalOverlay"></div>
+
+  <!-- 主入口脚本 -->
+  <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
