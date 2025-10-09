@@ -1,0 +1,49 @@
+# Cloudflare Workers 配置文件
+# 小趣闻·啄米鸡 后端 API
+
+name = "xiaoji-game-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Workers 路由配置
+# routes = [
+#   { pattern = "api.yourdomain.com/*", zone_name = "yourdomain.com" }
+# ]
+
+# 环境变量（生产环境）
+[env.production]
+name = "xiaoji-game-api-prod"
+
+# D1 数据库绑定
+[[d1_databases]]
+binding = "DB"
+database_name = "xiaoji-game-db"
+database_id = "your-database-id-here"  # 运行 wrangler d1 create 后填入
+
+# KV 命名空间（用于缓存）
+[[kv_namespaces]]
+binding = "CACHE"
+id = "your-kv-namespace-id-here"
+
+# 环境变量（密钥等）
+[vars]
+JWT_SECRET = "your-secret-key-here-change-in-production"
+API_VERSION = "v1"
+CORS_ORIGIN = "https://yourdomain.com"
+
+# 开发环境配置
+[env.development]
+name = "xiaoji-game-api-dev"
+vars = { JWT_SECRET = "dev-secret-key", CORS_ORIGIN = "*" }
+
+# 本地开发配置
+[env.local]
+name = "xiaoji-game-api-local"
+
+# 构建配置
+[build]
+command = ""
+
+# 兼容性标志
+[compatibility_flags]
+nodejs_compat = true

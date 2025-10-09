@@ -1,0 +1,247 @@
+<!-- ==================== 认证模态框 HTML 模板 ==================== -->
+<!-- 将此代码添加到 index.html 的 body 结束标签之前 -->
+
+<!-- 登录/注册模态框 -->
+<div id="authModal" class="auth-modal">
+  <div class="auth-card">
+    <!-- 关闭按钮 -->
+    <button class="auth-close" id="authCloseBtn" aria-label="关闭">×</button>
+    
+    <!-- 标题区域 -->
+    <div class="auth-header">
+      <div class="auth-logo">🐔</div>
+      <h2 class="auth-title" data-i18n="authTitle">欢迎回来</h2>
+      <p class="auth-subtitle" data-i18n="authSubtitle">登录以同步您的游戏进度</p>
+    </div>
+    
+    <!-- 标签切换（登录/注册） -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login" data-i18n="loginTab">登录</button>
+      <button class="auth-tab" data-tab="register" data-i18n="registerTab">注册</button>
+    </div>
+    
+    <!-- 登录表单 -->
+    <form id="loginForm" class="auth-form active">
+      <!-- 邮箱 -->
+      <div class="form-group">
+        <label for="loginEmail" class="form-label">
+          <span data-i18n="email">邮箱</span>
+          <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="loginEmail" 
+          class="form-input" 
+          placeholder="请输入邮箱"
+          data-i18n-placeholder="emailPlaceholder"
+          required
+          autocomplete="email"
+        />
+        <div class="form-error" id="loginEmailError">请输入有效的邮箱地址</div>
+      </div>
+      
+      <!-- 密码 -->
+      <div class="form-group">
+        <label for="loginPassword" class="form-label">
+          <span data-i18n="password">密码</span>
+          <span class="required">*</span>
+        </label>
+        <div class="password-wrapper">
+          <input 
+            type="password" 
+            id="loginPassword" 
+            class="form-input" 
+            placeholder="请输入密码"
+            data-i18n-placeholder="passwordPlaceholder"
+            required
+            autocomplete="current-password"
+          />
+          <button type="button" class="password-toggle" data-target="loginPassword">
+            👁️
+          </button>
+        </div>
+        <div class="form-error" id="loginPasswordError">密码不能为空</div>
+      </div>
+      
+      <!-- 记住我 & 忘记密码 -->
+      <div class="form-options">
+        <label class="checkbox-wrapper">
+          <input type="checkbox" id="rememberMe" />
+          <span class="checkbox-label" data-i18n="rememberMe">记住我</span>
+        </label>
+        <a href="#" class="forgot-link" data-i18n="forgotPassword">忘记密码？</a>
+      </div>
+      
+      <!-- 登录按钮 -->
+      <button type="submit" class="auth-submit" id="loginSubmitBtn">
+        <span data-i18n="login">登录</span>
+      </button>
+      
+      <!-- 游客模式按钮 -->
+      <button type="button" class="guest-button" id="guestModeBtn">
+        <span data-i18n="guestMode">🎮 游客试玩（本地存档）</span>
+      </button>
+    </form>
+    
+    <!-- 注册表单 -->
+    <form id="registerForm" class="auth-form">
+      <!-- 邮箱 -->
+      <div class="form-group">
+        <label for="registerEmail" class="form-label">
+          <span data-i18n="email">邮箱</span>
+          <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="registerEmail" 
+          class="form-input" 
+          placeholder="请输入邮箱"
+          data-i18n-placeholder="emailPlaceholder"
+          required
+          autocomplete="email"
+        />
+        <div class="form-error" id="registerEmailError">请输入有效的邮箱地址</div>
+      </div>
+      
+      <!-- 密码 -->
+      <div class="form-group">
+        <label for="registerPassword" class="form-label">
+          <span data-i18n="password">密码</span>
+          <span class="required">*</span>
+        </label>
+        <div class="password-wrapper">
+          <input 
+            type="password" 
+            id="registerPassword" 
+            class="form-input" 
+            placeholder="至少8个字符"
+            data-i18n-placeholder="passwordRequirement"
+            required
+            autocomplete="new-password"
+          />
+          <button type="button" class="password-toggle" data-target="registerPassword">
+            👁️
+          </button>
+        </div>
+        <!-- 密码强度指示器 -->
+        <div class="password-strength" id="passwordStrength">
+          <div class="strength-bar">
+            <div class="strength-fill"></div>
+          </div>
+          <div class="strength-text">密码强度：<span></span></div>
+        </div>
+        <div class="form-error" id="registerPasswordError">密码至少8个字符</div>
+      </div>
+      
+      <!-- 确认密码 -->
+      <div class="form-group">
+        <label for="confirmPassword" class="form-label">
+          <span data-i18n="confirmPassword">确认密码</span>
+          <span class="required">*</span>
+        </label>
+        <div class="password-wrapper">
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            class="form-input" 
+            placeholder="再次输入密码"
+            data-i18n-placeholder="confirmPasswordPlaceholder"
+            required
+            autocomplete="new-password"
+          />
+          <button type="button" class="password-toggle" data-target="confirmPassword">
+            👁️
+          </button>
+        </div>
+        <div class="form-error" id="confirmPasswordError">两次密码不一致</div>
+      </div>
+      
+      <!-- 用户协议 -->
+      <div class="terms-agreement">
+        <label class="checkbox-wrapper">
+          <input type="checkbox" id="agreeTerms" required />
+          <span class="checkbox-label">
+            我已阅读并同意 
+            <a href="#" data-i18n="termsOfService">用户协议</a> 和 
+            <a href="#" data-i18n="privacyPolicy">隐私政策</a>
+          </span>
+        </label>
+      </div>
+      
+      <!-- 注册按钮 -->
+      <button type="submit" class="auth-submit" id="registerSubmitBtn">
+        <span data-i18n="register">注册</span>
+      </button>
+      
+      <!-- 游客模式按钮 -->
+      <button type="button" class="guest-button" id="guestModeBtn2">
+        <span data-i18n="guestMode">🎮 游客试玩（本地存档）</span>
+      </button>
+    </form>
+    
+    <!-- 分隔线 -->
+    <div class="auth-divider">
+      <span data-i18n="orContinueWith">或使用以下方式继续</span>
+    </div>
+    
+    <!-- OAuth 登录按钮（可选） -->
+    <div class="oauth-buttons">
+      <button class="oauth-btn" id="googleLoginBtn">
+        <span>Google</span>
+      </button>
+      <button class="oauth-btn" id="githubLoginBtn">
+        <span>GitHub</span>
+      </button>
+    </div>
+    
+    <!-- 底部链接 -->
+    <div class="auth-footer">
+      <span data-i18n="haveAccount">已有账号？</span>
+      <a href="#" id="switchToLogin" data-i18n="loginNow">立即登录</a>
+      <span> | </span>
+      <span data-i18n="noAccount">没有账号？</span>
+      <a href="#" id="switchToRegister" data-i18n="registerNow">立即注册</a>
+    </div>
+  </div>
+</div>
+
+<!-- 用户信息按钮（添加到顶部栏 stats-bar 中） -->
+<!-- 未登录状态 -->
+<button id="loginBtn" class="login-btn" style="display: none;">
+  <span>🔑</span>
+  <span data-i18n="login">登录</span>
+</button>
+
+<!-- 已登录状态 -->
+<div id="userInfoBtn" class="user-info-btn" style="display: none; position: relative;">
+  <div class="user-avatar" id="userAvatar">U</div>
+  <span class="user-name" id="userName">用户名</span>
+  <span>▼</span>
+  
+  <!-- 下拉菜单 -->
+  <div class="user-menu" id="userMenu">
+    <button class="user-menu-item" id="profileBtn">
+      <span>👤</span>
+      <span data-i18n="profile">个人资料</span>
+    </button>
+    <button class="user-menu-item" id="syncBtn">
+      <span>🔄</span>
+      <span data-i18n="syncData">同步数据</span>
+    </button>
+    <button class="user-menu-item" id="settingsBtn">
+      <span>⚙️</span>
+      <span data-i18n="settings">设置</span>
+    </button>
+    <div class="user-menu-divider"></div>
+    <button class="user-menu-item danger" id="logoutBtn">
+      <span>🚪</span>
+      <span data-i18n="logout">退出登录</span>
+    </button>
+  </div>
+</div>
+
+<!-- Toast 提示（用于显示成功/错误消息） -->
+<div id="toast" class="toast" style="display: none;">
+  <div class="toast-icon" id="toastIcon">✓</div>
+  <div class="toast-message" id="toastMessage">操作成功</div>
+</div>
