@@ -17,14 +17,13 @@
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐔</text></svg>">
   
-  <!-- 认证和市场样式 -->
-  <link rel="stylesheet" href="src/css/auth.css" />
+  <!-- 市场样式 -->
   <link rel="stylesheet" href="src/css/market.css" />
 </head>
 <body>
   <!-- 顶部导航栏 -->
   <header class="header">
-  <h1 class="title" data-i18n="title">🐔 鸡蛋模拟器</h1>
+    <h1 class="title" data-i18n="title">🐔 小游戏·小鸡生蛋</h1>
     <div class="stats-bar">
       <div class="stat-item">
         <span class="label" data-i18n="totalEggs">总蛋数</span>: 
@@ -50,28 +49,6 @@
         <span class="label" data-i18n="clickPower">点击力</span>: 
         <span id="clickPowerDisplay">1</span>%
       </div>
-      
-      <!-- 认证按钮区域 -->
-      <div class="auth-section">
-        <!-- 未登录状态 -->
-        <button class="auth-btn" id="loginBtn" style="display: block;">
-          <span class="auth-icon">👤</span>
-          <span class="auth-text" data-i18n="login">登录</span>
-        </button>
-        
-        <!-- 已登录状态 -->
-        <div class="user-info-wrapper" id="userInfoWrapper" style="display: none;">
-          <button class="user-info-btn" id="userInfoBtn">
-            <img id="userAvatar" src="/default-avatar.png" alt="头像" class="user-avatar" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23deb887%22/><text x=%2250%22 y=%2260%22 text-anchor=%22middle%22 font-size=%2240%22>👤</text></svg>'" />
-            <span id="userNickname">用户名</span>
-          </button>
-          <div class="user-menu" id="userMenu" style="display: none;">
-            <a href="#" id="profileLink" data-i18n="profile">个人中心</a>
-            <a href="#" id="logoutLink" data-i18n="logout">退出登录</a>
-          </div>
-        </div>
-      </div>
-      
       <!-- 语言切换按钮 -->
       <button class="lang-btn" id="langToggle" title="Switch Language / 切换语言">
         <span id="currentLang">🌍 CN</span>
@@ -174,8 +151,11 @@
             <div class="form-group">
               <label data-i18n="rarity">稀有度</label>
               <select id="createOrderRarity">
-                <option value="purple" data-i18n="egg_purple">紫蛋</option>
+                <option value="white" data-i18n="egg_white">白蛋</option>
+                <option value="brown" data-i18n="egg_brown">棕蛋</option>
+                <option value="silver" data-i18n="egg_silver">银蛋</option>
                 <option value="gold" data-i18n="egg_gold">金蛋</option>
+                <option value="purple" data-i18n="egg_purple">紫蛋</option>
                 <option value="black" data-i18n="egg_black">黑蛋</option>
               </select>
             </div>
@@ -201,8 +181,11 @@
         <div class="market-controls">
           <div class="filter-buttons">
             <button class="filter-btn active" data-filter="all">全部</button>
-            <button class="filter-btn" data-filter="purple" data-i18n="egg_purple">紫蛋</button>
+            <button class="filter-btn" data-filter="white" data-i18n="egg_white">白蛋</button>
+            <button class="filter-btn" data-filter="brown" data-i18n="egg_brown">棕蛋</button>
+            <button class="filter-btn" data-filter="silver" data-i18n="egg_silver">银蛋</button>
             <button class="filter-btn" data-filter="gold" data-i18n="egg_gold">金蛋</button>
+            <button class="filter-btn" data-filter="purple" data-i18n="egg_purple">紫蛋</button>
             <button class="filter-btn" data-filter="black" data-i18n="egg_black">黑蛋</button>
           </div>
           <div class="sort-controls">
@@ -270,7 +253,7 @@
       <!-- 游戏信息 -->
       <div class="game-info">
         <h3 data-i18n="about">关于游戏</h3>
-        <p><strong data-i18n="version">版本</strong>: 2.2.0</p>
+        <p><strong data-i18n="version">版本</strong>: 2.1.0</p>
         <p><strong data-i18n="developer">开发者</strong>: Xiaoji Game Team</p>
         <p><strong data-i18n="description">说明</strong>: <span data-i18n="gameDescription">一款轻度挂机放置类游戏</span></p>
       </div>
@@ -278,16 +261,6 @@
       <!-- 更新日志 -->
       <div class="changelog">
         <h3 data-i18n="changelog">更新日志</h3>
-        
-        <div class="changelog-item">
-          <div class="changelog-version">v2.2.0 <span class="changelog-date">2025-10-10</span></div>
-          <ul class="changelog-list">
-            <li>🛒 新增市场交易系统，玩家间可自由买卖蛋</li>
-            <li>👤 完善用户认证系统，支持登录注册</li>
-            <li>🌍 扩展国际化支持，新增35+翻译条目</li>
-            <li>📱 优化响应式布局，提升移动端体验</li>
-          </ul>
-        </div>
         
         <div class="changelog-item">
           <div class="changelog-version">v2.1.0 <span class="changelog-date">2025-10-07</span></div>
@@ -333,98 +306,7 @@
   <!-- 模态层（用于通知） -->
   <div class="modal-overlay" id="modalOverlay"></div>
 
-  <!-- Toast 通知 -->
-  <div class="toast" id="toast" style="display: none;">
-    <span class="toast-icon" id="toastIcon">✓</span>
-    <span class="toast-message" id="toastMessage"></span>
-  </div>
-
-  <!-- 认证模态框 -->
-  <div class="auth-modal" id="authModal">
-    <div class="auth-container">
-      <button class="auth-close" id="authCloseBtn">×</button>
-      
-      <div class="auth-header">
-        <h2 class="auth-title">欢迎回来</h2>
-        <p class="auth-subtitle">登录以同步您的游戏进度</p>
-      </div>
-      
-      <div class="auth-tabs">
-        <button class="auth-tab active" data-tab="login" data-i18n="login">登录</button>
-        <button class="auth-tab" data-tab="register" data-i18n="register">注册</button>
-      </div>
-      
-      <!-- 登录表单 -->
-      <form class="auth-form active" id="loginForm">
-        <div class="form-group">
-          <label for="loginEmail" data-i18n="email">邮箱</label>
-          <input type="email" id="loginEmail" placeholder="your@email.com" required />
-          <span class="error-message" id="loginEmailError">请输入有效的邮箱地址</span>
-        </div>
-        
-        <div class="form-group">
-          <label for="loginPassword" data-i18n="password">密码</label>
-          <div class="password-wrapper">
-            <input type="password" id="loginPassword" placeholder="••••••" required />
-            <button type="button" class="password-toggle" data-target="loginPassword">👁️</button>
-          </div>
-          <span class="error-message" id="loginPasswordError">密码至少6个字符</span>
-        </div>
-        
-        <div class="form-footer">
-          <label class="checkbox-label">
-            <input type="checkbox" id="rememberMe" />
-            <span data-i18n="rememberMe">记住我</span>
-          </label>
-          <a href="#" class="link" id="forgotPasswordLink" data-i18n="forgotPassword">忘记密码？</a>
-        </div>
-        
-        <button type="submit" class="btn btn-primary btn-block" data-i18n="loginButton">登录</button>
-      </form>
-      
-      <!-- 注册表单 -->
-      <form class="auth-form" id="registerForm">
-        <div class="form-group">
-          <label for="registerEmail" data-i18n="email">邮箱</label>
-          <input type="email" id="registerEmail" placeholder="your@email.com" required />
-          <span class="error-message" id="registerEmailError">请输入有效的邮箱地址</span>
-        </div>
-        
-        <div class="form-group">
-          <label for="registerPassword" data-i18n="password">密码</label>
-          <div class="password-wrapper">
-            <input type="password" id="registerPassword" placeholder="••••••" required />
-            <button type="button" class="password-toggle" data-target="registerPassword">👁️</button>
-          </div>
-          <div class="password-strength" id="passwordStrength">
-            <div class="strength-bar">
-              <div class="strength-fill"></div>
-            </div>
-            <div class="strength-text">强度: <span>弱</span></div>
-          </div>
-          <span class="error-message" id="registerPasswordError">密码至少8个字符</span>
-        </div>
-        
-        <div class="form-group">
-          <label for="confirmPassword" data-i18n="confirmPassword">确认密码</label>
-          <input type="password" id="confirmPassword" placeholder="••••••" required />
-          <span class="error-message" id="confirmPasswordError">两次密码不一致</span>
-        </div>
-        
-        <div class="form-footer">
-          <label class="checkbox-label">
-            <input type="checkbox" id="agreeTerms" required />
-            <span>我同意 <a href="#" class="link">服务条款</a></span>
-          </label>
-        </div>
-        
-        <button type="submit" class="btn btn-primary btn-block" data-i18n="registerButton">注册</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- 脚本 -->
-  <script type="module" src="/src/js/auth-simple.js"></script>
+  <!-- 主入口脚本 -->
   <script type="module" src="/src/js/main.js"></script>
 </body>
 </html>

@@ -572,4 +572,182 @@ game.post('/claim-task', async (c) => {
   }
 });
 
+// ==================== POST /api/game/sync-local-data ====================
+// 同步本地游戏数据到服务器账号（登录时调用）
+
+game.post('/sync-local-data', async (c) => {
+  const user = c.get('user');
+  const { localData } = await c.req.json<{
+    localData: {
+      eggs?: Record<string, number>;
+      coins?: number;
+      upgrades?: Record<string, number>;
+      stats?: {
+        totalClicks?: number;
+        totalEggsSold?: number;
+      };
+      blackPityCounter?: number;
+    }
+  }>();
+
+  if (!localData) {
+    throw Errors.INVALID_INPUT;
+  }
+
+  try {
+    const supabase = getSupabase(c.env);
+    const { safeAdd } = await import('../utils/gameLogic');
+
+    console.log('[Sync Local Data] User:', user.userId);
+    console.log('[Sync Local Data] Local data:', localData);
+
+    // 1. 获取用户当前的服务器数据
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('coins, black_pity_counter')
+      .eq('user_id', user.userId)
+      .single();
+
+    const { data: serverInventory } = await supabase
+      .from('inventory')
+      .select('rarity, quantity')
+      .eq('user_id', user.userId);
+
+    const { data: serverUpgrades } = await supabase
+      .from('upgrades')
+      .select('upgrade_key, level')
+      .eq('user_id', user.userId);
+
+    const { data: serverStats } = await supabase
+      .from('stats')
+      .select('total_clicks, total_eggs_sold')
+      .eq('user_id', user.userId)
+      .single();
+
+    // 2. 合并金币（取更大值）
+    let newCoins = profile?.coins || 0;
+    if (localData.coins && localData.coins > newCoins) {
+      newCoins = localData.coins;
+      await supabase
+        .from('profiles')
+        .update({ coins: newCoins })
+        .eq('user_id', user.userId);
+      console.log(`[Sync] Updated coins: ${newCoins}`);
+    }
+
+    // 3. 合并库存（取更大值）
+    if (localData.eggs) {
+      const serverInventoryMap: Record<string, number> = {};
+      serverInventory?.forEach(item => {
+        serverInventoryMap[item.rarity] = item.quantity;
+      });
+
+      for (const [rarity, localQty] of Object.entries(localData.eggs)) {
+        if (!isValidRarity(rarity)) continue;
+        
+        const serverQty = serverInventoryMap[rarity] || 0;
+        const newQty = Math.max(serverQty, localQty);
+        
+        if (newQty > serverQty) {
+          await supabase
+            .from('inventory')
+            .update({ quantity: newQty })
+            .eq('user_id', user.userId)
+            .eq('rarity', rarity);
+          console.log(`[Sync] Updated ${rarity} eggs: ${newQty}`);
+        }
+      }
+    }
+
+    // 4. 合并升级（取更大值）
+    if (localData.upgrades) {
+      const serverUpgradesMap: Record<string, number> = {};
+      serverUpgrades?.forEach(item => {
+        serverUpgradesMap[item.upgrade_key] = item.level;
+      });
+
+      for (const [upgradeKey, localLevel] of Object.entries(localData.upgrades)) {
+        if (!isValidUpgradeKey(upgradeKey)) continue;
+        
+        const serverLevel = serverUpgradesMap[upgradeKey] || 0;
+        const newLevel = Math.max(serverLevel, localLevel);
+        
+        if (newLevel > serverLevel) {
+          if (serverLevel === 0) {
+            // 插入新记录
+            await supabase
+              .from('upgrades')
+              .insert({
+                user_id: user.userId,
+                upgrade_key: upgradeKey,
+                level: newLevel
+              });
+          } else {
+            // 更新现有记录
+            await supabase
+              .from('upgrades')
+              .update({ level: newLevel })
+              .eq('user_id', user.userId)
+              .eq('upgrade_key', upgradeKey);
+          }
+          console.log(`[Sync] Updated ${upgradeKey} level: ${newLevel}`);
+        }
+      }
+    }
+
+    // 5. 合并统计数据（累加）
+    if (localData.stats) {
+      const updates: Record<string, number> = {};
+      
+      if (localData.stats.totalClicks) {
+        updates.total_clicks = safeAdd(
+          serverStats?.total_clicks || 0,
+          localData.stats.totalClicks
+        );
+      }
+      
+      if (localData.stats.totalEggsSold) {
+        updates.total_eggs_sold = safeAdd(
+          serverStats?.total_eggs_sold || 0,
+          localData.stats.totalEggsSold
+        );
+      }
+      
+      if (Object.keys(updates).length > 0) {
+        await supabase
+          .from('stats')
+          .update(updates)
+          .eq('user_id', user.userId);
+        console.log('[Sync] Updated stats:', updates);
+      }
+    }
+
+    // 6. 合并黑色保底计数（取更大值）
+    if (localData.blackPityCounter !== undefined) {
+      const serverPity = profile?.black_pity_counter || 0;
+      const newPity = Math.max(serverPity, localData.blackPityCounter);
+      
+      if (newPity > serverPity) {
+        await supabase
+          .from('profiles')
+          .update({ black_pity_counter: newPity })
+          .eq('user_id', user.userId);
+        console.log(`[Sync] Updated black pity counter: ${newPity}`);
+      }
+    }
+
+    console.log('[Sync Local Data] Sync completed successfully');
+
+    return c.json({
+      success: true,
+      data: {
+        message: '本地数据已同步到服务器',
+      },
+    });
+  } catch (error) {
+    console.error('[Sync Local Data Error]', error);
+    throw Errors.DATABASE_ERROR;
+  }
+});
+
 export default game;

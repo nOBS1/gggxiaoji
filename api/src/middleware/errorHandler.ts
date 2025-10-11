@@ -126,6 +126,12 @@ export const Errors = {
     'Cannot buy your own order',
     400
   ),
+  NOT_TRADABLE: new AppError(
+    'NOT_TRADABLE',
+    '该类型的蛋不可交易，只能交易紫蛋、金蛋和黑蛋',
+    'This egg type cannot be traded. Only purple, gold, and black eggs are tradable.',
+    400
+  ),
   MAX_UPGRADE_LEVEL: new AppError(
     'MAX_UPGRADE_LEVEL',
     '已达到最大升级等级',

@@ -65,6 +65,17 @@ export const GAME_CONFIG = {
       target: 3,
       reward: 100  // 金币奖励
     }
+  },
+
+  // 市场交易配置
+  MARKET: {
+    FEE_RATE: 0.05,  // 5% 交易手续费
+    MIN_PRICE: 1,    // 最低价格（金币）
+    MAX_PRICE: 1000000,  // 最高价格（金币）
+    MIN_QUANTITY: 1, // 最小数量
+    MAX_QUANTITY: 999999, // 最大数量
+    MAX_ORDERS_PER_USER: 10,  // 每个用户最多同时挂单数
+    TRADABLE_RARITIES: ['purple', 'gold', 'black']  // 可交易的蛋类型
   }
 } as const;
 
@@ -245,4 +256,69 @@ export function isTaskCompleted(taskKey: string, progress: number): boolean {
 export function getTaskReward(taskKey: string): number {
   const task = GAME_CONFIG.DAILY_TASKS[taskKey as keyof typeof GAME_CONFIG.DAILY_TASKS];
   return task?.reward || 0;
+}
+
+// ==================== 市场交易系统 ====================
+
+// 计算交易手续费
+export function calculateMarketFee(totalPrice: number): number {
+  return Math.floor(totalPrice * GAME_CONFIG.MARKET.FEE_RATE);
+}
+
+// 计算卖家收入（扣除手续费后）
+export function calculateSellerReceive(totalPrice: number): number {
+  const fee = calculateMarketFee(totalPrice);
+  return totalPrice - fee;
+}
+
+// 验证订单价格是否有效
+export function isValidPrice(price: number): boolean {
+  return (
+    Number.isInteger(price) &&
+    price >= GAME_CONFIG.MARKET.MIN_PRICE &&
+    price <= GAME_CONFIG.MARKET.MAX_PRICE
+  );
+}
+
+// 验证订单数量是否有效
+export function isValidQuantity(quantity: number): boolean {
+  return (
+    Number.isInteger(quantity) &&
+    quantity >= GAME_CONFIG.MARKET.MIN_QUANTITY &&
+    quantity <= GAME_CONFIG.MARKET.MAX_QUANTITY
+  );
+}
+
+// 计算单价（用于显示）
+export function calculateUnitPrice(totalPrice: number, quantity: number): number {
+  return Math.floor(totalPrice / quantity);
+}
+
+// 验证市场订单参数
+export function validateMarketOrder(
+  rarity: string,
+  quantity: number,
+  price: number
+): { valid: boolean; error?: string } {
+  // 验证稀有度
+  if (!Object.keys(GAME_CONFIG.RARITIES).includes(rarity)) {
+    return { valid: false, error: 'INVALID_RARITY' };
+  }
+  
+  // 验证是否是可交易的蛋类型（只允许紫蛋、金蛋、黑蛋）
+  if (!GAME_CONFIG.MARKET.TRADABLE_RARITIES.includes(rarity)) {
+    return { valid: false, error: 'NOT_TRADABLE' };
+  }
+
+  // 验证数量
+  if (!isValidQuantity(quantity)) {
+    return { valid: false, error: 'INVALID_QUANTITY' };
+  }
+
+  // 验证价格
+  if (!isValidPrice(price)) {
+    return { valid: false, error: 'INVALID_PRICE' };
+  }
+
+  return { valid: true };
 }

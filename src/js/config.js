@@ -11,6 +11,19 @@ export const CONFIG = {
   DEFAULT_LANG: 'zh',
   MAX_SAFE_NUMBER: 1e15,  // 最大安全数值
   
+  // API 配置
+  API_BASE_URL: 'http://localhost:8787/api', // 开发环境
+  // API_BASE_URL: 'https://your-api.workers.dev', // 生产环境
+  
+  // 市场交易配置
+  MARKET: {
+    FEE_RATE: 0.05,        // 5% 交易手续费
+    MIN_PRICE: 1,          // 最低价格（金币）
+    MAX_PRICE: 1000000,    // 最高价格（金币）
+    MIN_QUANTITY: 1,       // 最小数量
+    MAX_QUANTITY: 999999   // 最大数量
+  },
+  
   // 稀有度定义
   RARITIES: {
     white: { nameKey: 'rarityWhite', emoji: '🥚', image: '/eggs/White-egg.png', price: 1, baseWeight: 8200 },

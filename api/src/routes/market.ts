@@ -4,8 +4,16 @@
 import { Hono } from 'hono';
 import { Env } from '../index';
 import { Errors } from '../middleware/errorHandler';
-import { generateId, isValidRarity } from '../utils/helpers';
+import { generateUUID, isValidRarity } from '../utils/helpers';
 import { getSupabase } from '../lib/supabase';
+import { 
+  GAME_CONFIG,
+  validateMarketOrder, 
+  calculateMarketFee, 
+  calculateSellerReceive,
+  calculateUnitPrice
+} from '../utils/gameLogic';
+import { callRPC } from '../utils/database';
 
 const market = new Hono<{ Bindings: Env }>();
 
@@ -14,26 +22,32 @@ const market = new Hono<{ Bindings: Env }>();
 
 market.get('/orders', async (c) => {
   const rarity = c.req.query('rarity');
-  const limit = parseInt(c.req.query('limit') || '20');
+  const sortBy = c.req.query('sortBy') || 'created_at';  // created_at, price_coins
+  const sortOrder = c.req.query('sortOrder') || 'desc';   // asc, desc
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);  // 最多100条
   const offset = parseInt(c.req.query('offset') || '0');
 
   try {
     const supabase = getSupabase(c.env);
     
+    // 构建查询（暂时不关联 profiles，避免外键问题）
     let query = supabase
       .from('orders')
-      .select(`
-        *,
-        profiles!seller_id(nickname)
-      `)
+      .select('*', { count: 'exact' })
       .eq('status', 'open');
 
+    // 稀有度筛选
     if (rarity && isValidRarity(rarity)) {
       query = query.eq('rarity', rarity);
     }
 
-    const { data: orders, error } = await query
-      .order('created_at', { ascending: false })
+    // 排序
+    const validSortFields = ['created_at', 'price_coins', 'quantity'];
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'created_at';
+    const ascending = sortOrder === 'asc';
+
+    const { data: orders, error, count } = await query
+      .order(sortField, { ascending })
       .range(offset, offset + limit - 1);
 
     if (error) {
@@ -41,11 +55,45 @@ market.get('/orders', async (c) => {
       throw Errors.DATABASE_ERROR;
     }
 
+    // 获取所有卖家的 ID
+    const sellerIds = [...new Set((orders || []).map(order => order.seller_id))];
+    
+    // 批量查询卖家信息
+    let sellersMap: Record<string, { nickname: string; avatar?: string }> = {};
+    if (sellerIds.length > 0) {
+      const { data: sellers, error: sellerError } = await supabase
+        .from('profiles')
+        .select('user_id, nickname, avatar')
+        .in('user_id', sellerIds);
+      
+      if (!sellerError && sellers) {
+        sellersMap = sellers.reduce((acc, seller) => {
+          acc[seller.user_id] = {
+            nickname: seller.nickname,
+            avatar: seller.avatar,
+          };
+          return acc;
+        }, {} as Record<string, { nickname: string; avatar?: string }>);
+      }
+    }
+
+    // 计算每个订单的额外信息，并添加卖家信息
+    const enrichedOrders = (orders || []).map(order => ({
+      ...order,
+      seller: sellersMap[order.seller_id] || { nickname: 'Unknown', avatar: null },
+      unitPrice: calculateUnitPrice(order.price_coins, order.quantity),
+      fee: calculateMarketFee(order.price_coins),
+      sellerWillReceive: calculateSellerReceive(order.price_coins),
+    }));
+
     return c.json({
       success: true,
       data: {
-        orders: orders || [],
-        total: orders?.length || 0,
+        orders: enrichedOrders,
+        total: count || 0,
+        limit,
+        offset,
+        hasMore: (count || 0) > offset + limit,
       },
     });
   } catch (error) {
@@ -66,31 +114,100 @@ market.post('/create-order', async (c) => {
   const user = c.get('user');
 
   // 验证输入
-  if (!rarity || !quantity || !priceCoins || quantity <= 0 || priceCoins <= 0) {
+  if (!rarity || !quantity || !priceCoins) {
     throw Errors.INVALID_INPUT;
   }
 
-  if (!isValidRarity(rarity)) {
+  // 验证订单参数
+  const validation = validateMarketOrder(rarity, quantity, priceCoins);
+  if (!validation.valid) {
+    // 如果是不可交易的蛋类型，抛出对应错误
+    if (validation.error === 'NOT_TRADABLE') {
+      throw Errors.NOT_TRADABLE;
+    }
     throw Errors.INVALID_INPUT;
   }
 
   try {
-    // TODO: 实现创建订单逻辑
-    // 1. 检查库存是否足够
-    // 2. 扣除库存
-    // 3. 创建订单记录
-    // 4. 返回订单信息
+    const supabase = getSupabase(c.env);
+    const orderId = generateUUID();
 
-    const orderId = generateId();
+    // 检查用户当前挂单数
+    const { data: existingOrders, error: countError } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: false })
+      .eq('seller_id', user.userId)
+      .eq('status', 'open');
+
+    if (countError) {
+      console.error('[Market Order Count Error]', countError);
+      throw Errors.DATABASE_ERROR;
+    }
+
+    if ((existingOrders?.length || 0) >= GAME_CONFIG.MARKET.MAX_ORDERS_PER_USER) {
+      return c.json({
+        success: false,
+        error: {
+          code: 'TOO_MANY_ORDERS',
+          message: `最多同时挂${GAME_CONFIG.MARKET.MAX_ORDERS_PER_USER}个订单`,
+        },
+      }, 400);
+    }
+
+    // 调用RPC函数创建订单（原子性操作）
+    console.log('[Market Create Order] Calling RPC with:', {
+      p_seller_id: user.userId,
+      p_order_id: orderId,
+      p_rarity: rarity,
+      p_quantity: quantity,
+      p_price_coins: priceCoins,
+    });
+    
+    const result = await callRPC(supabase, 'create_market_order', {
+      p_seller_id: user.userId,
+      p_order_id: orderId,
+      p_rarity: rarity,
+      p_quantity: quantity,
+      p_price_coins: priceCoins,
+    });
+
+    console.log('[Market Create Order] RPC result:', result);
+
+    // 检查结果
+    if (!result.success) {
+      console.log('[Market Create Order] RPC failed:', result.error);
+      if (result.error === 'INSUFFICIENT_INVENTORY') {
+        console.log('[Market Create Order] Throwing INSUFFICIENT_INVENTORY error');
+        throw Errors.INSUFFICIENT_INVENTORY;
+      }
+      console.log('[Market Create Order] Throwing DATABASE_ERROR');
+      throw Errors.DATABASE_ERROR;
+    }
+
+    // 计算并返回讦单信息
+    const fee = calculateMarketFee(priceCoins);
+    const sellerWillReceive = calculateSellerReceive(priceCoins);
+    const unitPrice = calculateUnitPrice(priceCoins, quantity);
 
     return c.json({
       success: true,
       data: {
-        message: 'Create order logic to be implemented',
-        orderId,
+        order: {
+          id: orderId,
+          rarity,
+          quantity,
+          priceCoins,
+          unitPrice,
+          fee,
+          sellerWillReceive,
+          status: 'open',
+        },
       },
     });
   } catch (error) {
+    if (error instanceof Error && 'statusCode' in error) {
+      throw error;
+    }
     console.error('[Market Create Order Error]', error);
     throw Errors.DATABASE_ERROR;
   }
@@ -110,36 +227,41 @@ market.post('/buy-order', async (c) => {
 
   try {
     const supabase = getSupabase(c.env);
-    
-    // 获取订单信息
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .eq('status', 'open')
-      .single();
+    const transactionId = generateUUID();
 
-    if (orderError || !order) {
-      throw Errors.ORDER_NOT_AVAILABLE;
+    // 调用RPC函数购买订单（原子性操作）
+    const result = await callRPC(supabase, 'buy_market_order', {
+      p_buyer_id: user.userId,
+      p_order_id: orderId,
+      p_transaction_id: transactionId,
+      p_fee_rate: GAME_CONFIG.MARKET.FEE_RATE,
+    });
+
+    // 检查结果
+    if (!result.success) {
+      if (result.error === 'ORDER_NOT_AVAILABLE') {
+        throw Errors.ORDER_NOT_AVAILABLE;
+      }
+      if (result.error === 'CANNOT_BUY_OWN_ORDER') {
+        throw Errors.CANNOT_BUY_OWN_ORDER;
+      }
+      if (result.error === 'INSUFFICIENT_COINS') {
+        throw Errors.INSUFFICIENT_COINS;
+      }
+      throw Errors.DATABASE_ERROR;
     }
-
-    // 不能购买自己的订单
-    if (order.seller_id === user.userId) {
-      throw Errors.CANNOT_BUY_OWN_ORDER;
-    }
-
-    // TODO: 实现购买订单逻辑
-    // 1. 检查买家金币是否足够
-    // 2. 扣除买家金币（包含手续费）
-    // 3. 增加卖家金币（扣除手续费后）
-    // 4. 增加买家库存
-    // 5. 更新订单状态为 'sold'
-    // 6. 创建交易记录
 
     return c.json({
       success: true,
       data: {
-        message: 'Buy order logic to be implemented',
+        transaction: {
+          id: result.transactionId,
+          rarity: result.rarity,
+          quantity: result.quantity,
+          totalCost: result.totalCost,
+          fee: result.fee,
+        },
+        message: '购买成功',
       },
     });
   } catch (error) {
@@ -165,31 +287,31 @@ market.post('/cancel-order', async (c) => {
 
   try {
     const supabase = getSupabase(c.env);
-    
-    // 获取订单信息
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .eq('seller_id', user.userId)
-      .single();
 
-    if (orderError || !order) {
-      throw Errors.NOT_FOUND;
+    // 调用RPC函数取消订单（原子性操作）
+    const result = await callRPC(supabase, 'cancel_market_order', {
+      p_seller_id: user.userId,
+      p_order_id: orderId,
+    });
+
+    // 检查结果
+    if (!result.success) {
+      if (result.error === 'ORDER_NOT_FOUND') {
+        throw Errors.NOT_FOUND;
+      }
+      throw Errors.DATABASE_ERROR;
     }
-
-    if (order.status !== 'open') {
-      throw Errors.INVALID_INPUT; // 订单已经不是待售状态
-    }
-
-    // TODO: 实现取消订单逻辑
-    // 1. 更新订单状态为 'cancelled'
-    // 2. 退还库存给卖家
 
     return c.json({
       success: true,
       data: {
-        message: 'Cancel order logic to be implemented',
+        order: {
+          id: result.orderId,
+          rarity: result.rarity,
+          quantity: result.quantity,
+          refunded: true,
+        },
+        message: '订单已取消，库存已退还',
       },
     });
   } catch (error) {
@@ -234,6 +356,36 @@ market.get('/my-orders', async (c) => {
   }
 });
 
+// ==================== GET /api/market/stats ====================
+// 获取市场统计信息
+
+market.get('/stats', async (c) => {
+  try {
+    const supabase = getSupabase(c.env);
+
+    // 调用RPC函数获取统计
+    const stats = await callRPC(supabase, 'get_market_stats', {});
+
+    return c.json({
+      success: true,
+      data: {
+        stats,
+        feeRate: GAME_CONFIG.MARKET.FEE_RATE,
+        config: {
+          minPrice: GAME_CONFIG.MARKET.MIN_PRICE,
+          maxPrice: GAME_CONFIG.MARKET.MAX_PRICE,
+          minQuantity: GAME_CONFIG.MARKET.MIN_QUANTITY,
+          maxQuantity: GAME_CONFIG.MARKET.MAX_QUANTITY,
+          maxOrdersPerUser: GAME_CONFIG.MARKET.MAX_ORDERS_PER_USER,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('[Market Stats Error]', error);
+    throw Errors.DATABASE_ERROR;
+  }
+});
+
 // ==================== GET /api/market/transactions ====================
 // 获取我的交易记录
 
@@ -243,13 +395,10 @@ market.get('/transactions', async (c) => {
   try {
     const supabase = getSupabase(c.env);
     
+    // 先获取交易记录
     const { data: transactions, error } = await supabase
       .from('transactions')
-      .select(`
-        *,
-        buyer:profiles!buyer_id(nickname),
-        seller:profiles!seller_id(nickname)
-      `)
+      .select('*')
       .or(`buyer_id.eq.${user.userId},seller_id.eq.${user.userId}`)
       .order('created_at', { ascending: false })
       .limit(50);
@@ -259,10 +408,60 @@ market.get('/transactions', async (c) => {
       throw Errors.DATABASE_ERROR;
     }
 
+    // 如果没有交易记录，直接返回
+    if (!transactions || transactions.length === 0) {
+      return c.json({
+        success: true,
+        data: {
+          transactions: [],
+        },
+      });
+    }
+
+    // 获取所有涉及的用户 ID
+    const userIds = [...new Set([
+      ...transactions.map(tx => tx.buyer_id),
+      ...transactions.map(tx => tx.seller_id)
+    ])];
+
+    // 批量查询用户信息
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('user_id, nickname')
+      .in('user_id', userIds);
+
+    if (profileError) {
+      console.error('[Market Transactions Profile Error]', profileError);
+      // 即使获取用户信息失败，也返回交易记录
+      return c.json({
+        success: true,
+        data: {
+          transactions: transactions.map(tx => ({
+            ...tx,
+            buyer: { nickname: 'Unknown' },
+            seller: { nickname: 'Unknown' }
+          })),
+        },
+      });
+    }
+
+    // 创建用户信息映射
+    const profileMap = (profiles || []).reduce((acc, profile) => {
+      acc[profile.user_id] = { nickname: profile.nickname };
+      return acc;
+    }, {} as Record<string, { nickname: string }>);
+
+    // 给每个交易添加用户信息
+    const enrichedTransactions = transactions.map(tx => ({
+      ...tx,
+      buyer: profileMap[tx.buyer_id] || { nickname: 'Unknown' },
+      seller: profileMap[tx.seller_id] || { nickname: 'Unknown' }
+    }));
+
     return c.json({
       success: true,
       data: {
-        transactions: transactions || [],
+        transactions: enrichedTransactions,
       },
     });
   } catch (error) {

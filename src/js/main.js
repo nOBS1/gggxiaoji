@@ -21,6 +21,22 @@ import {
   initAudio
 } from './gameLogic.js';
 import { updateAllDisplays, showFloatText } from './ui.js';
+import {
+  initMarketUI,
+  renderMarketOrders,
+  renderMyOrders,
+  renderTransactions,
+  renderMarketStats,
+  fetchMarketOrders,
+  fetchMyOrders,
+  fetchTransactions,
+  fetchMarketStats,
+  createOrder,
+  buyOrder,
+  cancelOrder,
+  handleFilterChange,
+  handleSortChange
+} from './market.js';
 
 // ==================== 初始化 ====================
 
@@ -69,13 +85,18 @@ function init() {
 function initEvents() {
   // 标签页切换
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       
       btn.classList.add('active');
       const tab = btn.dataset.tab;
       document.querySelector(`[data-content="${tab}"]`).classList.add('active');
+      
+      // 如果是市场标签页，初始化市场UI
+      if (tab === 'market') {
+        await initMarketUI();
+      }
       
       updateAllDisplays();
     });
@@ -110,7 +131,7 @@ function initEvents() {
   });
   
   // 使用事件委托处理动态生成的按钮
-  document.body.addEventListener('click', (e) => {
+  document.body.addEventListener('click', async (e) => {
     const target = e.target;
     
     // 处理卖出按钮
@@ -135,6 +156,22 @@ function initEvents() {
       const taskId = target.dataset.task;
       if (claimTask(taskId)) {
         updateAllDisplays();
+      }
+    }
+    
+    // 购买订单
+    if (target.dataset.action === 'buy-order') {
+      const orderId = target.dataset.orderId;
+      if (await buyOrder(orderId)) {
+        renderMarketOrders();
+      }
+    }
+    
+    // 取消订单
+    if (target.dataset.action === 'cancel-order') {
+      const orderId = target.dataset.orderId;
+      if (await cancelOrder(orderId)) {
+        renderMyOrders();
       }
     }
   });
@@ -251,6 +288,92 @@ function initEvents() {
       }
       updateAllDisplays();
     }
+  });
+  
+  // ==================== 市场交易事件 ====================
+  
+  // 市场子标签页切换
+  document.querySelectorAll('.market-tab-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.market-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.market-tab-content').forEach(c => c.classList.remove('active'));
+      
+      btn.classList.add('active');
+      const tab = btn.dataset.marketTab;
+      document.querySelector(`[data-market-content="${tab}"]`).classList.add('active');
+      
+      // 加载对应数据
+      if (tab === 'marketplace') {
+        await fetchMarketOrders();
+        await fetchMarketStats();  // 确保先获取统计数据
+        renderMarketOrders();
+        renderMarketStats();
+      } else if (tab === 'my-orders') {
+        await fetchMyOrders();
+        renderMyOrders();
+      } else if (tab === 'transactions') {
+        await fetchTransactions();
+        renderTransactions();
+      }
+    });
+  });
+  
+  // 创建订单
+  const createOrderBtn = document.getElementById('createOrderBtn');
+  createOrderBtn?.addEventListener('click', async () => {
+    const rarity = document.getElementById('createOrderRarity').value;
+    const quantity = parseInt(document.getElementById('createOrderQuantity').value);
+    const price = parseInt(document.getElementById('createOrderPrice').value);
+    
+    if (await createOrder(rarity, quantity, price)) {
+      // 清空表单
+      document.getElementById('createOrderQuantity').value = '';
+      document.getElementById('createOrderPrice').value = '';
+      document.getElementById('feePreview').style.display = 'none';
+      renderMarketOrders();
+    }
+  });
+  
+  // 手续费预览
+  const priceInput = document.getElementById('createOrderPrice');
+  priceInput?.addEventListener('input', (e) => {
+    const price = parseInt(e.target.value) || 0;
+    const fee = Math.floor(price * 0.05);
+    const receive = price - fee;
+    
+    const preview = document.getElementById('feePreview');
+    if (price > 0) {
+      preview.style.display = 'block';
+      document.getElementById('feeAmount').textContent = fee;
+      document.getElementById('receiveAmount').textContent = receive;
+    } else {
+      preview.style.display = 'none';
+    }
+  });
+  
+  // 筛选按钮
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      await handleFilterChange(btn.dataset.filter);
+      renderMarketOrders();
+    });
+  });
+  
+  // 排序选择
+  document.getElementById('sortBy')?.addEventListener('change', async (e) => {
+    const sortBy = e.target.value;
+    const sortOrder = document.getElementById('sortOrder').value;
+    await handleSortChange(sortBy, sortOrder);
+    renderMarketOrders();
+  });
+  
+  document.getElementById('sortOrder')?.addEventListener('change', async (e) => {
+    const sortBy = document.getElementById('sortBy').value;
+    const sortOrder = e.target.value;
+    await handleSortChange(sortBy, sortOrder);
+    renderMarketOrders();
   });
 }
 

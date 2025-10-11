@@ -9,6 +9,20 @@ export const generateId = (): string => {
   return nanoid();
 };
 
+// 生成UUID格式的ID（用于Supabase）
+export const generateUUID = (): string => {
+  // 使用crypto.randomUUID() 生成标准UUID
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback: 生成UUID v4 格式
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 // 获取当前日期字符串（YYYY-MM-DD）
 export const getTodayDate = (): string => {
   const now = new Date();
