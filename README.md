@@ -1,6 +1,14 @@
-# 🐔 小趣闻·啄米鸡 (Xiaoji Idle Game) - V3
+# 🐔 鸡蛋模拟器 (Egg Simulator)
 
-一款轻度挂机网页小游戏 - 完整版本，支持市场交易和国际化
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange)](https://workers.cloudflare.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-green)](https://supabase.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Backend-blue)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.0-purple)](https://vitejs.dev/)
+
+> 🎮 一款轻松有趣的挂机点击游戏，支持玩家间交易、多设备同步，全球 CDN 加速。
+
+一款轻度挂机网页小游戏 - 完整前后端分离架构，支持市场交易和国际化
 
 ## ✨ 特性
 
@@ -58,45 +66,91 @@ xiaoji-game/
 
 ### 前置要求
 
+- Node.js 18+
 - 现代浏览器 (支持 ES6+)
-- 网络连接 (后端 API 访问)
+- Cloudflare 账号 (部署用)
+- Supabase 账号 (数据库)
 
-### 快速体验
+### 在线体验
 
-1. **直接打开** - 使用现代浏览器打开 `index.html`
-2. **选择语言** - 点击右上角语言切换按钮
-3. **开始游戏** - 点击小鸡开始产蛋！
+🎮 **立即试玩**: [https://xiaoji-game.pages.dev](https://xiaoji-game.pages.dev)
 
 ### 本地开发
 
+#### 1. 克隆项目
+
 ```bash
-# 克隆项目
 git clone <repository-url>
 cd xiaoji-game
-
-# 使用本地服务器 (推荐)
-python -m http.server 8000
-# 或者
-npx http-server
-
-# 浏览器访问 http://localhost:8000
 ```
 
-### 后端配置 (可选)
-
-如果想要本地运行后端：
+#### 2. 安装依赖
 
 ```bash
-# 安装后端依赖
-cd api
+# 前端依赖
 npm install
 
-# 配置 Supabase 环境变量
-# 在 api/ 目录下创建 .env 文件
-
-# 启动后端服务
-npm start
+# 后端依赖
+cd api
+npm install
+cd ..
 ```
+
+#### 3. 配置环境变量
+
+在 `api/` 目录创建 `.env` 文件：
+
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+JWT_SECRET=your-secret-key
+```
+
+#### 4. 启动开发服务器
+
+```bash
+# 终端 1: 启动前端
+npm run dev
+
+# 终端 2: 启动后端 API
+cd api
+npm run dev
+```
+
+前端: http://localhost:5173  
+后端: http://localhost:8787
+
+### 🚢 部署到 Cloudflare
+
+#### 一键部署
+
+```powershell
+# Windows PowerShell
+.\deploy.ps1
+```
+
+#### 手动部署
+
+```bash
+# 1. 登录 Cloudflare
+cd api
+npx wrangler login
+
+# 2. 配置密钥
+npx wrangler secret put SUPABASE_URL
+npx wrangler secret put SUPABASE_ANON_KEY
+npx wrangler secret put JWT_SECRET
+
+# 3. 部署后端
+npm run deploy
+
+# 4. 构建并部署前端
+cd ..
+npm run build
+npx wrangler pages deploy dist --project-name xiaoji-game
+```
+
+📚 **详细部署指南**: [CLOUDFLARE_DEPLOYMENT_GUIDE.md](./CLOUDFLARE_DEPLOYMENT_GUIDE.md)
 
 ## 🎯 游戏玩法
 
@@ -106,12 +160,14 @@ npm start
 3. **背包管理** - 查看和管理你的蛋类收藏
 4. **升级系统** - 使用鸡蛋升级各项属性
 
-### 🛒 市场交易 (V3新增)
-1. **卖出蛋类** - 将你的蛋放入市场出售
-2. **购买蛋类** - 从其他玩家手中购买稀有蛋类
-3. **智能定价** - 系统根据稀有度自动建议价格
-4. **实时更新** - 市场价格和库存实时同步
-5. **交易历史** - 查看个人买卖记录
+### 🛒 市场交易系统
+1. **创建订单** - 出售紫蛋、金蛋、黑蛋（限定可交易蛋类）
+2. **购买蛋类** - 从市场购买其他玩家的订单
+3. **筛选排序** - 按稀有度筛选，按价格/时间排序
+4. **我的订单** - 管理和取消自己的订单
+5. **交易记录** - 完整的买卖历史追踪
+6. **市场统计** - 实时活跃订单数和交易量
+7. **手续费系统** - 5% 平台手续费
 
 ### 🌍 国际化体验
 - **语言切换** - 右上角一键切换中英文
@@ -134,47 +190,92 @@ npm start
 ## 🔧 技术栈
 
 ### 🌐 前端
-- **核心**: 原生 JavaScript (ES6+)
+- **框架**: 原生 JavaScript (ES6+) + Vite
 - **样式**: 原生 CSS3 + CSS Variables
-- **国际化**: 自定义 i18n 系统
+- **国际化**: 自定义 i18n 系统 (中英文)
 - **响应式**: Flexbox + Grid 布局
 - **动画**: CSS Transitions + Animations
+- **构建**: Vite 5.0
 
-### 📊 后端
-- **数据库**: Supabase (PostgreSQL)
-- **认证**: Supabase Auth (匿名用户)
-- **API**: RESTful API + RPC 函数
-- **实时同步**: Supabase Realtime
-- **部署**: Serverless 函数
+### 🔐 后端 API
+- **框架**: Hono (快速、轻量的 Web 框架)
+- **运行时**: Cloudflare Workers
+- **语言**: TypeScript
+- **认证**: JWT + bcrypt
+- **中间件**: CORS, 错误处理, 身份验证
 
-### 🛠️ 工具链
+### 💾 数据库
+- **主库**: Supabase (PostgreSQL)
+- **表设计**: users, profiles, inventory, upgrades, orders, transactions
+- **RPC 函数**: 原子性交易操作
+- **索引优化**: 查询性能优化
+
+### ☁️ 部署
+- **前端**: Cloudflare Pages (全球 CDN)
+- **后端**: Cloudflare Workers (边缘计算)
+- **数据库**: Supabase (托管 PostgreSQL)
+- **域名**: 自定义域名支持
+
+### 🛠️ 开发工具
+- **包管理**: npm
 - **版本控制**: Git
-- **部署**: 静态托管 (GitHub Pages, Vercel, Netlify)
-- **测试**: 手动测试 + API 测试脚本
+- **部署工具**: Wrangler CLI
+- **API 测试**: 内置测试脚本
 
-## 📦 部署
+## 📦 部署架构
 
-### 静态部署
-
-构建后的 `dist` 目录可以直接部署到任何静态托管服务：
-
-- **Vercel**: 连接 GitHub 仓库自动部署
-- **Netlify**: 拖拽 dist 目录即可
-- **GitHub Pages**: 推送到 gh-pages 分支
-- **Cloudflare Pages**: 连接仓库自动构建
-
-### 配置示例
-
-```bash
-# 构建命令
-npm run build
-
-# 输出目录
-dist
-
-# 环境变量（如需要）
-NODE_ENV=production
 ```
+用户浏览器
+    ↓
+Cloudflare Pages (前端)
+    ↓ API 请求
+Cloudflare Workers (后端)
+    ↓ 数据查询
+Supabase (PostgreSQL)
+```
+
+### 🚀 推荐部署方式
+
+**Cloudflare Pages + Workers**（免费额度充足）
+
+#### 优点
+- ✅ 全球 CDN 加速
+- ✅ 自动 HTTPS
+- ✅ 免费额度: 100K 请求/天
+- ✅ 零配置 CORS
+- ✅ 一键部署
+
+#### 部署步骤
+
+1. **部署后端**
+   ```bash
+   cd api
+   npx wrangler login
+   npx wrangler secret put SUPABASE_URL
+   npx wrangler secret put SUPABASE_ANON_KEY
+   npx wrangler secret put JWT_SECRET
+   npm run deploy
+   ```
+
+2. **部署前端**
+   ```bash
+   cd ..
+   npm run build
+   npx wrangler pages deploy dist --project-name xiaoji-game
+   ```
+
+3. **更新 API URL**
+   - 在 `src/js/config.js` 中设置 Workers URL
+   - 重新构建和部署前端
+
+📚 **完整指南**: [CLOUDFLARE_DEPLOYMENT_GUIDE.md](./CLOUDFLARE_DEPLOYMENT_GUIDE.md)
+
+### 🌍 其他部署选项
+
+- **Vercel**: 前端 + Serverless Functions
+- **Netlify**: 前端 + Edge Functions
+- **AWS**: S3 + Lambda
+- **自托管**: Docker + Nginx
 
 ## 🎨 自定义
 
@@ -193,27 +294,85 @@ NODE_ENV=production
 
 编辑 `src/css/` 目录下的CSS文件自定义外观。
 
-## 📝 V3 完成功能
+## 📋 项目状态
 
-### ✅ 已完成
-- [x] 完整游戏核心逻辑
-- [x] 响应式 UI 设计
-- [x] 完整国际化支持 (中英文)
-- [x] Supabase 后端集成
-- [x] 用户认证系统
-- [x] 市场交易系统
-- [x] 实时数据同步
-- [x] 完整错误处理
+### ✅ 已完成功能 (v3.0)
+
+#### 核心游戏 (100%)
+- [x] 点击产蛋机制
+- [x] 6 种稀有度蛋系统
+- [x] 被动产蛋系统
+- [x] 升级系统 (7 种升级)
+- [x] 背包管理
+- [x] 商店系统
+- [x] 每日任务
+- [x] 保底机制
+
+#### 市场交易 (100%)
+- [x] 创建订单（限定紫/金/黑蛋）
+- [x] 购买订单
+- [x] 取消订单
+- [x] 订单筛选和排序
+- [x] 交易记录
+- [x] 市场统计
+- [x] 手续费系统
+- [x] 并发控制
+
+#### 用户系统 (100%)
+- [x] 注册/登录
+- [x] JWT 认证
+- [x] 本地数据同步
+- [x] 多设备同步
+- [x] 会话管理
+
+#### UI/UX (95%)
+- [x] 响应式设计
 - [x] 移动端适配
-- [x] 用户背包系统
+- [x] 国际化 (中英文)
+- [x] 暗色主题
+- [x] 错误提示
+- [x] 加载状态
+- [ ] 分页导航 UI
 
-### 🕰️ 待优化
-- [ ] 性能优化和缓存
-- [ ] 更多游戏功能 (成就系统等)
-- [ ] 接入真实广告 SDK
-- [ ] 社交功能 (好友系统)
+#### 技术架构 (100%)
+- [x] 前后端分离
+- [x] TypeScript 后端
+- [x] PostgreSQL 数据库
+- [x] RPC 原子操作
+- [x] 索引优化
+- [x] CORS 配置
+- [x] 错误处理
+- [x] 安全验证
+
+#### 部署 (100%)
+- [x] Cloudflare Workers 配置
+- [x] Cloudflare Pages 配置
+- [x] 一键部署脚本
+- [x] 环境变量管理
+- [x] 构建优化
+
+### 📊 总体完成度: **97%**
+
+### 🎯 待优化功能
+
+#### 短期优化 (P1)
+- [ ] 订单列表分页 UI
+- [ ] 自动刷新/轮询
+- [ ] 手续费说明优化
+- [ ] 错误提示改进
+
+#### 中期功能 (P2)
+- [ ] 订单搜索功能
+- [ ] 价格走势图
+- [ ] WebSocket 实时推送
+- [ ] 性能监控
+
+#### 长期规划 (P3)
+- [ ] 成就系统
+- [ ] 好友系统
+- [ ] 排行榜
 - [ ] PWA 支持
-- [ ] 数据分析和统计
+- [ ] 拍卖系统
 
 ## 🤝 贡献
 
@@ -229,20 +388,54 @@ Your Name
 
 ---
 
-## 🆕 V3 版本更新
+## 📚 文档
 
-### 🎆 主要更新
-- **市场系统**: 完整的买卖交易功能
-- **国际化**: 完整的中英文双语支持
-- **后端集成**: Supabase 数据库和实时同步
-- **用户系统**: 安全的匿名认证
-- **UI 优化**: 全新的用户界面和交互体验
+- [完整部署指南](./CLOUDFLARE_DEPLOYMENT_GUIDE.md)
+- [第三期工程进度报告](./PHASE3_PROGRESS_REPORT.md)
+- [市场可交易蛋类型说明](./MARKET_TRADABLE_EGGS_UPDATE.md)
+- [交易记录查询修复](./TRANSACTIONS_FIX.md)
+- [本地数据同步说明](./docs/LOCAL_DATA_SYNC.md)
 
-### 🔄 从早期版本升级
-如果您之前使用过早期版本，V3 版本带来了全新的体验：
-- 数据保存在云端，多设备同步
-- 可以与其他玩家交易
-- 更流畅的国际化体验
+## 🆕 版本历史
+
+### v3.0 (2025-01-11) - 市场交易系统
+
+#### 🎉 新功能
+- ✨ 完整的市场交易系统
+- ✨ 限定可交易蛋类型（紫/金/黑）
+- ✨ 交易记录追踪
+- ✨ 市场统计展示
+- ✨ 本地数据自动同步
+
+#### 🔧 技术改进
+- 🚀 迁移到 Cloudflare Workers
+- 🚀 前后端完全分离
+- 🚀 TypeScript 重写后端
+- 🚀 数据库 RPC 函数优化
+- 🚀 CORS 配置完善
+
+#### 🐛 Bug 修复
+- 🔧 修复交易记录查询错误
+- 🔧 修复市场统计显示问题
+- 🔧 修复筛选功能
+- 🔧 修复图片路径问题
+
+### v2.2 (2025-01-10) - UI 优化
+- 🎨 新增真实音效
+- 🎨 替换真实图片资源
+- 🌍 完善国际化支持
+- 📱 移动端适配改进
+
+### v2.1 (2025-01-07)
+- 🌍 国际化系统
+- 👤 用户认证
+- 💾 云端数据同步
+
+### v2.0 (2024-12-30)
+- 🎮 核心游戏机制
+- 🐔 小鸡点击系统
+- 🥚 蛋类收集
+- ⬆️ 升级系统
 
 ---
 
