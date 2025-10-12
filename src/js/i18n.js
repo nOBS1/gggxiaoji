@@ -152,7 +152,9 @@ export const i18n = {
     purchaseSuccess: '购买成功',
     orderCancelled: '订单已取消',
     insufficientInventory: '库存不足',
+    insufficientInventoryDetail: '库存不足！当前: {current}个，需要: {required}个',
     insufficientCoins: '金币不足',
+    insufficientCoinsDetail: '金币不足！当前: {current}💰，需要: {required}💰',
     orderNotAvailable: '订单已失效',
     cannotBuyOwnOrder: '不能购买自己的订单',
     notTradable: '该类型的蛋不可交易，只能交易紫蛋、金蛋和黑蛋',
@@ -173,7 +175,41 @@ export const i18n = {
     egg_purple: '紫蛋',
     egg_black: '黑蛋',
     rarity: '稀有度',
-    youWillReceive: '您将收到'
+    youWillReceive: '您将收到',
+    listingPrice: '挂单价格',
+    platformFee: '平台手续费',
+    feeHint: '手续费用于维持市场运营',
+    searchPlaceholder: '搜索卖家昵称...',
+    priceFilter: '价格筛选',
+    allPrices: '全部价格',
+    minPrice: '最低价',
+    maxPrice: '最高价',
+    apply: '应用',
+    searchResults: '搜索结果',
+    noSearchResults: '没有找到匹配的订单',
+    
+    // 认证系统
+    login: '登录',
+    register: '注册',
+    logout: '退出登录',
+    profile: '个人中心',
+    email: '邮箱地址',
+    password: '密码',
+    confirmPassword: '确认密码',
+    rememberMe: '记住我',
+    forgotPassword: '忘记密码？',
+    loginButton: '登录',
+    registerButton: '注册账号',
+    guestMode: '游客模式',
+    authTitle: '欢迎来到小鸡生蛋',
+    authSubtitle: '使用您的账号登录或注册以同步游戏进度',
+    orLoginWith: '或使用以下方式登录',
+    orRegisterWith: '或使用以下方式注册',
+    noAccount: '还没有账号？',
+    registerLink: '立即注册',
+    hasAccount: '已有账号？',
+    loginLink: '立即登录',
+    passwordStrength: '密码强度'
   },
   en: {
     // Basic
@@ -325,7 +361,9 @@ export const i18n = {
     purchaseSuccess: 'Purchase successful',
     orderCancelled: 'Order cancelled',
     insufficientInventory: 'Insufficient inventory',
+    insufficientInventoryDetail: 'Insufficient inventory! Current: {current}, Required: {required}',
     insufficientCoins: 'Insufficient coins',
+    insufficientCoinsDetail: 'Insufficient coins! Current: {current}💰, Required: {required}💰',
     orderNotAvailable: 'Order not available',
     cannotBuyOwnOrder: 'Cannot buy your own order',
     notTradable: 'This egg type cannot be traded. Only purple, gold, and black eggs are tradable.',
@@ -346,15 +384,58 @@ export const i18n = {
     egg_purple: 'Purple Egg',
     egg_black: 'Black Egg',
     rarity: 'Rarity',
-    youWillReceive: 'You will receive'
+    youWillReceive: 'You will receive',
+    listingPrice: 'Listing Price',
+    platformFee: 'Platform Fee',
+    feeHint: 'Fee is used to maintain market operations',
+    searchPlaceholder: 'Search seller...',
+    priceFilter: 'Price Filter',
+    allPrices: 'All Prices',
+    minPrice: 'Min Price',
+    maxPrice: 'Max Price',
+    apply: 'Apply',
+    searchResults: 'Search Results',
+    noSearchResults: 'No matching orders found',
+    
+    // Authentication
+    login: 'Login',
+    register: 'Register',
+    logout: 'Logout',
+    profile: 'Profile',
+    email: 'Email Address',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    rememberMe: 'Remember me',
+    forgotPassword: 'Forgot password?',
+    loginButton: 'Login',
+    registerButton: 'Register Account',
+    guestMode: 'Guest Mode',
+    authTitle: 'Welcome to Chicken Egg Game',
+    authSubtitle: 'Login or register to sync your game progress',
+    orLoginWith: 'Or login with',
+    orRegisterWith: 'Or register with',
+    noAccount: 'Don\'t have an account?',
+    registerLink: 'Register now',
+    hasAccount: 'Already have an account?',
+    loginLink: 'Login now',
+    passwordStrength: 'Password Strength'
   }
 };
 
-export function t(i18nObj, lang, key) {
+export function t(i18nObj, lang, key, params = {}) {
   const keys = key.split('.');
   let v = i18nObj[lang];
   for (const k of keys) {
     if (v && v[k] !== undefined) v = v[k]; else return key;
   }
+  
+  // 替换模板变量 {key} 为实际值
+  if (typeof v === 'string' && Object.keys(params).length > 0) {
+    Object.keys(params).forEach(paramKey => {
+      const regex = new RegExp(`\\{${paramKey}\\}`, 'g');
+      v = v.replace(regex, params[paramKey]);
+    });
+  }
+  
   return v;
 }

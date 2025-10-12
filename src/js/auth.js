@@ -468,13 +468,22 @@ export function initAuthUI() {
   
   document.getElementById('logoutBtn').addEventListener('click', handleLogout);
   
-  // OAuth 按钮（可选）
+  // OAuth 按钮 - 登录
   document.getElementById('googleLoginBtn').addEventListener('click', () => {
     showToast('Google 登录功能即将上线', 'success');
   });
   
   document.getElementById('githubLoginBtn').addEventListener('click', () => {
     showToast('GitHub 登录功能即将上线', 'success');
+  });
+  
+  // OAuth 按钮 - 注册
+  document.getElementById('googleRegisterBtn').addEventListener('click', () => {
+    showToast('Google 注册功能即将上线', 'success');
+  });
+  
+  document.getElementById('githubRegisterBtn').addEventListener('click', () => {
+    showToast('GitHub 注册功能即将上线', 'success');
   });
   
   // 设置密码显示/隐藏切换

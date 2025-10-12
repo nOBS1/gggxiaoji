@@ -177,8 +177,18 @@ market.post('/create-order', async (c) => {
     if (!result.success) {
       console.log('[Market Create Order] RPC failed:', result.error);
       if (result.error === 'INSUFFICIENT_INVENTORY') {
-        console.log('[Market Create Order] Throwing INSUFFICIENT_INVENTORY error');
-        throw Errors.INSUFFICIENT_INVENTORY;
+        console.log('[Market Create Order] Throwing INSUFFICIENT_INVENTORY error with details:', result);
+        return c.json({
+          success: false,
+          error: {
+            code: 'INSUFFICIENT_INVENTORY',
+            message: '库存不足',
+            data: {
+              current: result.current || 0,
+              required: result.required || 0
+            }
+          },
+        }, 400);
       }
       console.log('[Market Create Order] Throwing DATABASE_ERROR');
       throw Errors.DATABASE_ERROR;
@@ -246,7 +256,17 @@ market.post('/buy-order', async (c) => {
         throw Errors.CANNOT_BUY_OWN_ORDER;
       }
       if (result.error === 'INSUFFICIENT_COINS') {
-        throw Errors.INSUFFICIENT_COINS;
+        return c.json({
+          success: false,
+          error: {
+            code: 'INSUFFICIENT_COINS',
+            message: '金币不足',
+            data: {
+              current: result.current || 0,
+              required: result.required || 0
+            }
+          },
+        }, 400);
       }
       throw Errors.DATABASE_ERROR;
     }

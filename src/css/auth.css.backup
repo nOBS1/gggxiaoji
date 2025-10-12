@@ -1,25 +1,5 @@
-/* ==================== 认证系统样式 - 政府应用风格 ==================== */
-/* 现代、专业、简洁的登录/注册界面设计 */
-
-:root {
-  --gov-primary: #1e40af;      /* 深蓝色 - 信任与权威 */
-  --gov-primary-light: #3b82f6;
-  --gov-primary-dark: #1e3a8a;
-  --gov-accent: #0ea5e9;       /* 亮蓝色 - 现代感 */
-  --gov-success: #059669;
-  --gov-danger: #dc2626;
-  --gov-warning: #d97706;
-  --gov-gray-50: #f9fafb;
-  --gov-gray-100: #f3f4f6;
-  --gov-gray-200: #e5e7eb;
-  --gov-gray-300: #d1d5db;
-  --gov-gray-400: #9ca3af;
-  --gov-gray-500: #6b7280;
-  --gov-gray-600: #4b5563;
-  --gov-gray-700: #374151;
-  --gov-gray-800: #1f2937;
-  --gov-gray-900: #111827;
-}
+/* ==================== 认证系统样式 ==================== */
+/* 登录/注册/用户信息界面 */
 
 /* ==================== 认证模态框 ==================== */
 .auth-modal {
@@ -28,14 +8,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(30, 64, 175, 0.95) 0%, rgba(14, 165, 233, 0.95) 100%);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   z-index: 2000;
   display: none;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .auth-modal.active {
@@ -54,25 +34,24 @@
 /* ==================== 认证卡片容器 ==================== */
 .auth-card {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4),
-              0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 440px;
-  padding: 48px 40px;
+  max-width: 420px;
+  padding: 40px 32px;
   position: relative;
-  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUp 0.4s ease-out;
   max-height: 90vh;
   overflow-y: auto;
 }
 
 @keyframes slideUp {
   from {
-    transform: translateY(60px) scale(0.95);
+    transform: translateY(50px);
     opacity: 0;
   }
   to {
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
     opacity: 1;
   }
 }
@@ -80,104 +59,83 @@
 /* ==================== 关闭按钮 ==================== */
 .auth-close {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 36px;
-  height: 36px;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
   border: none;
-  background: var(--gov-gray-100);
+  background: transparent;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 20px;
-  color: var(--gov-gray-500);
-  font-weight: 600;
+  transition: all 0.2s;
+  font-size: 24px;
+  color: #999;
 }
 
 .auth-close:hover {
-  background: var(--gov-gray-200);
-  color: var(--gov-gray-900);
+  background: #f3f4f6;
+  color: #333;
   transform: rotate(90deg);
-}
-
-.auth-close:active {
-  transform: rotate(90deg) scale(0.95);
 }
 
 /* ==================== 标题区域 ==================== */
 .auth-header {
   text-align: center;
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--gov-gray-100);
+  margin-bottom: 32px;
 }
 
 .auth-logo {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, var(--gov-primary) 0%, var(--gov-accent) 100%);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  box-shadow: 0 8px 16px rgba(30, 64, 175, 0.2);
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: bounce 2s infinite;
 }
 
 .auth-title {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
-  color: var(--gov-gray-900);
+  color: #333;
   margin-bottom: 8px;
-  letter-spacing: -0.02em;
 }
 
 .auth-subtitle {
-  font-size: 15px;
-  color: var(--gov-gray-500);
-  line-height: 1.5;
-  font-weight: 400;
+  font-size: 14px;
+  color: #666;
 }
 
 /* ==================== 标签切换 ==================== */
 .auth-tabs {
   display: flex;
-  gap: 0;
-  margin-bottom: 32px;
-  background: transparent;
-  padding: 0;
-  border-bottom: 2px solid var(--gov-gray-200);
-  position: relative;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 12px;
 }
 
 .auth-tab {
   flex: 1;
-  padding: 14px 24px;
+  padding: 10px 20px;
   background: transparent;
   border: none;
-  border-bottom: 3px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 600;
-  color: var(--gov-gray-500);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  margin-bottom: -2px;
+  color: #666;
+  transition: all 0.2s;
 }
 
 .auth-tab.active {
-  background: transparent;
-  color: var(--gov-primary);
-  border-bottom-color: var(--gov-primary);
+  background: white;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .auth-tab:hover:not(.active) {
-  color: var(--gov-gray-700);
-  background: var(--gov-gray-50);
+  color: #333;
 }
 
 /* ==================== 表单样式 ==================== */
@@ -187,61 +145,52 @@
 
 .auth-form.active {
   display: block;
-  animation: fadeIn 0.4s ease-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .form-label {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: var(--gov-gray-700);
+  color: #333;
   margin-bottom: 8px;
-  letter-spacing: 0.01em;
 }
 
 .form-label .required {
-  color: var(--gov-danger);
+  color: var(--danger);
   margin-left: 2px;
 }
 
 .form-input {
   width: 100%;
-  padding: 13px 16px;
-  border: 2px solid var(--gov-gray-300);
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   font-size: 15px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s;
   outline: none;
   background: white;
-  color: var(--gov-gray-900);
-  font-weight: 400;
-}
-
-.form-input:hover {
-  border-color: var(--gov-gray-400);
 }
 
 .form-input:focus {
-  border-color: var(--gov-primary);
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-  background: var(--gov-gray-50);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
 }
 
 .form-input::placeholder {
-  color: var(--gov-gray-400);
+  color: #9ca3af;
 }
 
 .form-input.error {
-  border-color: var(--gov-danger);
-  background: #fef2f2;
+  border-color: var(--danger);
 }
 
 .form-input.error:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 /* ==================== 错误提示 ==================== */
@@ -330,53 +279,32 @@
 /* ==================== 提交按钮 ==================== */
 .auth-submit {
   width: 100%;
-  padding: 15px 24px;
-  background: linear-gradient(135deg, var(--gov-primary) 0%, var(--gov-primary-light) 100%);
-  color: white;
+  padding: 14px 24px;
+  background: var(--primary);
+  color: #333;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3),
-              0 2px 4px rgba(30, 64, 175, 0.2);
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
   margin-bottom: 16px;
-  letter-spacing: 0.02em;
-  position: relative;
-  overflow: hidden;
-}
-
-.auth-submit::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.auth-submit:hover::before {
-  left: 100%;
 }
 
 .auth-submit:hover {
-  background: linear-gradient(135deg, var(--gov-primary-dark) 0%, var(--gov-primary) 100%);
+  background: #fbbf24;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4),
-              0 3px 8px rgba(30, 64, 175, 0.3);
+  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
 }
 
 .auth-submit:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
 }
 
 .auth-submit:disabled {
-  background: var(--gov-gray-300);
-  color: var(--gov-gray-500);
+  background: #d1d5db;
+  color: #9ca3af;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -385,7 +313,6 @@
 .auth-submit.loading {
   position: relative;
   color: transparent;
-  pointer-events: none;
 }
 
 .auth-submit.loading::after {
@@ -396,8 +323,8 @@
   width: 20px;
   height: 20px;
   margin: -10px 0 0 -10px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  border: 3px solid rgba(51, 51, 51, 0.2);
+  border-top-color: #333;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -411,35 +338,31 @@
   width: 100%;
   padding: 14px 24px;
   background: white;
-  color: var(--gov-gray-600);
-  border: 2px solid var(--gov-gray-300);
-  border-radius: 8px;
+  color: #666;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s;
   margin-bottom: 24px;
 }
 
 .guest-button:hover {
-  background: var(--gov-gray-50);
-  border-color: var(--gov-primary);
-  color: var(--gov-primary);
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #333;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
 }
 
 /* ==================== 分隔线 ==================== */
 .auth-divider {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin: 28px 0;
-  color: var(--gov-gray-400);
+  gap: 12px;
+  margin: 24px 0;
+  color: #9ca3af;
   font-size: 13px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .auth-divider::before,
@@ -447,67 +370,42 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gov-gray-300), transparent);
+  background: #e5e7eb;
 }
 
 /* ==================== OAuth 登录按钮 ==================== */
 .oauth-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 12px;
   margin-bottom: 24px;
 }
 
 .oauth-btn {
-  padding: 13px 16px;
+  flex: 1;
+  padding: 12px;
   background: white;
-  border: 2px solid var(--gov-gray-300);
-  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--gov-gray-700);
-  position: relative;
-  overflow: hidden;
-}
-
-.oauth-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.05), transparent);
-  transition: left 0.4s;
-}
-
-.oauth-btn:hover::before {
-  left: 100%;
+  color: #333;
 }
 
 .oauth-btn:hover {
-  background: var(--gov-gray-50);
-  border-color: var(--gov-primary);
-  color: var(--gov-primary);
+  background: #f9fafb;
+  border-color: #d1d5db;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
 }
 
 .oauth-btn img {
   width: 20px;
   height: 20px;
-  filter: grayscale(100%);
-  transition: filter 0.3s;
-}
-
-.oauth-btn:hover img {
-  filter: grayscale(0%);
 }
 
 /* ==================== 底部链接 ==================== */
@@ -662,143 +560,27 @@
 }
 
 /* ==================== 响应式设计 ==================== */
-
-/* 平板设备 */
-@media (max-width: 768px) {
-  .auth-card {
-    max-width: 90%;
-    padding: 40px 32px;
-  }
-  
-  .auth-logo {
-    width: 64px;
-    height: 64px;
-    font-size: 32px;
-  }
-  
-  .auth-title {
-    font-size: 24px;
-  }
-  
-  .auth-subtitle {
-    font-size: 14px;
-  }
-}
-
-/* 移动设备 */
 @media (max-width: 480px) {
-  .auth-modal {
-    padding: 12px;
-  }
-  
   .auth-card {
     padding: 32px 24px;
     max-width: 100%;
-    border-radius: 12px;
-    max-height: 95vh;
+    border-radius: 16px;
   }
-  
-  .auth-header {
-    margin-bottom: 32px;
-    padding-bottom: 20px;
-  }
-  
-  .auth-logo {
-    width: 56px;
-    height: 56px;
-    font-size: 28px;
-    margin-bottom: 16px;
-  }
-  
-  .auth-title {
-    font-size: 22px;
-  }
-  
-  .auth-subtitle {
-    font-size: 13px;
-  }
-  
-  .auth-close {
-    width: 32px;
-    height: 32px;
-    top: 16px;
-    right: 16px;
-    font-size: 18px;
-  }
-  
-  .auth-tabs {
-    margin-bottom: 24px;
-  }
-  
-  .auth-tab {
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-label {
-    font-size: 13px;
-  }
-  
-  .form-input {
-    padding: 12px 14px;
-    font-size: 14px;
-  }
-  
-  .auth-submit {
-    padding: 13px 20px;
-    font-size: 15px;
-  }
-  
-  .guest-button {
-    padding: 12px 20px;
-    font-size: 14px;
-  }
-  
-  .oauth-buttons {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
-  .oauth-btn {
-    padding: 12px 16px;
-  }
-  
-  .auth-divider {
-    margin: 20px 0;
-    font-size: 12px;
-  }
-  
-  .auth-footer {
-    font-size: 13px;
-  }
-  
-  .user-name {
-    display: none;
-  }
-}
 
-/* 小屏幕移动设备 */
-@media (max-width: 360px) {
-  .auth-card {
-    padding: 24px 20px;
-  }
-  
-  .auth-logo {
-    width: 48px;
-    height: 48px;
+  .auth-title {
     font-size: 24px;
   }
-  
-  .auth-title {
-    font-size: 20px;
+
+  .auth-logo {
+    font-size: 40px;
   }
-  
-  .form-input {
-    padding: 11px 12px;
+
+  .oauth-buttons {
+    flex-direction: column;
+  }
+
+  .user-name {
+    display: none;
   }
 }
 

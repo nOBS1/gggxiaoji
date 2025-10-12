@@ -192,8 +192,21 @@
             </div>
           </div>
           <div class="fee-preview" id="feePreview" style="display: none;">
-            <strong data-i18n="fee">手续费</strong>: <span id="feeAmount">0</span> 💰 | 
-            <strong data-i18n="youWillReceive">您将收到</strong>: <span id="receiveAmount">0</span> 💰
+            <div class="fee-info">
+              <div class="fee-row">
+                <span class="fee-label" data-i18n="listingPrice">💰 挂单价格</span>
+                <span class="fee-value" id="listingPrice">0</span>
+              </div>
+              <div class="fee-row fee-deduction">
+                <span class="fee-label" data-i18n="platformFee">📉 平台手续费 (5%)</span>
+                <span class="fee-value">-<span id="feeAmount">0</span></span>
+              </div>
+              <div class="fee-row fee-total">
+                <span class="fee-label" data-i18n="youWillReceive">✅ 您将收到</span>
+                <span class="fee-value fee-highlight" id="receiveAmount">0</span>
+              </div>
+            </div>
+            <p class="fee-hint" data-i18n="feeHint">💡 手续费用于维持市场运营</p>
           </div>
         </div>
 
@@ -204,6 +217,11 @@
             <button class="filter-btn" data-filter="purple" data-i18n="egg_purple">紫蛋</button>
             <button class="filter-btn" data-filter="gold" data-i18n="egg_gold">金蛋</button>
             <button class="filter-btn" data-filter="black" data-i18n="egg_black">黑蛋</button>
+          </div>
+          <div class="search-controls">
+            <input type="text" id="searchInput" class="search-input" placeholder="搜索卖家昵称..." data-i18n-placeholder="searchPlaceholder" />
+            <button class="btn-search" id="searchBtn">🔍</button>
+            <button class="btn-clear" id="clearSearchBtn" style="display: none;">✖</button>
           </div>
           <div class="sort-controls">
             <select class="sort-select" id="sortBy">
@@ -217,13 +235,68 @@
             </select>
           </div>
         </div>
+        
+        <!-- 价格筛选 -->
+        <div class="price-filter-controls">
+          <div class="price-filter-label">💰 价格筛选：</div>
+          <div class="price-quick-filters">
+            <button class="price-filter-btn active" data-price-range="all">全部</button>
+            <button class="price-filter-btn" data-price-range="0-100">&lt;100</button>
+            <button class="price-filter-btn" data-price-range="100-500">100-500</button>
+            <button class="price-filter-btn" data-price-range="500-1000">500-1K</button>
+            <button class="price-filter-btn" data-price-range="1000-99999">&gt;1000</button>
+          </div>
+          <div class="price-custom-filter">
+            <input type="number" id="minPrice" class="price-input" placeholder="最低价" min="0" />
+            <span>-</span>
+            <input type="number" id="maxPrice" class="price-input" placeholder="最高价" min="0" />
+            <button class="btn-apply-price" id="applyPriceBtn">应用</button>
+          </div>
+        </div>
+        
+        <!-- 数量筛选 -->
+        <div class="quantity-filter-controls">
+          <div class="quantity-filter-label">📦 数量筛选：</div>
+          <div class="quantity-quick-filters">
+            <button class="quantity-filter-btn active" data-quantity-range="all">全部</button>
+            <button class="quantity-filter-btn" data-quantity-range="1-5">1-5个</button>
+            <button class="quantity-filter-btn" data-quantity-range="6-10">6-10个</button>
+            <button class="quantity-filter-btn" data-quantity-range="11-20">11-20个</button>
+            <button class="quantity-filter-btn" data-quantity-range="21-99999">&gt;20个</button>
+          </div>
+        </div>
 
         <!-- 订单列表 -->
         <div id="marketOrdersGrid" class="market-orders-grid"></div>
+        
+        <!-- 分页组件 -->
+        <div class="pagination-container" id="marketPagination">
+          <div class="pagination-info">
+            <span id="paginationInfo">0-0 / 0</span>
+          </div>
+          <div class="pagination-controls">
+            <button class="pagination-btn" id="prevPageBtn" disabled>← 上一页</button>
+            <div class="pagination-pages" id="paginationPages">
+              <span class="page-number active">1</span>
+            </div>
+            <button class="pagination-btn" id="nextPageBtn" disabled>下一页 →</button>
+          </div>
+          <div class="pagination-size">
+            <label>每页:</label>
+            <select id="pageSizeSelect" class="page-size-select">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!-- 我的订单标签页 -->
       <div class="market-tab-content" data-market-content="my-orders">
+        <!-- 个人统计 -->
+        <div id="myOrdersStats" class="my-orders-stats"></div>
+        <!-- 订单列表 -->
         <div id="myOrdersGrid" class="my-orders-list"></div>
       </div>
 
@@ -340,15 +413,19 @@
   </div>
 
   <!-- 认证模态框 -->
+  <!-- 认证模态框 - 政府应用风格 -->
   <div class="auth-modal" id="authModal">
-    <div class="auth-container">
-      <button class="auth-close" id="authCloseBtn">×</button>
+    <div class="auth-card">
+      <button class="auth-close" id="authCloseBtn" aria-label="关闭">×</button>
       
+      <!-- 头部 Logo 和标题 -->
       <div class="auth-header">
-        <h2 class="auth-title">欢迎回来</h2>
-        <p class="auth-subtitle">登录以同步您的游戏进度</p>
+        <div class="auth-logo">🐔</div>
+        <h1 class="auth-title" data-i18n="authTitle">欢迎来到小鸡生蛋</h1>
+        <p class="auth-subtitle" data-i18n="authSubtitle">使用您的账号登录或注册以同步游戏进度</p>
       </div>
       
+      <!-- 标签切换 -->
       <div class="auth-tabs">
         <button class="auth-tab active" data-tab="login" data-i18n="login">登录</button>
         <button class="auth-tab" data-tab="register" data-i18n="register">注册</button>
@@ -357,70 +434,205 @@
       <!-- 登录表单 -->
       <form class="auth-form active" id="loginForm">
         <div class="form-group">
-          <label for="loginEmail" data-i18n="email">邮箱</label>
-          <input type="email" id="loginEmail" placeholder="your@email.com" required />
-          <span class="error-message" id="loginEmailError">请输入有效的邮箱地址</span>
+          <label class="form-label" for="loginEmail">
+            <span data-i18n="email">邮箱地址</span>
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="email" 
+            id="loginEmail" 
+            class="form-input"
+            placeholder="请输入您的邮箱" 
+            required 
+            autocomplete="email"
+            aria-describedby="loginEmailError"
+          />
+          <span class="form-error" id="loginEmailError">请输入有效的邮箱地址</span>
         </div>
         
         <div class="form-group">
-          <label for="loginPassword" data-i18n="password">密码</label>
-          <div class="password-wrapper">
-            <input type="password" id="loginPassword" placeholder="••••••" required />
-            <button type="button" class="password-toggle" data-target="loginPassword">👁️</button>
-          </div>
-          <span class="error-message" id="loginPasswordError">密码至少6个字符</span>
-        </div>
-        
-        <div class="form-footer">
-          <label class="checkbox-label">
-            <input type="checkbox" id="rememberMe" />
-            <span data-i18n="rememberMe">记住我</span>
+          <label class="form-label" for="loginPassword">
+            <span data-i18n="password">密码</span>
+            <span class="required">*</span>
           </label>
-          <a href="#" class="link" id="forgotPasswordLink" data-i18n="forgotPassword">忘记密码？</a>
+          <div class="password-wrapper">
+            <input 
+              type="password" 
+              id="loginPassword" 
+              class="form-input"
+              placeholder="请输入您的密码" 
+              required 
+              autocomplete="current-password"
+              aria-describedby="loginPasswordError"
+            />
+            <button 
+              type="button" 
+              class="password-toggle" 
+              data-target="loginPassword"
+              aria-label="显示/隐藏密码"
+            >👁️</button>
+          </div>
+          <span class="form-error" id="loginPasswordError">密码长度至少6个字符</span>
         </div>
         
-        <button type="submit" class="btn btn-primary btn-block" data-i18n="loginButton">登录</button>
+        <div class="form-options">
+          <label class="checkbox-wrapper">
+            <input type="checkbox" id="rememberMe" />
+            <span class="checkbox-label" data-i18n="rememberMe">记住我</span>
+          </label>
+          <a href="#" class="forgot-link" id="forgotPasswordLink" data-i18n="forgotPassword">忘记密码？</a>
+        </div>
+        
+        <button type="submit" class="auth-submit" data-i18n="loginButton">登录</button>
+        
+        <button type="button" class="guest-button" id="guestModeBtn" data-i18n="guestMode">游客模式</button>
+        
+        <div class="auth-divider" data-i18n="orLoginWith">或使用以下方式登录</div>
+        
+        <div class="oauth-buttons">
+          <button type="button" class="oauth-btn" id="googleLoginBtn">
+            <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+              <path d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" fill="#FFC107"/>
+              <path d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" fill="#FF3D00"/>
+              <path d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0124 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" fill="#4CAF50"/>
+              <path d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" fill="#1976D2"/>
+            </svg>
+            <span>Google</span>
+          </button>
+          <button type="button" class="oauth-btn" id="githubLoginBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub</span>
+          </button>
+        </div>
+        
+        <div class="auth-footer">
+          <span data-i18n="noAccount">还没有账号？</span>
+          <a href="#" id="switchToRegister" data-i18n="registerLink">立即注册</a>
+        </div>
       </form>
       
       <!-- 注册表单 -->
       <form class="auth-form" id="registerForm">
         <div class="form-group">
-          <label for="registerEmail" data-i18n="email">邮箱</label>
-          <input type="email" id="registerEmail" placeholder="your@email.com" required />
-          <span class="error-message" id="registerEmailError">请输入有效的邮箱地址</span>
+          <label class="form-label" for="registerEmail">
+            <span data-i18n="email">邮箱地址</span>
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="email" 
+            id="registerEmail" 
+            class="form-input"
+            placeholder="请输入您的邮箱" 
+            required 
+            autocomplete="email"
+            aria-describedby="registerEmailError"
+          />
+          <span class="form-error" id="registerEmailError">请输入有效的邮箱地址</span>
         </div>
         
         <div class="form-group">
-          <label for="registerPassword" data-i18n="password">密码</label>
+          <label class="form-label" for="registerPassword">
+            <span data-i18n="password">密码</span>
+            <span class="required">*</span>
+          </label>
           <div class="password-wrapper">
-            <input type="password" id="registerPassword" placeholder="••••••" required />
-            <button type="button" class="password-toggle" data-target="registerPassword">👁️</button>
+            <input 
+              type="password" 
+              id="registerPassword" 
+              class="form-input"
+              placeholder="至少8个字符" 
+              required 
+              autocomplete="new-password"
+              aria-describedby="registerPasswordError"
+            />
+            <button 
+              type="button" 
+              class="password-toggle" 
+              data-target="registerPassword"
+              aria-label="显示/隐藏密码"
+            >👁️</button>
           </div>
           <div class="password-strength" id="passwordStrength">
             <div class="strength-bar">
               <div class="strength-fill"></div>
             </div>
-            <div class="strength-text">强度: <span>弱</span></div>
+            <div class="strength-text" data-i18n="passwordStrength">密码强度: <span>弱</span></div>
           </div>
-          <span class="error-message" id="registerPasswordError">密码至少8个字符</span>
+          <span class="form-error" id="registerPasswordError">密码至少需要8个字符，建议包含大小写字母和数字</span>
         </div>
         
         <div class="form-group">
-          <label for="confirmPassword" data-i18n="confirmPassword">确认密码</label>
-          <input type="password" id="confirmPassword" placeholder="••••••" required />
-          <span class="error-message" id="confirmPasswordError">两次密码不一致</span>
+          <label class="form-label" for="confirmPassword">
+            <span data-i18n="confirmPassword">确认密码</span>
+            <span class="required">*</span>
+          </label>
+          <div class="password-wrapper">
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              class="form-input"
+              placeholder="请再次输入密码" 
+              required 
+              autocomplete="new-password"
+              aria-describedby="confirmPasswordError"
+            />
+            <button 
+              type="button" 
+              class="password-toggle" 
+              data-target="confirmPassword"
+              aria-label="显示/隐藏密码"
+            >👁️</button>
+          </div>
+          <span class="form-error" id="confirmPasswordError">两次输入的密码不一致</span>
         </div>
         
-        <div class="form-footer">
-          <label class="checkbox-label">
+        <div class="terms-agreement">
+          <label class="checkbox-wrapper">
             <input type="checkbox" id="agreeTerms" required />
-            <span>我同意 <a href="#" class="link">服务条款</a></span>
+            <span class="checkbox-label">
+              我已阅读并同意 <a href="#" class="link">服务条款</a> 和 <a href="#" class="link">隐私政策</a>
+            </span>
           </label>
         </div>
         
-        <button type="submit" class="btn btn-primary btn-block" data-i18n="registerButton">注册</button>
+        <button type="submit" class="auth-submit" data-i18n="registerButton">注册账号</button>
+        
+        <button type="button" class="guest-button" id="guestModeBtn2" data-i18n="guestMode">游客模式</button>
+        
+        <div class="auth-divider" data-i18n="orRegisterWith">或使用以下方式注册</div>
+        
+        <div class="oauth-buttons">
+          <button type="button" class="oauth-btn" id="googleRegisterBtn">
+            <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+              <path d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" fill="#FFC107"/>
+              <path d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" fill="#FF3D00"/>
+              <path d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0124 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" fill="#4CAF50"/>
+              <path d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" fill="#1976D2"/>
+            </svg>
+            <span>Google</span>
+          </button>
+          <button type="button" class="oauth-btn" id="githubRegisterBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub</span>
+          </button>
+        </div>
+        
+        <div class="auth-footer">
+          <span data-i18n="hasAccount">已有账号？</span>
+          <a href="#" id="switchToLogin" data-i18n="loginLink">立即登录</a>
+        </div>
       </form>
     </div>
+  </div>
+  
+  <!-- Toast 提示 -->
+  <div class="toast" id="toast" style="display: none;">
+    <span class="toast-icon" id="toastIcon">✓</span>
+    <span class="toast-message" id="toastMessage">操作成功</span>
   </div>
 
   <!-- 脚本 -->

@@ -47,10 +47,19 @@ app.use('*', async (c, next) => {
 
 // CORS 配置 (支持前端跨域请求)
 app.use('*', cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // 开发环境
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:3001',
+    'http://localhost:5173',  // Vite 默认端口
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:5173'
+  ], // 开发环境
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'Accept-Language'],
+  exposeHeaders: ['Content-Length', 'X-Request-Id'],
+  maxAge: 600, // 预检请求缓存10分钟
 }));
 
 // 日志记录

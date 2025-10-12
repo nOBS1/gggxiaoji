@@ -35,7 +35,9 @@ import {
   buyOrder,
   cancelOrder,
   handleFilterChange,
-  handleSortChange
+  handleSortChange,
+  startAutoRefresh,
+  stopAutoRefresh
 } from './market.js';
 
 // ==================== 初始化 ====================
@@ -86,6 +88,8 @@ function initEvents() {
   // 标签页切换
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
+      const previousTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+      
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       
@@ -93,9 +97,15 @@ function initEvents() {
       const tab = btn.dataset.tab;
       document.querySelector(`[data-content="${tab}"]`).classList.add('active');
       
-      // 如果是市场标签页，初始化市场UI
+      // 如果离开市场标签，停止自动刷新
+      if (previousTab === 'market' && tab !== 'market') {
+        stopAutoRefresh();
+      }
+      
+      // 如果是市场标签页，初始化市场UI并启动自动刷新
       if (tab === 'market') {
         await initMarketUI();
+        startAutoRefresh();
       }
       
       updateAllDisplays();
@@ -344,8 +354,9 @@ function initEvents() {
     const preview = document.getElementById('feePreview');
     if (price > 0) {
       preview.style.display = 'block';
-      document.getElementById('feeAmount').textContent = fee;
-      document.getElementById('receiveAmount').textContent = receive;
+      document.getElementById('listingPrice').textContent = `${price} 💰`;
+      document.getElementById('feeAmount').textContent = `${fee} 💰`;
+      document.getElementById('receiveAmount').textContent = `${receive} 💰`;
     } else {
       preview.style.display = 'none';
     }
