@@ -460,10 +460,101 @@ export function checkAuthStatus() {
   }
 }
 
+// ==================== Google OAuth 处理 ====================
+
+// Google 登录按钮处理
+function setupGoogleOAuth() {
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const googleRegisterBtn = document.getElementById('googleRegisterBtn');
+  
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener('click', () => {
+      console.log('🔗 启动 Google OAuth 登录...');
+      // 构建完整的 OAuth URL
+      const oauthUrl = `${CONFIG.API_BASE_URL}${CONFIG.OAUTH.GOOGLE.AUTH_URL}`;
+      console.log('OAuth URL:', oauthUrl);
+      
+      // 跳转到 Google OAuth 授权页面
+      window.location.href = oauthUrl;
+    });
+  }
+  
+  if (googleRegisterBtn) {
+    googleRegisterBtn.addEventListener('click', () => {
+      console.log('🔗 启动 Google OAuth 注册...');
+      // 注册和登录使用相同的 OAuth 流程
+      const oauthUrl = `${CONFIG.API_BASE_URL}${CONFIG.OAUTH.GOOGLE.AUTH_URL}`;
+      window.location.href = oauthUrl;
+    });
+  }
+}
+
+// OAuth 回调处理 (页面加载时检查 URL 参数)
+function handleOAuthCallback() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const oauthSuccess = urlParams.get('oauth_success');
+  const error = urlParams.get('error');
+  
+  if (oauthSuccess === 'true' && token) {
+    // OAuth 登录成功
+    console.log('✅ Google OAuth 登录成功');
+    
+    try {
+      // 1. 保存 token 到 localStorage
+      localStorage.setItem('auth_token', token);
+      
+      // 2. 解析 token 获取用户信息
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const user = {
+        id: payload.userId,
+        email: payload.email,
+        nickname: payload.username
+      };
+      
+      localStorage.setItem('user_info', JSON.stringify(user));
+      
+      // 3. 显示成功提示
+      showToast('Google 登录成功！', 'success');
+      
+      // 4. 关闭登录模态框
+      const authModal = document.getElementById('authModal');
+      if (authModal) {
+        authModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      
+      // 5. 清理 URL 参数
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // 6. 更新 UI
+      updateUserUI(user);
+      
+      // 7. 同步本地数据
+      syncLocalDataToServer(token);
+      
+    } catch (error) {
+      console.error('❌ Failed to parse OAuth token:', error);
+      showToast('登录失败，请重试', 'error');
+    }
+    
+  } else if (oauthSuccess === 'false' || error) {
+    // OAuth 登录失败
+    console.error('❌ Google OAuth 失败:', error);
+    showToast(`Google 登录失败: ${error || '未知错误'}`, 'error');
+    
+    // 清理 URL 参数
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
 // ==================== 初始化事件监听 ====================
 
 export function initAuthUI() {
   console.log('🔐 初始化认证UI...');
+  
+  // 先检查 OAuth 回调
+  handleOAuthCallback();
   
   // 获取元素
   const authModal = document.getElementById('authModal');
@@ -558,6 +649,9 @@ export function initAuthUI() {
   
   // 设置密码强度指示器
   setupPasswordStrengthIndicator();
+  
+  // 设置 Google OAuth 按钮
+  setupGoogleOAuth();
   
   // 检查登录状态
   checkAuthStatus();

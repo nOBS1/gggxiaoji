@@ -9,6 +9,7 @@ import 'dotenv/config';
 
 // 路由
 import authRoutes from './routes/auth';
+import oauthRoutes from './routes/oauth';  // 新增: Google OAuth 路由
 import gameRoutes from './routes/game';
 import marketRoutes from './routes/market';
 import profileRoutes from './routes/profile';
@@ -23,6 +24,10 @@ export interface Env {
   SUPABASE_ANON_KEY: string;
   JWT_SECRET: string;
   NODE_ENV?: string;
+  // Google OAuth 配置
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
+  GOOGLE_REDIRECT_URI?: string;
 }
 
 // 初始化环境变量
@@ -79,6 +84,7 @@ app.get('/health', (c) => {
 
 // 公开路由 (无需认证)
 app.route('/api/auth', authRoutes);
+app.route('/api/auth', oauthRoutes);  // 新增: Google OAuth 路由
 
 // 受保护路由 (需要认证)
 app.use('/api/*', authMiddleware);

@@ -13,7 +13,15 @@ export const CONFIG = {
   
   // API 配置
   API_BASE_URL: 'http://localhost:8787/api', // 开发环境
-  // API_BASE_URL: 'https://your-api.workers.dev', // 生产环境
+  // API_BASE_URL: 'https://xiaoji-game-api.YOUR_USERNAME.workers.dev/api', // 生产环境
+  
+  // OAuth 配置
+  OAUTH: {
+    GOOGLE: {
+      ENABLED: true,
+      AUTH_URL: '/auth/google',  // 相对于 API_BASE_URL
+    }
+  },
   
   // 市场交易配置
   MARKET: {

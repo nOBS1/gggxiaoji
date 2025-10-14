@@ -1,6 +1,6 @@
 {
   "name": "xiaoji-game-api",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "小鸡点击游戏后端 API - Cloudflare Workers",
   "main": "src/index.ts",
   "scripts": {
