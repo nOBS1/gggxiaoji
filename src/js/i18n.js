@@ -127,6 +127,8 @@ export const i18n = {
     guideUpgradeDesc: '使用鸡蛋或金币升级小鸡能力，提升点击效率、被动产蛋速度和稀有蛋掉落率。',
     guideTasks: '🎯 任务系统',
     guideTasksDesc: '每日完成任务可获得额外奖励，别忘记领取哦！',
+    guideMarket: '🛒 市场交易',
+    guideMarketDesc: '在市场与其他玩家交易稀有鸡蛋，可以买入或卖出紫蛋、金蛋和黑蛋。',
     
     // 市场交易
     market: '🛒 市场',
@@ -336,6 +338,8 @@ export const i18n = {
     guideUpgradeDesc: 'Use eggs or coins to upgrade chicken abilities, improving click efficiency, idle egg rate, and rare egg drop rate.',
     guideTasks: '🎯 Task System',
     guideTasksDesc: 'Complete daily tasks for extra rewards. Don\'t forget to claim them!',
+    guideMarket: '🛒 Market Trading',
+    guideMarketDesc: 'Trade rare eggs with other players in the market. You can buy or sell purple, gold, and black eggs.',
     
     // Market Trading
     market: '🛒 Market',

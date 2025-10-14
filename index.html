@@ -20,6 +20,7 @@
   <!-- 认证和市场样式 -->
   <link rel="stylesheet" href="src/css/auth.css" />
   <link rel="stylesheet" href="src/css/market.css" />
+  <link rel="stylesheet" href="src/css/guide-changelog.css" />
 </head>
 <body>
   <!-- 顶部导航栏 -->
@@ -108,6 +109,44 @@
 0%</div>
       </div>
       <p class="hint" data-i18n="clickHint">点击小鸡产蛋！</p>
+    </div>
+    
+    <!-- 游戏指南卡片 -->
+    <div class="game-guide-card">
+      <h3 class="guide-title">
+        <span class="guide-icon">📖</span>
+        <span data-i18n="gameGuide">游戏指南</span>
+      </h3>
+      <div class="guide-content">
+        <div class="guide-item">
+          <div class="guide-item-header">
+            <span class="guide-item-icon">🐣</span>
+            <h4 data-i18n="guideBasic">基本玩法</h4>
+          </div>
+          <p data-i18n="guideBasicDesc">点击小鸡积累进度，达到 100% 后产出鸡蛋。收集不同稀有度的鸡蛋，出售换取金币。</p>
+        </div>
+        <div class="guide-item">
+          <div class="guide-item-header">
+            <span class="guide-item-icon">⬆️</span>
+            <h4 data-i18n="guideUpgrade">升级系统</h4>
+          </div>
+          <p data-i18n="guideUpgradeDesc">使用鸡蛋或金币升级小鸡能力，提升点击效率、被动产蛋速度和稀有蛋掉落率。</p>
+        </div>
+        <div class="guide-item">
+          <div class="guide-item-header">
+            <span class="guide-item-icon">🎯</span>
+            <h4 data-i18n="guideTasks">任务系统</h4>
+          </div>
+          <p data-i18n="guideTasksDesc">每日完成任务可获得额外奖励，别忘记领取哦！</p>
+        </div>
+        <div class="guide-item">
+          <div class="guide-item-header">
+            <span class="guide-item-icon">🛒</span>
+            <h4 data-i18n="guideMarket">市场交易</h4>
+          </div>
+          <p data-i18n="guideMarketDesc">在市场与其他玩家交易稀有鸡蛋，可以买入或卖出紫蛋、金蛋和黑蛋。</p>
+        </div>
+      </div>
     </div>
   </div>
   <!-- 背包界面 -->
@@ -348,58 +387,6 @@
         <p><strong data-i18n="description">说明</strong>: <span data-i18n="gameDescription">一款轻度挂机放置类游戏</span></p>
       </div>
       
-      <!-- 更新日志 -->
-      <div class="changelog">
-        <h3 data-i18n="changelog">更新日志</h3>
-        
-        <div class="changelog-item">
-          <div class="changelog-version">v2.2.0 <span class="changelog-date">2025-10-10</span></div>
-          <ul class="changelog-list">
-            <li>🛒 新增市场交易系统，玩家间可自由买卖蛋</li>
-            <li>👤 完善用户认证系统，支持登录注册</li>
-            <li>🌍 扩展国际化支持，新增35+翻译条目</li>
-            <li>📱 优化响应式布局，提升移动端体验</li>
-          </ul>
-        </div>
-        
-        <div class="changelog-item">
-          <div class="changelog-version">v2.1.0 <span class="changelog-date">2025-10-07</span></div>
-          <ul class="changelog-list">
-            <li data-i18n="changelogV210Item1">✨ 添加真实音效系统，体验更佳</li>
-            <li data-i18n="changelogV210Item2">🐔 替换为真实小鸡和鸡蛋图片</li>
-            <li data-i18n="changelogV210Item3">🌍 优化国际化支持，流畅切换中英文</li>
-            <li data-i18n="changelogV210Item4">📱 修复移动端小鸡图片显示问题</li>
-            <li data-i18n="changelogV210Item5">📢 新增公告系统，及时了解游戎动态</li>
-          </ul>
-        </div>
-        
-        <div class="changelog-item">
-          <div class="changelog-version">v2.0.0 <span class="changelog-date">2025-09-30</span></div>
-          <ul class="changelog-list">
-            <li data-i18n="changelogV200Item1">🎉 全新界面设计，更加美观</li>
-            <li data-i18n="changelogV200Item2">⬆️ 添加更多升级选项</li>
-            <li data-i18n="changelogV200Item3">🎯 新增每日任务系统</li>
-            <li data-i18n="changelogV200Item4">💾 优化存档系统</li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- 游戏指南 -->
-      <div class="game-guide">
-        <h3 data-i18n="gameGuide">游戏指南</h3>
-        <div class="guide-section">
-          <h4 data-i18n="guideBasic">🐣 基本玩法</h4>
-          <p data-i18n="guideBasicDesc">点击小鸡积累进度，达到 100% 后产出鸡蛋。收集不同稀有度的鸡蛋，出售换取金币。</p>
-        </div>
-        <div class="guide-section">
-          <h4 data-i18n="guideUpgrade">⬆️ 升级系统</h4>
-          <p data-i18n="guideUpgradeDesc">使用鸡蛋或金币升级小鸡能力，提升点击效率、被动产蛋速度和稀有蛋掉落率。</p>
-        </div>
-        <div class="guide-section">
-          <h4 data-i18n="guideTasks">🎯 任务系统</h4>
-          <p data-i18n="guideTasksDesc">每日完成任务可获得额外奖励，别忘记领取哦！</p>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -634,8 +621,113 @@
     <span class="toast-icon" id="toastIcon">✓</span>
     <span class="toast-message" id="toastMessage">操作成功</span>
   </div>
+  
+  <!-- 右下角浮动按钮 - 更新日志 -->
+  <button class="floating-changelog-btn" id="floatingChangelogBtn" title="查看更新日志">
+    <span class="floating-icon">📢</span>
+    <span class="floating-text" data-i18n="changelog">更新日志</span>
+  </button>
+  
+  <!-- 更新日志弹窗 -->
+  <div class="changelog-modal" id="changelogModal">
+    <div class="changelog-modal-content">
+      <div class="changelog-modal-header">
+        <h2 class="changelog-modal-title">
+          <span class="changelog-modal-icon">📢</span>
+          <span data-i18n="changelog">更新日志</span>
+        </h2>
+        <button class="changelog-modal-close" id="changelogModalClose" aria-label="关闭">×</button>
+      </div>
+      
+      <div class="changelog-modal-body">
+        <!-- v2.2.0 -->
+        <div class="changelog-version-card">
+          <div class="changelog-version-header">
+            <span class="version-badge">v2.2.0</span>
+            <span class="version-date">2025-10-10</span>
+            <span class="version-tag latest">最新</span>
+          </div>
+          <ul class="changelog-list">
+            <li>
+              <span class="changelog-emoji">🛒</span>
+              <span>新增市场交易系统，玩家间可自由买卖蛋</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">👤</span>
+              <span>完善用户认证系统，支持登录注册</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">🌍</span>
+              <span>扩展国际化支持，新增35+翻译条目</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">📱</span>
+              <span>优化响应式布局，提升移动端体验</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- v2.1.0 -->
+        <div class="changelog-version-card">
+          <div class="changelog-version-header">
+            <span class="version-badge">v2.1.0</span>
+            <span class="version-date">2025-10-07</span>
+          </div>
+          <ul class="changelog-list">
+            <li>
+              <span class="changelog-emoji">✨</span>
+              <span data-i18n="changelogV210Item1">添加真实音效系统，体验更佳</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">🐔</span>
+              <span data-i18n="changelogV210Item2">替换为真实小鸡和鸡蛋图片</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">🌍</span>
+              <span data-i18n="changelogV210Item3">优化国际化支持，流畅切换中英文</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">📱</span>
+              <span data-i18n="changelogV210Item4">修复移动端小鸡图片显示问题</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">📢</span>
+              <span data-i18n="changelogV210Item5">新增公告系统，及时了解游戏动态</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- v2.0.0 -->
+        <div class="changelog-version-card">
+          <div class="changelog-version-header">
+            <span class="version-badge">v2.0.0</span>
+            <span class="version-date">2025-09-30</span>
+          </div>
+          <ul class="changelog-list">
+            <li>
+              <span class="changelog-emoji">🎉</span>
+              <span data-i18n="changelogV200Item1">全新界面设计，更加美观</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">⬆️</span>
+              <span data-i18n="changelogV200Item2">添加更多升级选项</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">🎯</span>
+              <span data-i18n="changelogV200Item3">新增每日任务系统</span>
+            </li>
+            <li>
+              <span class="changelog-emoji">💾</span>
+              <span data-i18n="changelogV200Item4">优化存档系统</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- 脚本 -->
+  <script type="module" src="/src/js/changelog.js"></script>
   <script type="module" src="/src/js/auth-simple.js"></script>
   <script type="module" src="/src/js/main.js"></script>
 </body>
