@@ -5,7 +5,7 @@ import { serve } from '@hono/node-server';
 import 'dotenv/config';
 import app from './src/index';
 
-const port = parseInt(process.env.PORT || '3001');
+const port = parseInt(process.env.PORT || '8787');
 
 console.log(`🚀 启动服务器在端口 ${port}...`);
 console.log(`📍 API 地址: http://localhost:${port}`);

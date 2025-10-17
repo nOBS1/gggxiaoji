@@ -193,14 +193,34 @@ oauth.get('/google/callback', async (c) => {
       console.log('Existing user found:', user.id);
       
       // 更新最后登录时间和头像
-      await supabase
+      const updateData: Record<string, string> = {
+        last_login: new Date().toISOString(),
+      };
+
+      if (googleUser.picture) {
+        updateData.avatar_url = googleUser.picture;
+      }
+
+      if (!user.username && googleUser.name) {
+        updateData.username = googleUser.name;
+      }
+
+      if (!user.google_id) {
+        updateData.google_id = googleUser.id;
+      }
+
+      if (!user.auth_provider || user.auth_provider === 'google') {
+        updateData.auth_provider = 'google';
+      }
+
+      const { error: updateError } = await supabase
         .from('users')
-        .update({
-          last_login: new Date().toISOString(),
-          avatar_url: googleUser.picture || user.avatar_url,
-          username: user.username || googleUser.name,
-        })
+        .update(updateData)
         .eq('id', user.id);
+
+      if (updateError) {
+        console.error('Failed to update existing user:', updateError);
+      }
         
     } else {
       // 新用户，创建账号
@@ -233,22 +253,92 @@ oauth.get('/google/callback', async (c) => {
       user = createdUser;
       console.log('New user created:', user.id);
       
-      // 为新用户创建初始 profile
+      // 为新用户创建初始 profile（peck_level 等游戏数据在 stats 表中）
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([{
           user_id: user.id,
+          nickname: googleUser.name || googleUser.email.split('@')[0],
           coins: 0,
-          peck_progress: 0,
-          peck_level: 1,
-          black_pity_counter: 0,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          sound_enabled: true,
+          language: 'zh',
         }]);
       
       if (profileError) {
         console.error('Failed to create user profile:', profileError);
         // 不抛出错误，profile 可以稍后创建
+      }
+
+      // 为新用户创建初始 stats（游戏进度数据）
+      const { error: statsError } = await supabase
+        .from('stats')
+        .insert([{
+          user_id: user.id,
+          peck_progress: 0,
+          idle_accumulator: 0,
+          last_idle_tick: Date.now(),
+          total_clicks: 0,
+          total_eggs_sold: 0,
+          black_pity_counter: 0,
+        }]);
+      
+      if (statsError) {
+        console.error('Failed to create user stats:', statsError);
+        // 不抛出错误，stats 可以稍后创建
+      }
+
+      // 为新用户创建初始 inventory（所有稀有度蛋为0）
+      const inventoryData = [
+        { user_id: user.id, rarity: 'white', quantity: 0 },
+        { user_id: user.id, rarity: 'brown', quantity: 0 },
+        { user_id: user.id, rarity: 'silver', quantity: 0 },
+        { user_id: user.id, rarity: 'gold', quantity: 0 },
+        { user_id: user.id, rarity: 'purple', quantity: 0 },
+        { user_id: user.id, rarity: 'black', quantity: 0 },
+      ];
+      
+      const { error: inventoryError } = await supabase
+        .from('inventory')
+        .insert(inventoryData);
+      
+      if (inventoryError) {
+        console.error('Failed to create user inventory:', inventoryError);
+        // 不抛出错误，inventory 可以稍后创建
+      }
+
+      // 为新用户创建初始 upgrades（level=1，其他=0）
+      const upgradesData = [
+        { user_id: user.id, upgrade_key: 'level', level: 1 },
+        { user_id: user.id, upgrade_key: 'feed', level: 0 },
+        { user_id: user.id, upgrade_key: 'clickPower', level: 0 },
+        { user_id: user.id, upgrade_key: 'idleRate', level: 0 },
+        { user_id: user.id, upgrade_key: 'luckyChance', level: 0 },
+        { user_id: user.id, upgrade_key: 'autoSell', level: 0 },
+        { user_id: user.id, upgrade_key: 'goldBonus', level: 0 },
+      ];
+      
+      const { error: upgradesError } = await supabase
+        .from('upgrades')
+        .insert(upgradesData);
+      
+      if (upgradesError) {
+        console.error('Failed to create user upgrades:', upgradesError);
+        // 不抛出错误，upgrades 可以稍后创建
+      }
+
+      // 为新用户创建初始 ad_runs
+      const { error: adRunsError } = await supabase
+        .from('ad_runs')
+        .insert([{
+          user_id: user.id,
+          cooldown: 0,
+          watched_today: 0,
+          last_date: null,
+        }]);
+      
+      if (adRunsError) {
+        console.error('Failed to create user ad_runs:', adRunsError);
+        // 不抛出错误，ad_runs 可以稍后创建
       }
     }
     

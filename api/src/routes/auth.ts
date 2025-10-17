@@ -48,10 +48,16 @@ auth.post('/register', async (c) => {
 
     // 创建新用户
     const hashedPassword = await hashPassword(password);
+    const username = email.split('@')[0];
     
     const { data: newUser, error } = await supabase
       .from('users')
-      .insert([{ email, hashed_password: hashedPassword }])
+      .insert([{
+        email,
+        hashed_password: hashedPassword,
+        username,
+        auth_provider: 'local'
+      }])
       .select('id, email')
       .single();
 
@@ -104,7 +110,7 @@ auth.post('/login', async (c) => {
     // 查找用户
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, hashed_password')
+      .select('id, email, hashed_password, auth_provider')
       .eq('email', email)
       .single();
 
@@ -121,7 +127,10 @@ auth.post('/login', async (c) => {
     // 更新最后登录时间
     await supabase
       .from('users')
-      .update({ last_login: new Date().toISOString() })
+      .update({
+        last_login: new Date().toISOString(),
+        auth_provider: user.auth_provider || 'local'
+      })
       .eq('id', user.id);
 
     // 生成 JWT Token

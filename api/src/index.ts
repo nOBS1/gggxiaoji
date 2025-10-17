@@ -43,8 +43,19 @@ const app = new Hono<{ Bindings: Env }>();
 
 // 将环境变量注入到上下文
 app.use('*', async (c, next) => {
-  // 直接将 env 对象设置到 c.env
-  Object.assign(c.env || {}, env);
+  // 确保 c.env 存在并包含所有环境变量
+  if (!c.env) {
+    c.env = {} as Env;
+  }
+  // 注入所有环境变量
+  c.env.SUPABASE_URL = env.SUPABASE_URL;
+  c.env.SUPABASE_ANON_KEY = env.SUPABASE_ANON_KEY;
+  c.env.JWT_SECRET = env.JWT_SECRET;
+  c.env.NODE_ENV = env.NODE_ENV;
+  // 注入 Google OAuth 配置
+  c.env.GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+  c.env.GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+  c.env.GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || '';
   await next();
 });
 

@@ -12,8 +12,8 @@ export const CONFIG = {
   MAX_SAFE_NUMBER: 1e15,  // 最大安全数值
   
   // API 配置
-  API_BASE_URL: 'http://localhost:8787/api', // 开发环境
-  // API_BASE_URL: 'https://xiaoji-game-api.YOUR_USERNAME.workers.dev/api', // 生产环境
+  // API_BASE_URL: 'http://localhost:8787/api', // 开发环境
+  API_BASE_URL: 'https://xiaoji-game-api.weixinyongjiu.workers.dev/api', // 生产环境
   
   // OAuth 配置
   OAUTH: {
