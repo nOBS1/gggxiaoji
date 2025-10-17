@@ -109,7 +109,6 @@ export function updateInventory() {
       <div class="egg-icon"><img src="${data.image}" alt="${getRarityName(rarity)}" class="egg-img" /></div>
       <div class="egg-name">${getRarityName(rarity)}</div>
       <div class="egg-count">${state.eggs[rarity]}</div>
-      <div class="egg-value">${t(i18n, state.language, 'value')}: ${data.price} 💰</div>
     `;
     grid.appendChild(card);
   }
@@ -122,7 +121,15 @@ export function updateShop() {
   if (!grid) return;
   grid.innerHTML = '';
   
+  // 定义可以在商店销售的蛋类（只允许白蛋、棕蛋、银蛋）
+  const sellableRarities = ['white', 'brown', 'silver'];
+  
   for (let [rarity, data] of Object.entries(CONFIG.RARITIES)) {
+    // 跳过不能销售的蛋类（紫蛋、金蛋、黑蛋）
+    if (!sellableRarities.includes(rarity)) {
+      continue;
+    }
+    
     const card = document.createElement('div');
     card.className = 'shop-item';
     const count = state.eggs[rarity];

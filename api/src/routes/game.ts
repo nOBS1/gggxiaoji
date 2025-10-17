@@ -1,5 +1,5 @@
-// ==================== 游戏路由 ====================
-// 核心游戏逻辑：点击、获取状态、升级、卖出等
+﻿// ==================== 娓告垙璺敱 ====================
+// 鏍稿績娓告垙閫昏緫锛氱偣鍑汇€佽幏鍙栫姸鎬併€佸崌绾с€佸崠鍑虹瓑
 
 import { Hono } from 'hono';
 import { Env } from '../index';
@@ -9,9 +9,37 @@ import { getSupabase } from '../lib/supabase';
 
 const game = new Hono<{ Bindings: Env }>();
 const MARKET_ONLY_RARITIES: readonly Rarity[] = ['purple', 'black'];
+type LocalSyncPayload = {
+  eggs?: Record<string, number>;
+  coins?: number;
+  upgrades?: Record<string, number>;
+  stats?: {
+    totalClicks?: number;
+    totalEggsSold?: number;
+  };
+  blackPityCounter?: number;
+};
+
+const hasMeaningfulLocalData = (data?: LocalSyncPayload | null): boolean => {
+  if (!data) return false;
+  if (typeof data.coins === 'number' && data.coins > 0) return true;
+  if (typeof data.blackPityCounter === 'number' && data.blackPityCounter > 0) return true;
+  if (data.eggs && Object.values(data.eggs).some((qty) => typeof qty === 'number' && qty > 0)) return true;
+  if (data.upgrades && Object.values(data.upgrades).some((level) => typeof level === 'number' && level > 0)) return true;
+  if (
+    data.stats &&
+    (
+      (typeof data.stats.totalClicks === 'number' && data.stats.totalClicks > 0) ||
+      (typeof data.stats.totalEggsSold === 'number' && data.stats.totalEggsSold > 0)
+    )
+  ) {
+    return true;
+  }
+  return false;
+};
 
 // ==================== GET /api/game/state ====================
-// 获取用户游戏状态（库存、金币、升级等）
+// 鑾峰彇鐢ㄦ埛娓告垙鐘舵€侊紙搴撳瓨銆侀噾甯併€佸崌绾х瓑锛?
 
 game.get('/state', async (c) => {
   const user = c.get('user');
@@ -19,33 +47,33 @@ game.get('/state', async (c) => {
   try {
     const supabase = getSupabase(c.env);
 
-    // 获取用户资料（金币、设置等）
+    // 鑾峰彇鐢ㄦ埛璧勬枡锛堥噾甯併€佽缃瓑锛?
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', user.userId)
       .single();
 
-    // 获取库存
+    // 鑾峰彇搴撳瓨
     const { data: inventory } = await supabase
       .from('inventory')
       .select('rarity, quantity')
       .eq('user_id', user.userId);
 
-    // 获取升级
+    // 鑾峰彇鍗囩骇
     const { data: upgrades } = await supabase
       .from('upgrades')
       .select('upgrade_key, level')
       .eq('user_id', user.userId);
 
-    // 获取游戏统计
+    // 鑾峰彇娓告垙缁熻
     const { data: stats } = await supabase
       .from('stats')
       .select('*')
       .eq('user_id', user.userId)
       .single();
 
-    // 获取今日任务进度
+    // 鑾峰彇浠婃棩浠诲姟杩涘害
     const todayDate = new Date().toISOString().split('T')[0];
     const { data: tasks } = await supabase
       .from('daily_tasks')
@@ -70,7 +98,7 @@ game.get('/state', async (c) => {
 });
 
 // ==================== POST /api/game/click ====================
-// 处理点击事件，更新进度，可能掉落蛋
+// 澶勭悊鐐瑰嚮浜嬩欢锛屾洿鏂拌繘搴︼紝鍙兘鎺夎惤铔?
 
 game.post('/click', async (c) => {
   const user = c.get('user');
@@ -79,7 +107,7 @@ game.post('/click', async (c) => {
     const supabase = getSupabase(c.env);
     const todayDate = new Date().toISOString().split('T')[0];
 
-    // 1. 获取用户的升级信息和配置文件
+    // 1. 鑾峰彇鐢ㄦ埛鐨勫崌绾т俊鎭拰閰嶇疆鏂囦欢
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
@@ -95,20 +123,20 @@ game.post('/click', async (c) => {
       throw Errors.NOT_FOUND;
     }
 
-    // 转换升级数据为对象
+    // 杞崲鍗囩骇鏁版嵁涓哄璞?
     const upgradeMap: Record<string, number> = {};
     upgrades.forEach((u) => {
       upgradeMap[u.upgrade_key] = u.level;
     });
 
-    // 2. 计算点击力量并更新进度
+    // 2. 璁＄畻鐐瑰嚮鍔涢噺骞舵洿鏂拌繘搴?
     const { getClickPower, rollEgg, safeAdd } = await import('../utils/gameLogic');
     const clickPower = getClickPower(upgradeMap.clickPower || 0);
     const newProgress = (profile.peck_progress || 0) + clickPower;
 
     let droppedEgg: string | null = null;
 
-    // 3. 如果进度达到100，触发掉落逻辑
+    // 3. 濡傛灉杩涘害杈惧埌100锛岃Е鍙戞帀钀介€昏緫
     if (newProgress >= 100) {
       const drop = rollEgg(
         upgradeMap.level || 1,
@@ -119,7 +147,7 @@ game.post('/click', async (c) => {
 
       droppedEgg = drop.rarity;
 
-      // 更新库存
+      // 鏇存柊搴撳瓨
       const { data: existingItem } = await supabase
         .from('inventory')
         .select('*')
@@ -139,7 +167,7 @@ game.post('/click', async (c) => {
           .insert({ user_id: user.userId, rarity: droppedEgg, quantity: 1 });
       }
 
-      // 4. 更新配置文件和统计数据
+      // 4. 鏇存柊閰嶇疆鏂囦欢鍜岀粺璁℃暟鎹?
       await supabase
         .from('profiles')
         .update({
@@ -148,7 +176,7 @@ game.post('/click', async (c) => {
         })
         .eq('user_id', user.userId);
 
-      // 更新统计
+      // 鏇存柊缁熻
       const { data: stats } = await supabase
         .from('stats')
         .select('*')
@@ -164,13 +192,13 @@ game.post('/click', async (c) => {
           .eq('user_id', user.userId);
       }
     } else {
-      // 仅更新进度
+      // 浠呮洿鏂拌繘搴?
       await supabase
         .from('profiles')
         .update({ peck_progress: newProgress })
         .eq('user_id', user.userId);
 
-      // 更新统计
+      // 鏇存柊缁熻
       const { data: stats } = await supabase
         .from('stats')
         .select('*')
@@ -187,7 +215,7 @@ game.post('/click', async (c) => {
       }
     }
 
-    // 5. 更新每日任务进度
+    // 5. 鏇存柊姣忔棩浠诲姟杩涘害
     const { data: task } = await supabase
       .from('daily_tasks')
       .select('*')
@@ -229,13 +257,13 @@ game.post('/click', async (c) => {
 });
 
 // ==================== POST /api/game/sell ====================
-// 卖出蛋，获得金币
+// 鍗栧嚭铔嬶紝鑾峰緱閲戝竵
 
 game.post('/sell', async (c) => {
   const { rarity, quantity } = await c.req.json<{ rarity: string; quantity: number }>();
   const user = c.get('user');
 
-  // 验证输入
+  // 楠岃瘉杈撳叆
   if (!rarity || !quantity || quantity <= 0) {
     throw Errors.INVALID_INPUT;
   }
@@ -253,7 +281,7 @@ game.post('/sell', async (c) => {
     const supabase = getSupabase(c.env);
     const todayDate = new Date().toISOString().split('T')[0];
 
-    // 1. 检查库存是否足够
+    // 1. 妫€鏌ュ簱瀛樻槸鍚﹁冻澶?
     const { data: inventory } = await supabase
       .from('inventory')
       .select('*')
@@ -262,10 +290,10 @@ game.post('/sell', async (c) => {
       .single();
 
     if (!inventory || inventory.quantity < quantity) {
-      throw Errors.INVALID_INPUT; // 库存不足
+      throw Errors.INVALID_INPUT; // 搴撳瓨涓嶈冻
     }
 
-    // 2. 获取 goldBonus 升级等级
+    // 2. 鑾峰彇 goldBonus 鍗囩骇绛夌骇
     const { data: upgrade } = await supabase
       .from('upgrades')
       .select('level')
@@ -275,11 +303,11 @@ game.post('/sell', async (c) => {
 
     const goldBonusLevel = upgrade?.level || 0;
 
-    // 3. 计算金币收益
+    // 3. 璁＄畻閲戝竵鏀剁泭
     const { calculateSellValue, safeAdd } = await import('../utils/gameLogic');
     const coinsEarned = calculateSellValue(rarityValue, quantity, goldBonusLevel);
 
-    // 4. 更新库存和金币
+    // 4. 鏇存柊搴撳瓨鍜岄噾甯?
     await supabase
       .from('inventory')
       .update({ quantity: inventory.quantity - quantity })
@@ -299,7 +327,7 @@ game.post('/sell', async (c) => {
         .eq('user_id', user.userId);
     }
 
-    // 5. 更新统计数据
+    // 5. 鏇存柊缁熻鏁版嵁
     const { data: stats } = await supabase
       .from('stats')
       .select('*')
@@ -315,7 +343,7 @@ game.post('/sell', async (c) => {
         .eq('user_id', user.userId);
     }
 
-    // 6. 更新每日任务进度（如果是银蛋）
+    // 6. 鏇存柊姣忔棩浠诲姟杩涘害锛堝鏋滄槸閾惰泲锛?
     if (rarity === 'silver') {
       const { data: task } = await supabase
         .from('daily_tasks')
@@ -359,13 +387,13 @@ game.post('/sell', async (c) => {
 });
 
 // ==================== POST /api/game/upgrade ====================
-// 升级功能
+// 鍗囩骇鍔熻兘
 
 game.post('/upgrade', async (c) => {
   const { upgradeKey } = await c.req.json<{ upgradeKey: string }>();
   const user = c.get('user');
 
-  // 验证输入
+  // 楠岃瘉杈撳叆
   if (!upgradeKey || !isValidUpgradeKey(upgradeKey)) {
     throw Errors.INVALID_INPUT;
   }
@@ -374,7 +402,7 @@ game.post('/upgrade', async (c) => {
     const supabase = getSupabase(c.env);
     const { calculateUpgradeCost, safeAdd, GAME_CONFIG } = await import('../utils/gameLogic');
 
-    // 1. 获取当前升级等级
+    // 1. 鑾峰彇褰撳墠鍗囩骇绛夌骇
     const { data: upgrade } = await supabase
       .from('upgrades')
       .select('*')
@@ -385,17 +413,17 @@ game.post('/upgrade', async (c) => {
     const currentLevel = upgrade?.level || 0;
     const config = GAME_CONFIG.UPGRADES[upgradeKey as UpgradeKey];
 
-    // 检查是否达到最高等级
+    // 妫€鏌ユ槸鍚﹁揪鍒版渶楂樼瓑绾?
     if (currentLevel >= config.maxLevel) {
-      throw Errors.INVALID_INPUT; // 已达最高等级
+      throw Errors.INVALID_INPUT; // 宸茶揪鏈€楂樼瓑绾?
     }
 
-    // 2. 计算升级所需成本
+    // 2. 璁＄畻鍗囩骇鎵€闇€鎴愭湰
     const cost = calculateUpgradeCost(upgradeKey as UpgradeKey, currentLevel);
 
-    // 3. 检查资源是否足够
+    // 3. 妫€鏌ヨ祫婧愭槸鍚﹁冻澶?
     if (typeof cost === 'number') {
-      // 金币升级
+      // 閲戝竵鍗囩骇
       const { data: profile } = await supabase
         .from('profiles')
         .select('coins')
@@ -403,16 +431,16 @@ game.post('/upgrade', async (c) => {
         .single();
 
       if (!profile || profile.coins < cost) {
-        throw Errors.INVALID_INPUT; // 金币不足
+        throw Errors.INVALID_INPUT; // 閲戝竵涓嶈冻
       }
 
-      // 4. 扣除金币，提升等级
+      // 4. 鎵ｉ櫎閲戝竵锛屾彁鍗囩瓑绾?
       await supabase
         .from('profiles')
         .update({ coins: profile.coins - cost })
         .eq('user_id', user.userId);
     } else {
-      // 蛋升级
+      // 铔嬪崌绾?
       const { data: inventory } = await supabase
         .from('inventory')
         .select('rarity, quantity')
@@ -422,20 +450,20 @@ game.post('/upgrade', async (c) => {
         throw Errors.NOT_FOUND;
       }
 
-      // 转换为对象方便查找
+      // 杞崲涓哄璞℃柟渚挎煡鎵?
       const inventoryMap: Record<string, number> = {};
       inventory.forEach((item) => {
         inventoryMap[item.rarity] = item.quantity;
       });
 
-      // 检查每一种蛋的数量是否足够
+      // 妫€鏌ユ瘡涓€绉嶈泲鐨勬暟閲忔槸鍚﹁冻澶?
       for (const [rarity, amount] of Object.entries(cost)) {
         if ((inventoryMap[rarity] || 0) < amount) {
-          throw Errors.INVALID_INPUT; // 资源不足
+          throw Errors.INVALID_INPUT; // 璧勬簮涓嶈冻
         }
       }
 
-      // 4. 扣除蛋，提升等级
+      // 4. 鎵ｉ櫎铔嬶紝鎻愬崌绛夌骇
       for (const [rarity, amount] of Object.entries(cost)) {
         await supabase
           .from('inventory')
@@ -445,7 +473,7 @@ game.post('/upgrade', async (c) => {
       }
     }
 
-    // 5. 提升升级等级
+    // 5. 鎻愬崌鍗囩骇绛夌骇
     if (upgrade) {
       await supabase
         .from('upgrades')
@@ -476,16 +504,16 @@ game.post('/upgrade', async (c) => {
 });
 
 // ==================== POST /api/game/feed ====================
-// 喂食小鸡（加速挂机产出）
+// 鍠傞灏忛浮锛堝姞閫熸寕鏈轰骇鍑猴級
 
 game.post('/feed', async (c) => {
   const user = c.get('user');
 
   try {
-    // TODO: 实现喂食逻辑
-    // 1. 检查 feed 升级等级
-    // 2. 触发加速效果（临时提升 idleRate）
-    // 3. 返回加速后的状态
+    // TODO: 瀹炵幇鍠傞閫昏緫
+    // 1. 妫€鏌?feed 鍗囩骇绛夌骇
+    // 2. 瑙﹀彂鍔犻€熸晥鏋滐紙涓存椂鎻愬崌 idleRate锛?
+    // 3. 杩斿洖鍔犻€熷悗鐨勭姸鎬?
 
     return c.json({
       success: true,
@@ -500,13 +528,13 @@ game.post('/feed', async (c) => {
 });
 
 // ==================== POST /api/game/claim-task ====================
-// 领取每日任务奖励
+// 棰嗗彇姣忔棩浠诲姟濂栧姳
 
 game.post('/claim-task', async (c) => {
   const { taskKey } = await c.req.json<{ taskKey: string }>();
   const user = c.get('user');
 
-  // 验证输入
+  // 楠岃瘉杈撳叆
   if (!taskKey) {
     throw Errors.INVALID_INPUT;
   }
@@ -515,7 +543,7 @@ game.post('/claim-task', async (c) => {
     const supabase = getSupabase(c.env);
     const todayDate = new Date().toISOString().split('T')[0];
 
-    // 1. 获取任务信息
+    // 1. 鑾峰彇浠诲姟淇℃伅
     const { data: task } = await supabase
       .from('daily_tasks')
       .select('*')
@@ -529,20 +557,20 @@ game.post('/claim-task', async (c) => {
     }
 
     if (task.claimed) {
-      throw Errors.INVALID_INPUT; // 已经领取过
+      throw Errors.INVALID_INPUT; // 宸茬粡棰嗗彇杩?
     }
 
-    // 2. 验证任务是否完成
+    // 2. 楠岃瘉浠诲姟鏄惁瀹屾垚
     const { isTaskCompleted, getTaskReward, safeAdd } = await import('../utils/gameLogic');
 
     if (!isTaskCompleted(taskKey, task.progress)) {
-      throw Errors.INVALID_INPUT; // 任务未完成
+      throw Errors.INVALID_INPUT; // 浠诲姟鏈畬鎴?
     }
 
-    // 3. 获取奖励
+    // 3. 鑾峰彇濂栧姳
     const reward = getTaskReward(taskKey);
 
-    // 4. 更新 claimed 状态
+    // 4. 鏇存柊 claimed 鐘舵€?
     await supabase
       .from('daily_tasks')
       .update({ claimed: true })
@@ -550,7 +578,7 @@ game.post('/claim-task', async (c) => {
       .eq('task_key', taskKey)
       .eq('date', todayDate);
 
-    // 5. 发放金币奖励
+    // 5. 鍙戞斁閲戝竵濂栧姳
     const { data: profile } = await supabase
       .from('profiles')
       .select('coins')
@@ -579,22 +607,11 @@ game.post('/claim-task', async (c) => {
 });
 
 // ==================== POST /api/game/sync-local-data ====================
-// 同步本地游戏数据到服务器账号（登录时调用）
+// 鍚屾鏈湴娓告垙鏁版嵁鍒版湇鍔″櫒璐﹀彿锛堢櫥褰曟椂璋冪敤锛?
 
 game.post('/sync-local-data', async (c) => {
   const user = c.get('user');
-  const { localData } = await c.req.json<{
-    localData: {
-      eggs?: Record<string, number>;
-      coins?: number;
-      upgrades?: Record<string, number>;
-      stats?: {
-        totalClicks?: number;
-        totalEggsSold?: number;
-      };
-      blackPityCounter?: number;
-    }
-  }>();
+  const { localData } = await c.req.json<{ localData: LocalSyncPayload }>();
 
   if (!localData) {
     throw Errors.INVALID_INPUT;
@@ -607,32 +624,49 @@ game.post('/sync-local-data', async (c) => {
     console.log('[Sync Local Data] User:', user.userId);
     console.log('[Sync Local Data] Local data:', localData);
 
-    // 1. 获取用户当前的服务器数据
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('coins, black_pity_counter')
-      .eq('user_id', user.userId)
-      .single();
+    const [
+      { data: profile },
+      { data: serverInventory },
+      { data: serverUpgrades },
+      { data: serverStats },
+    ] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('coins, black_pity_counter')
+        .eq('user_id', user.userId)
+        .single(),
+      supabase
+        .from('inventory')
+        .select('rarity, quantity')
+        .eq('user_id', user.userId),
+      supabase
+        .from('upgrades')
+        .select('upgrade_key, level')
+        .eq('user_id', user.userId),
+      supabase
+        .from('stats')
+        .select('total_clicks, total_eggs_sold')
+        .eq('user_id', user.userId)
+        .single(),
+    ]);
 
-    const { data: serverInventory } = await supabase
-      .from('inventory')
-      .select('rarity, quantity')
-      .eq('user_id', user.userId);
+    if (!hasMeaningfulLocalData(localData)) {
+      console.log('[Sync Local Data] Skipped merge (no meaningful local data)');
+      return c.json({
+        success: true,
+        data: {
+          merged: false,
+          profile,
+          inventory: serverInventory || [],
+          upgrades: serverUpgrades || [],
+          stats: serverStats,
+        },
+      });
+    }
 
-    const { data: serverUpgrades } = await supabase
-      .from('upgrades')
-      .select('upgrade_key, level')
-      .eq('user_id', user.userId);
-
-    const { data: serverStats } = await supabase
-      .from('stats')
-      .select('total_clicks, total_eggs_sold')
-      .eq('user_id', user.userId)
-      .single();
-
-    // 2. 合并金币（取更大值）
+    // Merge coins (keep the larger value)
     let newCoins = profile?.coins || 0;
-    if (localData.coins && localData.coins > newCoins) {
+    if (typeof localData.coins === 'number' && localData.coins > newCoins) {
       newCoins = localData.coins;
       await supabase
         .from('profiles')
@@ -641,19 +675,19 @@ game.post('/sync-local-data', async (c) => {
       console.log(`[Sync] Updated coins: ${newCoins}`);
     }
 
-    // 3. 合并库存（取更大值）
+    // Merge inventory (keep the larger quantity)
     if (localData.eggs) {
       const serverInventoryMap: Record<string, number> = {};
-      serverInventory?.forEach(item => {
+      serverInventory?.forEach((item) => {
         serverInventoryMap[item.rarity] = item.quantity;
       });
 
       for (const [rarity, localQty] of Object.entries(localData.eggs)) {
         if (!isValidRarity(rarity)) continue;
-        
+
         const serverQty = serverInventoryMap[rarity] || 0;
-        const newQty = Math.max(serverQty, localQty);
-        
+        const newQty = Math.max(serverQty, localQty || 0);
+
         if (newQty > serverQty) {
           await supabase
             .from('inventory')
@@ -665,31 +699,29 @@ game.post('/sync-local-data', async (c) => {
       }
     }
 
-    // 4. 合并升级（取更大值）
+    // Merge upgrades (keep the higher level)
     if (localData.upgrades) {
       const serverUpgradesMap: Record<string, number> = {};
-      serverUpgrades?.forEach(item => {
+      serverUpgrades?.forEach((item) => {
         serverUpgradesMap[item.upgrade_key] = item.level;
       });
 
       for (const [upgradeKey, localLevel] of Object.entries(localData.upgrades)) {
         if (!isValidUpgradeKey(upgradeKey)) continue;
-        
+
         const serverLevel = serverUpgradesMap[upgradeKey] || 0;
-        const newLevel = Math.max(serverLevel, localLevel);
-        
+        const newLevel = Math.max(serverLevel, localLevel || 0);
+
         if (newLevel > serverLevel) {
           if (serverLevel === 0) {
-            // 插入新记录
             await supabase
               .from('upgrades')
               .insert({
                 user_id: user.userId,
                 upgrade_key: upgradeKey,
-                level: newLevel
+                level: newLevel,
               });
           } else {
-            // 更新现有记录
             await supabase
               .from('upgrades')
               .update({ level: newLevel })
@@ -701,24 +733,24 @@ game.post('/sync-local-data', async (c) => {
       }
     }
 
-    // 5. 合并统计数据（累加）
+    // Merge stats (additive)
     if (localData.stats) {
       const updates: Record<string, number> = {};
-      
-      if (localData.stats.totalClicks) {
+
+      if (typeof localData.stats.totalClicks === 'number' && localData.stats.totalClicks > 0) {
         updates.total_clicks = safeAdd(
           serverStats?.total_clicks || 0,
           localData.stats.totalClicks
         );
       }
-      
-      if (localData.stats.totalEggsSold) {
+
+      if (typeof localData.stats.totalEggsSold === 'number' && localData.stats.totalEggsSold > 0) {
         updates.total_eggs_sold = safeAdd(
           serverStats?.total_eggs_sold || 0,
           localData.stats.totalEggsSold
         );
       }
-      
+
       if (Object.keys(updates).length > 0) {
         await supabase
           .from('stats')
@@ -728,11 +760,11 @@ game.post('/sync-local-data', async (c) => {
       }
     }
 
-    // 6. 合并黑色保底计数（取更大值）
-    if (localData.blackPityCounter !== undefined) {
+    // Merge pity counter (keep the larger value)
+    if (typeof localData.blackPityCounter === 'number') {
       const serverPity = profile?.black_pity_counter || 0;
       const newPity = Math.max(serverPity, localData.blackPityCounter);
-      
+
       if (newPity > serverPity) {
         await supabase
           .from('profiles')
@@ -744,10 +776,40 @@ game.post('/sync-local-data', async (c) => {
 
     console.log('[Sync Local Data] Sync completed successfully');
 
+    const [
+      { data: updatedProfile },
+      { data: updatedInventory },
+      { data: updatedUpgrades },
+      { data: updatedStats },
+    ] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('coins, black_pity_counter')
+        .eq('user_id', user.userId)
+        .single(),
+      supabase
+        .from('inventory')
+        .select('rarity, quantity')
+        .eq('user_id', user.userId),
+      supabase
+        .from('upgrades')
+        .select('upgrade_key, level')
+        .eq('user_id', user.userId),
+      supabase
+        .from('stats')
+        .select('total_clicks, total_eggs_sold')
+        .eq('user_id', user.userId)
+        .single(),
+    ]);
+
     return c.json({
       success: true,
       data: {
-        message: '本地数据已同步到服务器',
+        merged: true,
+        profile: updatedProfile,
+        inventory: updatedInventory || [],
+        upgrades: updatedUpgrades || [],
+        stats: updatedStats,
       },
     });
   } catch (error) {
@@ -757,3 +819,9 @@ game.post('/sync-local-data', async (c) => {
 });
 
 export default game;
+
+
+
+
+
+
