@@ -132,6 +132,12 @@ export const Errors = {
     'This egg type cannot be traded. Only purple, gold, and black eggs are tradable.',
     400
   ),
+  RARITY_MARKET_ONLY: new AppError(
+    'RARITY_MARKET_ONLY',
+    '紫蛋及以上稀有度只能在交易市场出售',
+    'Purple and higher rarity eggs can only be sold on the marketplace.',
+    400
+  ),
   MAX_UPGRADE_LEVEL: new AppError(
     'MAX_UPGRADE_LEVEL',
     '已达到最大升级等级',

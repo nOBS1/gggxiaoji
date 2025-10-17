@@ -1,6 +1,6 @@
-// ==================== Google OAuth 认证路由 ====================
-// 支持 Google 第三方登录
-// 使用 Supabase PostgreSQL
+﻿// ==================== Google OAuth 璁よ瘉璺敱 ====================
+// 鏀寔 Google 绗笁鏂圭櫥褰?
+// 浣跨敤 Supabase PostgreSQL
 
 import { Hono } from 'hono';
 import { Env } from '../index';
@@ -10,7 +10,7 @@ import { getSupabase } from '../lib/supabase';
 
 const oauth = new Hono<{ Bindings: Env }>();
 
-// Google OAuth 用户信息类型
+// Google OAuth 鐢ㄦ埛淇℃伅绫诲瀷
 interface GoogleUserInfo {
   id: string;
   email: string;
@@ -23,12 +23,12 @@ interface GoogleUserInfo {
 }
 
 // ==================== GET /api/auth/google ====================
-// Google OAuth 登录入口
-// 重定向到 Google 授权页面
+// Google OAuth 鐧诲綍鍏ュ彛
+// 閲嶅畾鍚戝埌 Google 鎺堟潈椤甸潰
 
 oauth.get('/google', async (c) => {
   try {
-    // 从环境变量获取 Google OAuth 配置
+    // 浠庣幆澧冨彉閲忚幏鍙?Google OAuth 閰嶇疆
     const clientId = c.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
     const redirectUri = c.env.GOOGLE_REDIRECT_URI || process.env.GOOGLE_REDIRECT_URI;
     
@@ -40,7 +40,7 @@ oauth.get('/google', async (c) => {
       }, 500);
     }
     
-    // 构建 Google OAuth 授权 URL
+    // 鏋勫缓 Google OAuth 鎺堟潈 URL
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
     authUrl.searchParams.set('client_id', clientId);
     authUrl.searchParams.set('redirect_uri', redirectUri);
@@ -49,13 +49,13 @@ oauth.get('/google', async (c) => {
     authUrl.searchParams.set('access_type', 'online');
     authUrl.searchParams.set('prompt', 'select_account');
     
-    // 添加 state 参数防止 CSRF 攻击
+    // 娣诲姞 state 鍙傛暟闃叉 CSRF 鏀诲嚮
     const state = crypto.randomUUID();
     authUrl.searchParams.set('state', state);
     
     console.log('Redirecting to Google OAuth:', authUrl.toString());
     
-    // 重定向到 Google 授权页面
+    // 閲嶅畾鍚戝埌 Google 鎺堟潈椤甸潰
     return c.redirect(authUrl.toString());
     
   } catch (error) {
@@ -68,17 +68,17 @@ oauth.get('/google', async (c) => {
 });
 
 // ==================== GET /api/auth/google/callback ====================
-// Google OAuth 回调处理
-// 处理 Google 授权后的回调
+// Google OAuth 鍥炶皟澶勭悊
+// 澶勭悊 Google 鎺堟潈鍚庣殑鍥炶皟
 
 oauth.get('/google/callback', async (c) => {
   try {
-    // 获取授权码
+    // 鑾峰彇鎺堟潈鐮?
     const code = c.req.query('code');
     const state = c.req.query('state');
     const error = c.req.query('error');
     
-    // 检查是否有错误
+    // 妫€鏌ユ槸鍚︽湁閿欒
     if (error) {
       console.error('Google OAuth error:', error);
       return c.json({
@@ -96,7 +96,7 @@ oauth.get('/google/callback', async (c) => {
     
     console.log('Received authorization code, exchanging for token...');
     
-    // 从环境变量获取配置
+    // 浠庣幆澧冨彉閲忚幏鍙栭厤缃?
     const clientId = c.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
     const clientSecret = c.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
     const redirectUri = c.env.GOOGLE_REDIRECT_URI || process.env.GOOGLE_REDIRECT_URI;
@@ -109,7 +109,7 @@ oauth.get('/google/callback', async (c) => {
       }, 500);
     }
     
-    // 1. 用授权码交换 access_token
+    // 1. 鐢ㄦ巿鏉冪爜浜ゆ崲 access_token
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
@@ -138,7 +138,7 @@ oauth.get('/google/callback', async (c) => {
     
     console.log('Successfully obtained access token');
     
-    // 2. 用 access_token 获取用户信息
+    // 2. 鐢?access_token 鑾峰彇鐢ㄦ埛淇℃伅
     const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -160,7 +160,7 @@ oauth.get('/google/callback', async (c) => {
       name: googleUser.name,
     });
     
-    // 3. 在 Supabase 中查找或创建用户
+    // 3. 鍦?Supabase 涓煡鎵炬垨鍒涘缓鐢ㄦ埛
     const env = {
       SUPABASE_URL: c.env.SUPABASE_URL || process.env.SUPABASE_URL || '',
       SUPABASE_ANON_KEY: c.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '',
@@ -170,7 +170,7 @@ oauth.get('/google/callback', async (c) => {
     
     const supabase = getSupabase(env);
     
-    // 查找是否已存在该邮箱的用户
+    // 鏌ユ壘鏄惁宸插瓨鍦ㄨ閭鐨勭敤鎴?
     const { data: existingUsers, error: findError } = await supabase
       .from('users')
       .select('*')
@@ -188,11 +188,11 @@ oauth.get('/google/callback', async (c) => {
     let user;
     
     if (existingUsers && existingUsers.length > 0) {
-      // 用户已存在，直接登录
+      // 鐢ㄦ埛宸插瓨鍦紝鐩存帴鐧诲綍
       user = existingUsers[0];
       console.log('Existing user found:', user.id);
       
-      // 更新最后登录时间和头像
+      // 鏇存柊鏈€鍚庣櫥褰曟椂闂村拰澶村儚
       const updateData: Record<string, string> = {
         last_login: new Date().toISOString(),
       };
@@ -223,7 +223,7 @@ oauth.get('/google/callback', async (c) => {
       }
         
     } else {
-      // 新用户，创建账号
+      // 鏂扮敤鎴凤紝鍒涘缓璐﹀彿
       console.log('Creating new user from Google OAuth');
       
       const newUser = {
@@ -253,7 +253,7 @@ oauth.get('/google/callback', async (c) => {
       user = createdUser;
       console.log('New user created:', user.id);
       
-      // 为新用户创建初始 profile（peck_level 等游戏数据在 stats 表中）
+      // 涓烘柊鐢ㄦ埛鍒涘缓鍒濆 profile锛坧eck_level 绛夋父鎴忔暟鎹湪 stats 琛ㄤ腑锛?
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([{
@@ -266,10 +266,10 @@ oauth.get('/google/callback', async (c) => {
       
       if (profileError) {
         console.error('Failed to create user profile:', profileError);
-        // 不抛出错误，profile 可以稍后创建
+        // 涓嶆姏鍑洪敊璇紝profile 鍙互绋嶅悗鍒涘缓
       }
 
-      // 为新用户创建初始 stats（游戏进度数据）
+      // 涓烘柊鐢ㄦ埛鍒涘缓鍒濆 stats锛堟父鎴忚繘搴︽暟鎹級
       const { error: statsError } = await supabase
         .from('stats')
         .insert([{
@@ -284,10 +284,10 @@ oauth.get('/google/callback', async (c) => {
       
       if (statsError) {
         console.error('Failed to create user stats:', statsError);
-        // 不抛出错误，stats 可以稍后创建
+        // 涓嶆姏鍑洪敊璇紝stats 鍙互绋嶅悗鍒涘缓
       }
 
-      // 为新用户创建初始 inventory（所有稀有度蛋为0）
+      // 涓烘柊鐢ㄦ埛鍒涘缓鍒濆 inventory锛堟墍鏈夌█鏈夊害铔嬩负0锛?
       const inventoryData = [
         { user_id: user.id, rarity: 'white', quantity: 0 },
         { user_id: user.id, rarity: 'brown', quantity: 0 },
@@ -303,10 +303,10 @@ oauth.get('/google/callback', async (c) => {
       
       if (inventoryError) {
         console.error('Failed to create user inventory:', inventoryError);
-        // 不抛出错误，inventory 可以稍后创建
+        // 涓嶆姏鍑洪敊璇紝inventory 鍙互绋嶅悗鍒涘缓
       }
 
-      // 为新用户创建初始 upgrades（level=1，其他=0）
+      // 涓烘柊鐢ㄦ埛鍒涘缓鍒濆 upgrades锛坙evel=1锛屽叾浠?0锛?
       const upgradesData = [
         { user_id: user.id, upgrade_key: 'level', level: 1 },
         { user_id: user.id, upgrade_key: 'feed', level: 0 },
@@ -323,10 +323,10 @@ oauth.get('/google/callback', async (c) => {
       
       if (upgradesError) {
         console.error('Failed to create user upgrades:', upgradesError);
-        // 不抛出错误，upgrades 可以稍后创建
+        // 涓嶆姏鍑洪敊璇紝upgrades 鍙互绋嶅悗鍒涘缓
       }
 
-      // 为新用户创建初始 ad_runs
+      // 涓烘柊鐢ㄦ埛鍒涘缓鍒濆 ad_runs
       const { error: adRunsError } = await supabase
         .from('ad_runs')
         .insert([{
@@ -338,11 +338,11 @@ oauth.get('/google/callback', async (c) => {
       
       if (adRunsError) {
         console.error('Failed to create user ad_runs:', adRunsError);
-        // 不抛出错误，ad_runs 可以稍后创建
+        // 涓嶆姏鍑洪敊璇紝ad_runs 鍙互绋嶅悗鍒涘缓
       }
     }
     
-    // 4. 生成 JWT Token
+    // 4. 鐢熸垚 JWT Token
     const token = await generateToken({
       userId: user.id,
       email: user.email,
@@ -352,28 +352,71 @@ oauth.get('/google/callback', async (c) => {
     console.log('JWT token generated for user:', user.id);
     
     // 5. 重定向回前端，携带 token
-    // 使用 Referer 或默认的前端 URL
     const referer = c.req.header('Referer');
-    let frontendUrl: URL;
-    
+
+    const candidateBases: string[] = [];
+    const allowedOrigins = new Set<string>();
+
+    const addCandidates = (raw?: string) => {
+      if (!raw || raw === '*') return;
+      raw.split(',')
+        .map(entry => entry.trim())
+        .filter(Boolean)
+        .forEach((entry) => {
+          try {
+            const url = new URL(entry);
+            const normalized = url.toString();
+            if (!candidateBases.includes(normalized)) {
+              candidateBases.push(normalized);
+              allowedOrigins.add(url.origin);
+            }
+          } catch (parseError) {
+            console.warn('Invalid frontend candidate URL skipped:', entry, parseError);
+          }
+        });
+    };
+
+    addCandidates(env.FRONTEND_URL);
+    addCandidates(env.CORS_ORIGIN);
+
+    const defaultFrontendBase = env.FRONTEND_URL
+      || (env.NODE_ENV === 'production'
+        ? 'https://chickgamehub.online'
+        : 'http://localhost:5173');
+    addCandidates(defaultFrontendBase);
+
+    let frontendUrl: URL | null = null;
+
     if (referer) {
-      frontendUrl = new URL(referer);
-      // 清除可能存在的旧参数
-      frontendUrl.searchParams.delete('token');
-      frontendUrl.searchParams.delete('oauth_success');
-      frontendUrl.searchParams.delete('error');
-    } else {
-      // 默认前端 URL (根据环境判断)
-      const defaultFrontendUrl = env.NODE_ENV === 'production'
-        ? 'https://yourdomain.com'
-        : 'http://localhost:5173';
-      frontendUrl = new URL(defaultFrontendUrl);
+      try {
+        const refererUrl = new URL(referer);
+        if (allowedOrigins.has(refererUrl.origin)) {
+          frontendUrl = refererUrl;
+        } else {
+          console.warn('Referer origin not in whitelist, falling back to configured frontend:', refererUrl.origin);
+        }
+      } catch (parseError) {
+        console.warn('Invalid referer URL from OAuth callback:', referer, parseError);
+      }
     }
-    
-    // 添加成功参数
+
+    if (!frontendUrl) {
+      const fallbackBase = candidateBases[0] || defaultFrontendBase;
+      frontendUrl = new URL(fallbackBase);
+    }
+
+    console.log('OAuth redirect decision', {
+      referer,
+      allowedOrigins: Array.from(allowedOrigins),
+      candidateBases,
+      chosen: frontendUrl.toString(),
+    });
+    frontendUrl.searchParams.delete('token');
+    frontendUrl.searchParams.delete('oauth_success');
+    frontendUrl.searchParams.delete('error');
+
     frontendUrl.searchParams.set('token', token);
-    frontendUrl.searchParams.set('oauth_success', 'true');
-    
+    frontendUrl.searchParams.set('oauth_success', 'true');    
     console.log('Redirecting to frontend:', frontendUrl.toString());
     
     return c.redirect(frontendUrl.toString());
@@ -381,7 +424,7 @@ oauth.get('/google/callback', async (c) => {
   } catch (error) {
     console.error('OAuth callback error:', error);
     
-    // 尝试重定向回前端，显示错误
+    // 灏濊瘯閲嶅畾鍚戝洖鍓嶇锛屾樉绀洪敊璇?
     const referer = c.req.header('Referer');
     if (referer) {
       const errorUrl = new URL(referer);
@@ -397,6 +440,11 @@ oauth.get('/google/callback', async (c) => {
   }
 });
 
-// ==================== 导出路由 ====================
+// ==================== 瀵煎嚭璺敱 ====================
 
 export default oauth;
+
+
+
+
+

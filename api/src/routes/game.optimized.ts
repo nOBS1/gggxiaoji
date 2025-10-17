@@ -23,6 +23,7 @@ import {
 } from '../utils/gameLogic';
 
 const game = new Hono<{ Bindings: Env }>();
+const MARKET_ONLY_RARITIES: readonly Rarity[] = ['purple', 'black'];
 
 // ==================== GET /api/game/state ====================
 // 获取用户游戏状态（使用并行查询优化）
@@ -135,6 +136,11 @@ game.post('/sell', async (c) => {
     throw Errors.INVALID_INPUT;
   }
 
+  const rarityValue = rarity as Rarity;
+  if (MARKET_ONLY_RARITIES.includes(rarityValue)) {
+    throw Errors.RARITY_MARKET_ONLY;
+  }
+
   try {
     const supabase = getSupabase(c.env);
 
@@ -149,7 +155,7 @@ game.post('/sell', async (c) => {
     const goldBonusLevel = upgrade?.level || 0;
 
     // 计算金币收益
-    const coinsEarned = calculateSellValue(rarity as Rarity, quantity, goldBonusLevel);
+    const coinsEarned = calculateSellValue(rarityValue, quantity, goldBonusLevel);
 
     // 使用数据库事务函数
     const result = await callRPC(supabase, 'game_sell', {

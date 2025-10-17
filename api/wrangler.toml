@@ -1,62 +1,69 @@
-# 小鸡游戏 API - Cloudflare Workers 配置文件
+# Xiaoji Game API - Cloudflare Workers configuration
 
 name = "xiaoji-game-api"
 main = "src/index.ts"
 compatibility_date = "2024-10-01"
 compatibility_flags = ["nodejs_compat"]
-workers_dev = true           # 保持 workers.dev 域名激活
-preview_urls = true          # 每次部署自动生成预览链接
+workers_dev = true
+preview_urls = true
 
 # -------------------------------------------------------------------
-# 共享的非敏感变量
+# Shared non-sensitive variables (used by default environment)
 # -------------------------------------------------------------------
 [vars]
 API_VERSION = "v1"
-CORS_ORIGIN = "https://0dca8f01.gggxiaoji.pages.dev,https://gggxiaoji.pages.dev"
+NODE_ENV = "production"
 SUPABASE_URL = "https://rfckzemofzlbixicfnib.supabase.co"
+FRONTEND_URL = "https://chickgamehub.online"
+CORS_ORIGIN = "https://chickgamehub.online,https://gggxiaoji.pages.dev,https://0dca8f01.gggxiaoji.pages.dev,https://93459170.gggxiaoji.pages.dev"
 GOOGLE_CLIENT_ID = "874826851840-k34jj874i0q0s6e356pmhldejlgg9t2s.apps.googleusercontent.com"
 GOOGLE_REDIRECT_URI = "https://xiaoji-game-api.weixinyongjiu.workers.dev/api/auth/google/callback"
 
-# 敏感信息通过 `wrangler secret put` 命令管理，不在此处配置：
+# Sensitive values must be managed via `wrangler secret put`:
 #   JWT_SECRET
 #   SUPABASE_ANON_KEY
-#   SUPABASE_SERVICE_ROLE_KEY (如需要)
+#   SUPABASE_SERVICE_ROLE_KEY
 #   GOOGLE_CLIENT_SECRET
 
 # -------------------------------------------------------------------
-# 环境覆盖配置
+# Production environment overrides
 # -------------------------------------------------------------------
 [env.production]
-name = "xiaoji-game-api-prod"
+name = "xiaoji-game-api"
 
 [env.production.vars]
-CORS_ORIGIN = "https://0dca8f01.gggxiaoji.pages.dev,https://gggxiaoji.pages.dev"
+API_VERSION = "v1"
+NODE_ENV = "production"
+SUPABASE_URL = "https://rfckzemofzlbixicfnib.supabase.co"
+FRONTEND_URL = "https://chickgamehub.online"
+CORS_ORIGIN = "https://chickgamehub.online,https://gggxiaoji.pages.dev,https://0dca8f01.gggxiaoji.pages.dev,https://93459170.gggxiaoji.pages.dev"
+GOOGLE_CLIENT_ID = "874826851840-k34jj874i0q0s6e356pmhldejlgg9t2s.apps.googleusercontent.com"
 GOOGLE_REDIRECT_URI = "https://xiaoji-game-api.weixinyongjiu.workers.dev/api/auth/google/callback"
 
+# -------------------------------------------------------------------
+# Development environment (local testing)
+# -------------------------------------------------------------------
 [env.development]
-name = "xiaoji-game-api-dev"
+name = "xiaoji-game-api"
 
 [env.development.vars]
+API_VERSION = "v1"
+NODE_ENV = "development"
+SUPABASE_URL = "https://rfckzemofzlbixicfnib.supabase.co"
+FRONTEND_URL = "http://localhost:5173"
 CORS_ORIGIN = "*"
+GOOGLE_CLIENT_ID = "874826851840-k34jj874i0q0s6e356pmhldejlgg9t2s.apps.googleusercontent.com"
 GOOGLE_REDIRECT_URI = "http://localhost:8787/api/auth/google/callback"
 
-[env.local]
-name = "xiaoji-game-api-local"
-
 # -------------------------------------------------------------------
-# 可选的资源绑定（需要时取消注释并填写）
-# -------------------------------------------------------------------
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "xiaoji-game-db"
-# database_id = "<d1-database-id>"
-#
-# [[kv_namespaces]]
-# binding = "CACHE"
-# id = "<kv-namespace-id>"
-
-# -------------------------------------------------------------------
-# 构建配置
+# Build configuration
 # -------------------------------------------------------------------
 [build]
 command = ""
+
+# -------------------------------------------------------------------
+# Observability
+# -------------------------------------------------------------------
+[observability]
+enabled = true
+head_sampling_rate = 1

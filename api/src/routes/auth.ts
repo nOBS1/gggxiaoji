@@ -28,10 +28,10 @@ auth.post('/register', async (c) => {
 
   try {
     const env = {
-      SUPABASE_URL: process.env.SUPABASE_URL || '',
-      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
-      JWT_SECRET: process.env.JWT_SECRET || '',
-      NODE_ENV: process.env.NODE_ENV || 'development'
+      SUPABASE_URL: c.env.SUPABASE_URL,
+      SUPABASE_ANON_KEY: c.env.SUPABASE_ANON_KEY,
+      JWT_SECRET: c.env.JWT_SECRET,
+      NODE_ENV: c.env.NODE_ENV || 'development',
     };
     const supabase = getSupabase(env);
     
@@ -100,10 +100,10 @@ auth.post('/login', async (c) => {
 
   try {
     const env = {
-      SUPABASE_URL: process.env.SUPABASE_URL || '',
-      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
-      JWT_SECRET: process.env.JWT_SECRET || '',
-      NODE_ENV: process.env.NODE_ENV || 'development'
+      SUPABASE_URL: c.env.SUPABASE_URL,
+      SUPABASE_ANON_KEY: c.env.SUPABASE_ANON_KEY,
+      JWT_SECRET: c.env.JWT_SECRET,
+      NODE_ENV: c.env.NODE_ENV || 'development',
     };
     const supabase = getSupabase(env);
     

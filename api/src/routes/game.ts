@@ -8,6 +8,7 @@ import { isValidRarity, isValidUpgradeKey, type Rarity, type UpgradeKey } from '
 import { getSupabase } from '../lib/supabase';
 
 const game = new Hono<{ Bindings: Env }>();
+const MARKET_ONLY_RARITIES: readonly Rarity[] = ['purple', 'black'];
 
 // ==================== GET /api/game/state ====================
 // 获取用户游戏状态（库存、金币、升级等）
@@ -243,6 +244,11 @@ game.post('/sell', async (c) => {
     throw Errors.INVALID_INPUT;
   }
 
+  const rarityValue = rarity as Rarity;
+  if (MARKET_ONLY_RARITIES.includes(rarityValue)) {
+    throw Errors.RARITY_MARKET_ONLY;
+  }
+
   try {
     const supabase = getSupabase(c.env);
     const todayDate = new Date().toISOString().split('T')[0];
@@ -271,7 +277,7 @@ game.post('/sell', async (c) => {
 
     // 3. 计算金币收益
     const { calculateSellValue, safeAdd } = await import('../utils/gameLogic');
-    const coinsEarned = calculateSellValue(rarity as Rarity, quantity, goldBonusLevel);
+    const coinsEarned = calculateSellValue(rarityValue, quantity, goldBonusLevel);
 
     // 4. 更新库存和金币
     await supabase
