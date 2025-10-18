@@ -2,8 +2,25 @@
  * 认证系统 JavaScript - 简化版
  * 适配当前的HTML结构
  */
-
 import { CONFIG } from './config.js';
+import { state, saveGame } from './state.js';
+import { updateAllDisplays } from './ui.js';
+
+const CLOUD_REFRESH_INTERVAL_MS = 60000;
+
+let cloudRefreshHandlerRegistered = false;
+let cloudRefreshIntervalId = null;
+let cloudFocusHandler = null;
+let cloudVisibilityHandler = null;
+let isRefreshingCloudState = false;
+
+function getStoredAuthToken() {
+  return (
+    localStorage.getItem('auth_token') ||
+    sessionStorage.getItem('auth_token') ||
+    null
+  );
+}
 
 // ==================== 工具函数 ====================
 
@@ -252,10 +269,243 @@ function validateRegisterForm() {
 
 // ==================== 同步本地数据到服务器 ====================
 
+const SYNC_RARITY_KEYS = Object.keys(CONFIG.RARITIES || {});
+const SYNC_UPGRADE_KEYS = Object.keys(CONFIG.UPGRADES || {});
+
+function toNonNegativeNumber(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 0;
+  return num < 0 ? 0 : num;
+}
+
+function toSafeInteger(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 0;
+  const floored = Math.floor(num);
+  return floored < 0 ? 0 : floored;
+}
+
+function buildEggMap(inventory = []) {
+  const eggs = {};
+  SYNC_RARITY_KEYS.forEach((rarity) => {
+    eggs[rarity] = 0;
+  });
+  inventory?.forEach((item) => {
+    if (!item || !item.rarity) return;
+    eggs[item.rarity] = toSafeInteger(item.quantity);
+  });
+  return eggs;
+}
+
+function buildUpgradeMap(upgrades = []) {
+  const upgradeMap = {};
+  SYNC_UPGRADE_KEYS.forEach((key) => {
+    upgradeMap[key] = 0;
+  });
+  upgrades?.forEach((item) => {
+    if (!item || !item.upgrade_key) return;
+    upgradeMap[item.upgrade_key] = toSafeInteger(item.level);
+  });
+  return upgradeMap;
+}
+
+function buildServerSyncSnapshot(serverData) {
+  if (!serverData) return null;
+  return {
+    coins: toNonNegativeNumber(serverData.profile?.coins),
+    blackPityCounter: toNonNegativeNumber(serverData.profile?.black_pity_counter),
+    eggs: buildEggMap(serverData.inventory),
+    upgrades: buildUpgradeMap(serverData.upgrades),
+    stats: {
+      totalClicks: toNonNegativeNumber(serverData.stats?.total_clicks),
+      totalEggsSold: toNonNegativeNumber(serverData.stats?.total_eggs_sold),
+    },
+  };
+}
+
+async function fetchServerSnapshot(token, { context = '[同步]' } = {}) {
+  if (!token) return null;
+  try {
+    const response = await fetch(`${CONFIG.API_BASE_URL}/game/state`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const result = await response.json().catch((jsonError) => {
+        console.warn(`${context} 云端状态解析失败`, jsonError);
+        return null;
+      });
+
+      if (result?.success && result.data) {
+        return buildServerSyncSnapshot(result.data);
+      }
+
+      if (result) {
+        console.warn(`${context} 云端状态响应异常`, result);
+      }
+    } else {
+      console.warn(`${context} 获取云端数据失败，状态码: ${response.status}`);
+    }
+  } catch (error) {
+    console.warn(`${context} 获取云端数据失败`, error);
+  }
+
+  return null;
+}
+
+function localHasNewerProgress(localData, serverSnapshot) {
+  if (!serverSnapshot) return true;
+  const parse = (value) => toNonNegativeNumber(value);
+
+  if (parse(localData.coins) > serverSnapshot.coins) return true;
+  if (parse(localData.blackPityCounter) > serverSnapshot.blackPityCounter) return true;
+
+  const eggKeys = new Set([
+    ...Object.keys(serverSnapshot.eggs || {}),
+    ...Object.keys(localData.eggs || {}),
+  ]);
+  for (const rarity of eggKeys) {
+    const localQty = parse(localData.eggs?.[rarity]);
+    const serverQty = toNonNegativeNumber(serverSnapshot.eggs?.[rarity]);
+    if (localQty > serverQty) return true;
+  }
+
+  const upgradeKeys = new Set([
+    ...Object.keys(serverSnapshot.upgrades || {}),
+    ...Object.keys(localData.upgrades || {}),
+  ]);
+  for (const key of upgradeKeys) {
+    const localLevel = parse(localData.upgrades?.[key]);
+    const serverLevel = toNonNegativeNumber(serverSnapshot.upgrades?.[key]);
+    if (localLevel > serverLevel) return true;
+  }
+
+  if (parse(localData.stats?.totalClicks) > serverSnapshot.stats.totalClicks) return true;
+  if (parse(localData.stats?.totalEggsSold) > serverSnapshot.stats.totalEggsSold) return true;
+
+  return false;
+}
+
+function applyServerSnapshotToLocal(snapshot, { reason } = {}) {
+  if (!snapshot) return;
+
+  const eggs = {};
+  SYNC_RARITY_KEYS.forEach((rarity) => {
+    const serverQty = snapshot.eggs?.[rarity] ?? 0;
+    eggs[rarity] = toSafeInteger(serverQty);
+  });
+
+  const upgrades = {};
+  SYNC_UPGRADE_KEYS.forEach((key) => {
+    const serverLevel = snapshot.upgrades?.[key] ?? 0;
+    const minLevel = key === 'level' ? 1 : 0;
+    const maxLevel = CONFIG.UPGRADES?.[key]?.maxLevel;
+    let clampedLevel = Math.max(toSafeInteger(serverLevel), minLevel);
+    if (typeof maxLevel === 'number') {
+      clampedLevel = Math.min(clampedLevel, maxLevel);
+    }
+    upgrades[key] = clampedLevel;
+  });
+
+  const nextState = {
+    ...state,
+    eggs,
+    upgrades,
+    coins: toNonNegativeNumber(snapshot.coins),
+    blackPityCounter: toSafeInteger(snapshot.blackPityCounter),
+    totalClicks: toSafeInteger(snapshot.stats?.totalClicks),
+    totalEggsSold: toSafeInteger(snapshot.stats?.totalEggsSold),
+  };
+
+  Object.assign(state, nextState);
+  saveGame();
+  updateAllDisplays();
+
+  if (reason) {
+    console.log('[同步] 已根据云端数据刷新本地存档:', reason);
+  } else {
+    console.log('[同步] 已根据云端数据刷新本地存档');
+  }
+}
+
+async function refreshCloudState({ reason, silent } = {}) {
+  if (isRefreshingCloudState) return;
+  isRefreshingCloudState = true;
+
+  const token = getStoredAuthToken();
+  if (!token) {
+    isRefreshingCloudState = false;
+    return;
+  }
+
+  try {
+    const snapshot = await fetchServerSnapshot(token, { context: '[云端刷新]' });
+    if (snapshot) {
+      applyServerSnapshotToLocal(snapshot, { reason: reason || 'manual refresh' });
+      if (!silent) {
+        showToast('已加载最新云端存档', 'success');
+      }
+    }
+  } finally {
+    isRefreshingCloudState = false;
+  }
+}
+
+function ensureCloudRefreshHandlers() {
+  if (cloudRefreshHandlerRegistered) return;
+
+  if (!cloudFocusHandler) {
+    cloudFocusHandler = () => {
+      refreshCloudState({ reason: 'window focus', silent: true });
+    };
+    window.addEventListener('focus', cloudFocusHandler);
+  }
+
+  if (!cloudVisibilityHandler) {
+    cloudVisibilityHandler = () => {
+      if (document.visibilityState === 'visible') {
+        refreshCloudState({ reason: 'visibilitychange', silent: true });
+      }
+    };
+    document.addEventListener('visibilitychange', cloudVisibilityHandler);
+  }
+
+  if (!cloudRefreshIntervalId) {
+    cloudRefreshIntervalId = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      refreshCloudState({ reason: 'auto poll', silent: true });
+    }, CLOUD_REFRESH_INTERVAL_MS);
+  }
+
+  cloudRefreshHandlerRegistered = true;
+  refreshCloudState({ reason: 'start polling', silent: true });
+}
+
+function disableCloudRefreshHandlers() {
+  if (cloudFocusHandler) {
+    window.removeEventListener('focus', cloudFocusHandler);
+    cloudFocusHandler = null;
+  }
+
+  if (cloudVisibilityHandler) {
+    document.removeEventListener('visibilitychange', cloudVisibilityHandler);
+    cloudVisibilityHandler = null;
+  }
+
+  if (cloudRefreshIntervalId) {
+    clearInterval(cloudRefreshIntervalId);
+    cloudRefreshIntervalId = null;
+  }
+
+  cloudRefreshHandlerRegistered = false;
+}
+
 async function syncLocalDataToServer(token) {
   try {
     // 从 localStorage 读取本地游戏数据
-    const localSaveKey = 'xiaoji-game-v2';
+    const localSaveKey = CONFIG.STORAGE_KEY;
     const savedData = localStorage.getItem(localSaveKey);
     
     if (!savedData) {
@@ -291,6 +541,15 @@ async function syncLocalDataToServer(token) {
       blackPityCounter: gameState.blackPityCounter || 0,
     };
     
+    const serverSnapshot = await fetchServerSnapshot(token);
+
+    if (serverSnapshot && !localHasNewerProgress(localData, serverSnapshot)) {
+      console.log('[同步] 云端数据领先，跳过本地上传');
+      applyServerSnapshotToLocal(serverSnapshot, { reason: '云端进度领先' });
+      showToast('检测到云端进度更高，已加载云端存档', 'success');
+      return;
+    }
+    
     // 调用同步 API
     const response = await fetch(`${CONFIG.API_BASE_URL}/game/sync-local-data`, {
       method: 'POST',
@@ -305,6 +564,10 @@ async function syncLocalDataToServer(token) {
     
     if (response.ok && result.success) {
       console.log('[同步] 本地数据同步成功！');
+      const mergedSnapshot = buildServerSyncSnapshot(result.data);
+      if (mergedSnapshot) {
+        applyServerSnapshotToLocal(mergedSnapshot, { reason: '同步完成' });
+      }
       showToast('本地游戏数据已同步', 'success');
     } else {
       console.warn('[同步] 同步失败:', result.error);
@@ -346,6 +609,7 @@ async function handleLogin(email, password, rememberMe) {
     
     // 同步本地游戏数据到服务器
     await syncLocalDataToServer(result.data.token);
+    ensureCloudRefreshHandlers();
     
     // 更新 UI
     updateUserUI(result.data.user);
@@ -385,6 +649,7 @@ async function handleRegister(email, password) {
       
       // 同步本地游戏数据到服务器
       await syncLocalDataToServer(result.data.token);
+      ensureCloudRefreshHandlers();
       
       updateUserUI(result.data.user);
       closeAuthModal();
@@ -422,6 +687,7 @@ function handleLogout() {
     localStorage.removeItem('auth_token');
     sessionStorage.removeItem('auth_token');
     localStorage.removeItem('user_info');
+    disableCloudRefreshHandlers();
     
     const loginBtn = document.getElementById('loginBtn');
     const userInfoWrapper = document.getElementById('userInfoWrapper');
@@ -444,6 +710,8 @@ export function checkAuthStatus() {
     try {
       const user = JSON.parse(userInfo);
       updateUserUI(user);
+      ensureCloudRefreshHandlers();
+      refreshCloudState({ reason: 'auth status check', silent: true });
       return true;
     } catch (error) {
       console.error('解析用户信息失败:', error);
@@ -532,6 +800,7 @@ function handleOAuthCallback() {
       
       // 7. 同步本地数据
       syncLocalDataToServer(token);
+      ensureCloudRefreshHandlers();
       
     } catch (error) {
       console.error('❌ Failed to parse OAuth token:', error);
@@ -552,6 +821,7 @@ function handleOAuthCallback() {
 
 export function initAuthUI() {
   console.log('🔐 初始化认证UI...');
+  ensureCloudRefreshHandlers();
   
   // 先检查 OAuth 回调
   handleOAuthCallback();

@@ -16,7 +16,7 @@
   
   <!-- SEO Meta Tags -->
   <meta name="description" content="小鸡生蛋游戏 - 免费在线HTML5小游戏，点击小鸡收集稀有鸡蛋，市场交易，云端同步。Chicken Egg Game - Free online HTML5 idle game with market trading and cloud sync.">
-  <meta name="keywords" content="鸡蛋,小游戏,HTML5游戏,H5游戏,在线游戏,模拟市场,交易,放置游戏,挂机游戏,点击游戏,egg game,chicken game,HTML5 game,H5 game,online game,market simulation,trading,idle game,clicker game,browser game">
+  <meta name="keywords" content="鸡蛋,小游戏,HTML5游戏,H5游戏,在线游戏,模拟市场,交易,放置游戏,挂机游戏,点击游戏,egg game,chicken game,HTML5 game,H5 game,online game,market simulation,trading,idle game,clicker game,browser game,egg games online,play egg games,free egg games,online egg games for kids,egg hunting games,egg decoration games,fun egg games,best egg games online,egg-themed games,virtual egg games">
   <meta name="author" content="Xiaoji Game">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
@@ -56,6 +56,10 @@
   <link rel="stylesheet" href="src/css/auth.css" />
   <link rel="stylesheet" href="src/css/market.css" />
   <link rel="stylesheet" href="src/css/guide-changelog.css" />
+  
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5747890927688294"
+     crossorigin="anonymous"></script>
 </head>
 <body>
   <!-- 顶部导航栏 -->
@@ -227,6 +231,7 @@
         <button class="market-tab-btn active" data-market-tab="marketplace" data-i18n="marketPlace">市场广场</button>
         <button class="market-tab-btn" data-market-tab="my-orders" data-i18n="myOrders">我的订单</button>
         <button class="market-tab-btn" data-market-tab="transactions" data-i18n="transactions">交易记录</button>
+        <button class="market-tab-btn" data-market-tab="coin-history" data-i18n="coinHistory">💰 金币记录</button>
       </div>
 
       <!-- 加载状态 -->
@@ -377,6 +382,15 @@
       <!-- 交易记录标签页 -->
       <div class="market-tab-content" data-market-content="transactions">
         <div id="transactionsGrid" class="transactions-list"></div>
+      </div>
+      
+      <!-- 金币记录标签页 -->
+      <div class="market-tab-content" data-market-content="coin-history">
+        <div class="coin-history-header">
+          <h3 data-i18n="coinHistoryTitle">金币流水</h3>
+          <p data-i18n="coinHistoryDesc">查看所有金币变动记录</p>
+        </div>
+        <div id="coinHistoryGrid" class="coin-history-list"></div>
       </div>
     </div>
   </div>
@@ -819,7 +833,7 @@
     "inLanguage": ["zh-CN", "en-US"],
     "applicationCategory": "Game",
     "operatingSystem": "Any (Web Browser)",
-    "keywords": "鸡蛋, 小游戏, HTML5游戏, H5游戏, 在线渨戏, 模拟市场, 交易, 放置游戏, egg game, chicken game, HTML5 game, online game, market simulation, trading, idle game",
+    "keywords": "鸡蛋, 小游戏, HTML5游戏, H5游戏, 在线游戏, 模拟市场, 交易, 放置游戏, egg game, chicken game, HTML5 game, online game, market simulation, trading, idle game, egg games online, play egg games, free egg games, online egg games for kids, egg hunting games, egg decoration games, fun egg games, best egg games online, egg-themed games, virtual egg games",
     "offers": {
       "@type": "Offer",
       "price": "0",

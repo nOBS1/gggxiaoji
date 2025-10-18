@@ -3,7 +3,7 @@
  * 提供玩家之间买卖鸡蛋的功能
  */
 
-import { state, saveGame } from './state.js';
+import { state, saveGame, logCoinChange } from './state.js';
 import { showFloatText } from './ui.js';
 import { t, i18n } from './i18n.js';
 import { CONFIG } from './config.js';
@@ -174,9 +174,29 @@ export async function buyOrder(orderId) {
     });
 
     const result = await response.json();
+    console.log('[Market] Buy order response:', result);
 
     if (result.success) {
       showFloatText(window.innerWidth / 2, window.innerHeight / 2, t(i18n, state.language, 'purchaseSuccess'), 'success');
+      
+      // 更新本地状态：扮除金币，增加蛋
+      if (result.data && result.data.order) {
+        const order = result.data.order;
+        if (order.price_coins && order.rarity && order.quantity) {
+          state.coins -= order.price_coins;
+          state.eggs[order.rarity] = (state.eggs[order.rarity] || 0) + order.quantity;
+          
+          // 记录金币变动
+          logCoinChange(
+            -order.price_coins, 
+            'market_buy', 
+            `${t(i18n, state.language, 'bought')} ${order.quantity}x ${t(i18n, state.language, `egg_${order.rarity}`)}`
+          );
+          
+          saveGame();
+          console.log('[Market] Local state updated: -', order.price_coins, 'coins, +', order.quantity, order.rarity, 'eggs');
+        }
+      }
       
       // 刷新市场订单和交易记录
       await fetchMarketOrders(marketState.currentFilter, marketState.currentSort, marketState.currentSortOrder);
@@ -219,6 +239,13 @@ export async function cancelOrder(orderId) {
 
     if (result.success) {
       showFloatText(window.innerWidth / 2, window.innerHeight / 2, t(i18n, state.language, 'orderCancelled'), 'success');
+      
+      // 更新本地状态：返还蛋到背包
+      if (result.data) {
+        const order = result.data.order;
+        state.eggs[order.rarity] = (state.eggs[order.rarity] || 0) + order.quantity;
+        saveGame();
+      }
       
       // 刷新我的订单
       await fetchMyOrders();
@@ -544,6 +571,7 @@ export function renderTransactions() {
 
   container.innerHTML = marketState.transactions.map(tx => {
     const isBuyer = tx.buyer_id === state.userId;
+    console.log('[Market] Transaction timestamp:', tx.created_at, typeof tx.created_at);
     return `
       <div class="transaction-card">
         <div class="tx-icon">${isBuyer ? '📥' : '📤'}</div>
@@ -710,7 +738,29 @@ function getErrorMessage(errorCode, errorData = {}) {
  * 格式化日期
  */
 function formatDate(timestamp) {
-  const date = new Date(timestamp * 1000);
+  if (!timestamp) return 'Unknown';
+  
+  let date;
+  // 尝试不同的时间戳格式
+  if (typeof timestamp === 'string') {
+    date = new Date(timestamp);
+  } else if (typeof timestamp === 'number') {
+    // 判断是否是秒级时间戳（小于JavaScript毫秒时间戳）
+    if (timestamp < 10000000000) {
+      date = new Date(timestamp * 1000);
+    } else {
+      date = new Date(timestamp);
+    }
+  } else {
+    return 'Invalid Date';
+  }
+  
+  // 检查日期是否有效
+  if (isNaN(date.getTime())) {
+    console.warn('[Market] Invalid timestamp:', timestamp);
+    return 'Invalid Date';
+  }
+  
   return date.toLocaleDateString(state.language === 'zh' ? 'zh-CN' : 'en-US');
 }
 

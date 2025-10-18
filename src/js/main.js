@@ -39,6 +39,7 @@ import {
   startAutoRefresh,
   stopAutoRefresh
 } from './market.js';
+import { renderCoinHistory } from './coinHistory.js';
 
 // ==================== 初始化 ====================
 
@@ -173,6 +174,8 @@ function initEvents() {
     if (target.dataset.action === 'buy-order') {
       const orderId = target.dataset.orderId;
       if (await buyOrder(orderId)) {
+        // buyOrder 已经更新了本地状态，直接刷新显示
+        updateAllDisplays();
         renderMarketOrders();
       }
     }
@@ -181,6 +184,8 @@ function initEvents() {
     if (target.dataset.action === 'cancel-order') {
       const orderId = target.dataset.orderId;
       if (await cancelOrder(orderId)) {
+        // cancelOrder 已经更新了本地状态，直接刷新显示
+        updateAllDisplays();
         renderMyOrders();
       }
     }
@@ -324,6 +329,8 @@ function initEvents() {
       } else if (tab === 'transactions') {
         await fetchTransactions();
         renderTransactions();
+      } else if (tab === 'coin-history') {
+        renderCoinHistory();
       }
     });
   });

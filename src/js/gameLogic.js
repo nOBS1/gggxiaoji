@@ -4,7 +4,7 @@
  */
 
 import { CONFIG } from './config.js';
-import { state, saveGame, safeLoadImportedData } from './state.js';
+import { state, saveGame, logCoinChange } from './state.js';
 import { showFloatText, showDropNotification } from './ui.js';
 
 // ==================== 工具函数 ====================
@@ -162,6 +162,11 @@ export function sellEgg(rarity, amount = 1, silent = false) {
   state.coins = safeAdd(state.coins, coins);
   state.totalEggsSold = safeAdd(state.totalEggsSold, amount);
   
+  // 记录金币变动
+  if (!silent) {
+    logCoinChange(coins, 'sell', `${amount}x ${CONFIG.RARITIES[rarity].name}`);
+  }
+  
   if (rarity === 'silver') {
     state.dailyTasks.sellSilver += amount;
   }
@@ -234,6 +239,9 @@ export function doUpgrade(upgradeKey) {
       return false;
     }
     state.coins -= cost;
+    
+    // 记录金币变动
+    logCoinChange(-cost, 'upgrade', config.name);
   } else {
     // 普通蛋升级
     // 检查资源
