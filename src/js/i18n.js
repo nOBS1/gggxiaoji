@@ -87,8 +87,6 @@ export const i18n = {
     soundEffects: '音效',
     language: '语言',
     saveManagement: '存档管理',
-    exportSave: '导出存档', 
-    importSave: '导入存档', 
     resetGame: '重置游戏',
     about: '关于游戏',
     version: '版本',
@@ -100,8 +98,6 @@ export const i18n = {
     dropRare: '恭喜获得稀有蛋！', 
     offlineEarned: '离线获得', 
     auto: '自动', 
-    importSuccess: '导入成功！', 
-    importFailed: '导入失败：文件格式错误', 
     resetConfirm: '确定要重置游戏吗？所有进度将被清除！',
     
     // 公告
@@ -315,8 +311,6 @@ export const i18n = {
     soundEffects: 'Sound Effects',
     language: 'Language',
     saveManagement: 'Save Management',
-    exportSave: 'Export Save', 
-    importSave: 'Import Save', 
     resetGame: 'Reset Game',
     about: 'About',
     version: 'Version',
@@ -328,8 +322,6 @@ export const i18n = {
     dropRare: 'Congratulations on the rare egg!', 
     offlineEarned: 'Offline earned', 
     auto: 'Auto', 
-    importSuccess: 'Import successful!', 
-    importFailed: 'Import failed: Invalid file format', 
     resetConfirm: 'Are you sure you want to reset the game? All progress will be lost!',
     
     // Announcement

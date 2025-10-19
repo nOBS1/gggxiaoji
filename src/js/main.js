@@ -15,8 +15,6 @@ import {
   watchAd,
   processPassiveIncome,
   calculateOfflineEarnings,
-  exportSave,
-  importSave,
   resetGame,
   initAudio
 } from './gameLogic.js';
@@ -229,35 +227,6 @@ function initEvents() {
     saveGame();
   });
   
-  // 导出存档
-  const exportBtn = document.getElementById('exportBtn');
-  exportBtn.addEventListener('click', () => {
-    exportSave();
-  });
-  
-  // 导入存档
-  const importBtn = document.getElementById('importBtn');
-  const importFile = document.getElementById('importFile');
-  
-  importBtn.addEventListener('click', () => {
-    importFile.click();
-  });
-  
-  importFile.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    importSave(
-      file,
-      () => {
-        updateAllDisplays();
-        alert(t(i18n, state.language, 'importSuccess'));
-      },
-      () => {
-        alert(t(i18n, state.language, 'importFailed'));
-      }
-    );
-  });
   
   // 重置游戏
   const resetBtn = document.getElementById('resetBtn');
