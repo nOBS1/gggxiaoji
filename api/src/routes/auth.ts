@@ -69,13 +69,13 @@ auth.post('/register', async (c) => {
     // 生成 JWT Token
     const token = await generateToken({ userId: newUser.id, email: newUser.email }, env.JWT_SECRET);
 
+    // ⚠️ AdSense合规：仅返回昵称，不返回id和email
     return c.json({
       success: true,
       data: {
         token,
         user: {
-          id: newUser.id,
-          email: newUser.email,
+          nickname: username, // 仅返回昵称（非敏感信息）
         },
       },
     });
@@ -136,13 +136,22 @@ auth.post('/login', async (c) => {
     // 生成 JWT Token
     const token = await generateToken({ userId: user.id, email: user.email }, env.JWT_SECRET);
 
+    // 获取用户昵称
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('nickname')
+      .eq('user_id', user.id)
+      .single();
+
+    const nickname = profile?.nickname || user.email?.split('@')[0] || '玩家';
+
+    // ⚠️ AdSense合规：仅返回昵称，不返回id和email
     return c.json({
       success: true,
       data: {
         token,
         user: {
-          id: user.id,
-          email: user.email,
+          nickname, // 仅返回昵称（非敏感信息）
         },
       },
     });
@@ -175,11 +184,11 @@ auth.get('/verify', async (c) => {
       throw Errors.INVALID_TOKEN;
     }
 
+    // ⚠️ AdSense合规：verify接口不返回敏感信息
     return c.json({
       success: true,
       data: {
-        userId: payload.userId,
-        email: payload.email,
+        valid: true, // 仅返回token是否有效
       },
     });
   } catch (error) {
