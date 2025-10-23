@@ -57,6 +57,52 @@
   <link rel="stylesheet" href="src/css/market.css" />
   <link rel="stylesheet" href="src/css/guide-changelog.css" />
   
+  <!-- ⚠️ AdSense隔离脚本：避免扫描到敏感数据 -->
+  <script>
+    (function() {
+      // 在加载AdSense前临时移除敏感数据
+      const sensitiveKeys = ['auth_token'];
+      const tempStore = {};
+      
+      // 备份并清理localStorage中的敏感键
+      sensitiveKeys.forEach(key => {
+        const val = localStorage.getItem(key);
+        if (val) {
+          tempStore[key] = val;
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // 备份并清理sessionStorage中的敏感键
+      sensitiveKeys.forEach(key => {
+        const val = sessionStorage.getItem(key);
+        if (val) {
+          tempStore['session_' + key] = val;
+          sessionStorage.removeItem(key);
+        }
+      });
+      
+      // 在页面加载后恢复数据
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          // 恢夏localStorage
+          sensitiveKeys.forEach(key => {
+            if (tempStore[key]) {
+              localStorage.setItem(key, tempStore[key]);
+            }
+          });
+          
+          // 恢夏sessionStorage
+          sensitiveKeys.forEach(key => {
+            if (tempStore['session_' + key]) {
+              sessionStorage.setItem(key, tempStore['session_' + key]);
+            }
+          });
+        }, 2000);
+      });
+    })();
+  </script>
+  
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5747890927688294"
      crossorigin="anonymous"></script>

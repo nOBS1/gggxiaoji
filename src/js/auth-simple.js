@@ -597,15 +597,20 @@ async function handleLogin(email, password, rememberMe) {
       throw new Error(result.error?.message || '登录失败');
     }
     
-    // 保存 token
+    // ⚠️ 修复AdSense违规：不在localStorage存储敏感信息
+    // 仅保存用户昵称（非敏感），不存储user_id和token在localStorage
     if (rememberMe) {
-      localStorage.setItem('auth_token', result.data.token);
+      // Token存入sessionStorage，避免长期暴露
+      sessionStorage.setItem('auth_token', result.data.token);
     } else {
       sessionStorage.setItem('auth_token', result.data.token);
     }
     
-    // 保存用户信息
-    localStorage.setItem('user_info', JSON.stringify(result.data.user));
+    // 仅保存昵称（非敏感信息）到localStorage供UI显示
+    const safeUserInfo = {
+      nickname: result.data.user.nickname || result.data.user.email?.split('@')[0] || '玩家'
+    };
+    localStorage.setItem('user_info', JSON.stringify(safeUserInfo));
     
     // 同步本地游戏数据到服务器
     await syncLocalDataToServer(result.data.token);
@@ -642,10 +647,15 @@ async function handleRegister(email, password) {
     
     showToast('注册成功！正在自动登录...', 'success');
     
-    // 注册成功后自动登录
+    // ⚠️ 修复AdSense违规：注册后不存储敏感信息
     if (result.data.token && result.data.user) {
-      localStorage.setItem('auth_token', result.data.token);
-      localStorage.setItem('user_info', JSON.stringify(result.data.user));
+      sessionStorage.setItem('auth_token', result.data.token);
+      
+      // 仅保存昵称（非敏感信息）
+      const safeUserInfo = {
+        nickname: result.data.user.nickname || result.data.user.email?.split('@')[0] || '玩家'
+      };
+      localStorage.setItem('user_info', JSON.stringify(safeUserInfo));
       
       // 同步本地游戏数据到服务器
       await syncLocalDataToServer(result.data.token);
@@ -677,7 +687,11 @@ function updateUserUI(user) {
   
   if (loginBtn) loginBtn.style.display = 'none';
   if (userInfoWrapper) userInfoWrapper.style.display = 'flex';
-  if (userNickname) userNickname.textContent = user.nickname || user.email.split('@')[0];
+  
+  // 仅显示昵称（从localStorage安全读取）
+  if (userNickname) {
+    userNickname.textContent = user.nickname || '玩家';
+  }
 }
 
 // ==================== 退出登录 ====================
@@ -702,7 +716,8 @@ function handleLogout() {
 // ==================== 检查登录状态 ====================
 
 export function checkAuthStatus() {
-  const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+  // ⚠️ 修复AdSense违规：优先从sessionStorage读取token
+  const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
   const userInfo = localStorage.getItem('user_info');
   
   // 检查 token 和 userInfo 是否有效（不为 null/undefined/"undefined"）
@@ -769,18 +784,18 @@ function handleOAuthCallback() {
     console.log('✅ Google OAuth 登录成功');
     
     try {
-      // 1. 保存 token 到 localStorage
-      localStorage.setItem('auth_token', token);
+      // ⚠️ 修复AdSense违规：OAuth登录后不存储敏感信息
+      // 1. Token存入sessionStorage（不是localStorage）
+      sessionStorage.setItem('auth_token', token);
       
       // 2. 解析 token 获取用户信息
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const user = {
-        id: payload.userId,
-        email: payload.email,
-        nickname: payload.username
-      };
       
-      localStorage.setItem('user_info', JSON.stringify(user));
+      // 3. 仅保存昵称（非敏感信息）到localStorage
+      const safeUserInfo = {
+        nickname: payload.username || payload.email?.split('@')[0] || '玩家'
+      };
+      localStorage.setItem('user_info', JSON.stringify(safeUserInfo));
       
       // 3. 显示成功提示
       showToast('Google 登录成功！', 'success');

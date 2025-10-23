@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdSense 合规性测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .test-section h2 {
+      color: #333;
+      font-size: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status.pass {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.fail {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status.warn {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .test-item {
+      padding: 12px;
+      margin-bottom: 10px;
+      background: white;
+      border-radius: 6px;
+      border-left: 4px solid #ddd;
+    }
+
+    .test-item.pass {
+      border-left-color: #28a745;
+    }
+
+    .test-item.fail {
+      border-left-color: #dc3545;
+    }
+
+    .test-item.warn {
+      border-left-color: #ffc107;
+    }
+
+    .test-label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .test-value {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #666;
+      background: #f5f5f5;
+      padding: 8px;
+      border-radius: 4px;
+      word-break: break-all;
+      margin-top: 5px;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .summary {
+      margin-top: 30px;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .summary h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .summary p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔒 AdSense 合规性测试</h1>
+    <p class="subtitle">检查项目代码是否符合 Google AdSense 用户隐私政策</p>
+
+    <div style="margin-bottom: 20px;">
+      <button onclick="runTests()">🧪 运行测试</button>
+      <button onclick="clearAllData()">🗑️ 清除所有数据</button>
+      <button onclick="simulateLogin()">🔑 模拟登录</button>
+    </div>
+
+    <div id="results"></div>
+
+    <div class="summary" id="summary" style="display: none;">
+      <h3 id="summaryTitle">测试结果</h3>
+      <p id="summaryText"></p>
+    </div>
+  </div>
+
+  <script>
+    function runTests() {
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+
+      let passCount = 0;
+      let failCount = 0;
+      let warnCount = 0;
+
+      // 测试 1: localStorage 检查
+      const section1 = createSection('📦 localStorage 检查', '确保不包含敏感个人信息');
+      
+      // 检查 user_id
+      const userId = localStorage.getItem('user_id');
+      addTestItem(section1, 'user_id 不存在', userId === null, userId || '✅ 不存在');
+      if (userId === null) passCount++; else failCount++;
+
+      // 检查 auth_token
+      const authToken = localStorage.getItem('auth_token');
+      addTestItem(section1, 'auth_token 不在 localStorage', authToken === null, authToken || '✅ 不存在');
+      if (authToken === null) passCount++; else failCount++;
+
+      // 检查 user_info
+      const userInfo = localStorage.getItem('user_info');
+      let userInfoSafe = true;
+      let userInfoDetails = '✅ 不存在';
+      
+      if (userInfo) {
+        try {
+          const parsed = JSON.parse(userInfo);
+          userInfoDetails = JSON.stringify(parsed, null, 2);
+          
+          // 检查是否包含敏感字段
+          if (parsed.id || parsed.email || parsed.userId) {
+            userInfoSafe = false;
+            failCount++;
+          } else if (parsed.nickname && parsed.nickname.includes('@')) {
+            // 昵称包含 @ 符号（可能是 email）
+            userInfoSafe = 'warn';
+            warnCount++;
+            userInfoDetails += '\n⚠️ 昵称可能来自 email';
+          } else {
+            passCount++;
+          }
+        } catch (e) {
+          userInfoSafe = false;
+          failCount++;
+          userInfoDetails = '❌ 无效 JSON';
+        }
+      } else {
+        passCount++;
+      }
+
+      addTestItem(section1, 'user_info 不含敏感信息', userInfoSafe === true, userInfoDetails, userInfoSafe === 'warn' ? 'warn' : null);
+
+      results.appendChild(section1);
+
+      // 测试 2: sessionStorage 检查
+      const section2 = createSection('💾 sessionStorage 检查', 'Token 应存储在这里（会话级）');
+      
+      const sessionToken = sessionStorage.getItem('auth_token');
+      const hasSessionToken = sessionToken !== null;
+      addTestItem(section2, 'auth_token 在 sessionStorage', hasSessionToken, sessionToken ? '✅ 存在（已脱敏）' : '⚠️ 不存在', hasSessionToken ? null : 'warn');
+      if (hasSessionToken) passCount++; else warnCount++;
+
+      results.appendChild(section2);
+
+      // 测试 3: 全局变量检查
+      const section3 = createSection('🌐 全局变量检查', '确保无敏感信息暴露在 window 对象');
+      
+      const dangerousGlobals = ['userId', 'userEmail', 'authToken', 'userPassword'];
+      let foundDangerous = false;
+      
+      dangerousGlobals.forEach(key => {
+        if (window[key] !== undefined) {
+          foundDangerous = true;
+          addTestItem(section3, `window.${key} 不存在`, false, `❌ 发现: ${window[key]}`);
+          failCount++;
+        }
+      });
+
+      if (!foundDangerous) {
+        addTestItem(section3, '无危险全局变量', true, '✅ 未发现敏感全局变量');
+        passCount++;
+      }
+
+      results.appendChild(section3);
+
+      // 测试 4: Cookie 检查
+      const section4 = createSection('🍪 Cookie 检查', '检查是否有未加密的敏感 Cookie');
+      
+      const cookies = document.cookie.split(';').map(c => c.trim());
+      const sensitiveCookies = cookies.filter(c => 
+        c.includes('password') || 
+        c.includes('secret') || 
+        c.includes('user_id') ||
+        c.includes('email')
+      );
+
+      if (sensitiveCookies.length === 0) {
+        addTestItem(section4, '无敏感 Cookie', true, '✅ 未发现敏感 Cookie');
+        passCount++;
+      } else {
+        addTestItem(section4, '发现敏感 Cookie', false, sensitiveCookies.join('\n'));
+        failCount++;
+      }
+
+      results.appendChild(section4);
+
+      // 显示总结
+      const summary = document.getElementById('summary');
+      const summaryTitle = document.getElementById('summaryTitle');
+      const summaryText = document.getElementById('summaryText');
+      
+      summary.style.display = 'block';
+      
+      if (failCount === 0) {
+        summaryTitle.textContent = '✅ 测试通过！';
+        summaryTitle.style.color = '#d4edda';
+        summaryText.textContent = `${passCount} 项通过，${warnCount} 项警告。项目符合 AdSense 隐私政策。`;
+      } else {
+        summaryTitle.textContent = '❌ 测试失败';
+        summaryTitle.style.color = '#f8d7da';
+        summaryText.textContent = `${failCount} 项失败，${warnCount} 项警告，${passCount} 项通过。请修复失败项。`;
+      }
+    }
+
+    function createSection(title, subtitle) {
+      const section = document.createElement('div');
+      section.className = 'test-section';
+      
+      const header = document.createElement('h2');
+      header.textContent = title;
+      section.appendChild(header);
+
+      if (subtitle) {
+        const sub = document.createElement('p');
+        sub.textContent = subtitle;
+        sub.style.color = '#666';
+        sub.style.fontSize = '14px';
+        sub.style.marginBottom = '15px';
+        section.appendChild(sub);
+      }
+
+      return section;
+    }
+
+    function addTestItem(section, label, pass, value, forceStatus = null) {
+      const item = document.createElement('div');
+      item.className = 'test-item ' + (forceStatus || (pass ? 'pass' : 'fail'));
+      
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'test-label';
+      labelDiv.textContent = label;
+      
+      const statusSpan = document.createElement('span');
+      statusSpan.className = 'status ' + (forceStatus || (pass ? 'pass' : 'fail'));
+      statusSpan.textContent = forceStatus === 'warn' ? '⚠️ 警告' : (pass ? '✅ 通过' : '❌ 失败');
+      statusSpan.style.marginLeft = '10px';
+      statusSpan.style.float = 'right';
+      labelDiv.appendChild(statusSpan);
+      
+      item.appendChild(labelDiv);
+      
+      if (value) {
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'test-value';
+        valueDiv.textContent = value;
+        item.appendChild(valueDiv);
+      }
+      
+      section.appendChild(item);
+    }
+
+    function clearAllData() {
+      if (confirm('确定要清除所有存储的数据吗？（包括游戏存档）')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        document.cookie.split(";").forEach(c => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        alert('✅ 所有数据已清除！');
+        runTests();
+      }
+    }
+
+    function simulateLogin() {
+      // 模拟一个符合规范的登录
+      sessionStorage.setItem('auth_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test_token');
+      localStorage.setItem('user_info', JSON.stringify({
+        nickname: '测试用户'
+      }));
+      alert('✅ 已模拟登录（符合规范）');
+      runTests();
+    }
+
+    // 页面加载时自动运行测试
+    window.addEventListener('load', runTests);
+  </script>
+</body>
+</html>
