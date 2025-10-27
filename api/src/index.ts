@@ -110,8 +110,19 @@ app.get('/health', (c) => {
 app.route('/api/auth', authRoutes);
 app.route('/api/auth', oauthRoutes);
 
-// Protected routes
-app.use('/api/*', authMiddleware);
+// Protected routes (with exceptions for market browsing)
+app.use('/api/*', async (c, next) => {
+  const path = c.req.path;
+  
+  // Allow anonymous access to market browsing endpoints
+  if (path === '/api/market/orders' || path === '/api/market/stats') {
+    return next();
+  }
+  
+  // All other routes require authentication
+  return authMiddleware(c, next);
+});
+
 app.route('/api/game', gameRoutes);
 app.route('/api/market', marketRoutes);
 app.route('/api/profile', profileRoutes);

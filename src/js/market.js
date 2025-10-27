@@ -46,10 +46,11 @@ export const marketState = {
  */
 export async function fetchMarketOrders(rarity = null, sortBy = 'created_at', sortOrder = 'desc', page = null, limit = null) {
   const token = getAuthToken();
-  if (!token) {
-    showFloatText(window.innerWidth / 2, window.innerHeight / 2, t(i18n, state.language, 'pleaseLogin'));
-    return null;
-  }
+  // 允许未登录用户浏览市场订单
+  // if (!token) {
+  //   showFloatText(window.innerWidth / 2, window.innerHeight / 2, t(i18n, state.language, 'pleaseLogin'));
+  //   return null;
+  // }
 
   try {
     marketState.isLoading = true;

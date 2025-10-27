@@ -38,6 +38,7 @@ import {
   stopAutoRefresh
 } from './market.js';
 import { renderCoinHistory } from './coinHistory.js';
+import { router, ROUTES, getRouteByTab } from './router.js';
 
 // ==================== 初始化 ====================
 
@@ -62,6 +63,7 @@ function init() {
   
   // 绑定事件
   initEvents();
+  setupRouting();
   
   // 启动被动产蛋定时器
   startPassiveIncome();
@@ -83,31 +85,47 @@ function init() {
 
 // ==================== 事件绑定 ====================
 
+async function activateTab(tabName) {
+  const targetTab = tabName || 'main';
+  const previousTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+  const tabButton = document.querySelector(`.tab-btn[data-tab="${targetTab}"]`);
+  const tabContent = document.querySelector(`.tab-content[data-content="${targetTab}"]`);
+
+  if (!tabButton || !tabContent) {
+    if (targetTab !== 'main') {
+      return activateTab('main');
+    }
+    console.warn('[UI] 无法找到标签页:', targetTab);
+    return;
+  }
+
+  if (previousTab === 'market' && targetTab !== 'market') {
+    stopAutoRefresh();
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn === tabButton);
+  });
+
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.toggle('active', content === tabContent);
+  });
+
+  if (targetTab === 'market') {
+    await initMarketUI();
+    startAutoRefresh();
+  }
+
+  updateAllDisplays();
+}
+
 function initEvents() {
   // 标签页切换
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const previousTab = document.querySelector('.tab-btn.active')?.dataset.tab;
-      
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      
-      btn.classList.add('active');
+    btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
-      document.querySelector(`[data-content="${tab}"]`).classList.add('active');
-      
-      // 如果离开市场标签，停止自动刷新
-      if (previousTab === 'market' && tab !== 'market') {
-        stopAutoRefresh();
-      }
-      
-      // 如果是市场标签页，初始化市场UI并启动自动刷新
-      if (tab === 'market') {
-        await initMarketUI();
-        startAutoRefresh();
-      }
-      
-      updateAllDisplays();
+      const route = getRouteByTab(tab) || ROUTES.HOME;
+      router.navigate(route);
     });
   });
   
@@ -362,6 +380,26 @@ function initEvents() {
     await handleSortChange(sortBy, sortOrder);
     renderMarketOrders();
   });
+}
+
+function setupRouting() {
+  const routeTabPairs = [
+    [ROUTES.HOME, 'main'],
+    [ROUTES.BACKPACK, 'inventory'],
+    [ROUTES.SHOP, 'shop'],
+    [ROUTES.MARKET, 'market'],
+    [ROUTES.UPGRADE, 'upgrade'],
+    [ROUTES.UPGRADES, 'upgrade'],
+    [ROUTES.TASKS, 'tasks'],
+    [ROUTES.SETTINGS, 'settings']
+  ];
+
+  routeTabPairs.forEach(([route, tab]) => {
+    if (!route || !tab) return;
+    router.register(route, () => activateTab(tab));
+  });
+
+  router.init();
 }
 
 // ==================== 定时器 ====================
