@@ -255,6 +255,19 @@ function initEvents() {
     }
   });
   
+  // 联系我们邮件混淆处理
+  const contactLink = document.getElementById('contactLink');
+  if (contactLink) {
+    contactLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      // 混淆邮箱地址
+      const u = 'weixinyongjiu';
+      const d = 'gmail';
+      const c = 'com';
+      window.location.href = `mailto:${u}@${d}.${c}`;
+    });
+  }
+  
   // 公告关闭
   const closeAnnouncement = document.getElementById('closeAnnouncement');
   const announcementBanner = document.getElementById('announcementBanner');

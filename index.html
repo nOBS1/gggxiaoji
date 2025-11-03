@@ -16,7 +16,7 @@
   
   <!-- SEO Meta Tags -->
   <meta name="description" content="小鸡生蛋游戏 - 免费在线HTML5小游戏，点击小鸡收集稀有鸡蛋，市场交易，云端同步。Chicken Egg Game - Free online HTML5 idle game with market trading and cloud sync.">
-  <meta name="keywords" content="鸡蛋,小游戏,HTML5游戏,H5游戏,在线游戏,模拟市场,交易,放置游戏,挂机游戏,点击游戏,egg game,chicken game,HTML5 game,H5 game,online game,market simulation,trading,idle game,clicker game,browser game,egg games online,play egg games,free egg games,online egg games for kids,egg hunting games,egg decoration games,fun egg games,best egg games online,egg-themed games,virtual egg games">
+  <meta name="keywords" content="小鸡生蛋游戏,HTML5游戏,在线游戏,放置游戏,点击游戏,egg game,chicken game,HTML5 game,online game,idle game,clicker game">
   <meta name="author" content="Xiaoji Game">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
@@ -29,7 +29,7 @@
   <meta property="og:title" content="小鸡生蛋游戏 - 免费在线HTML5小游戏 | Chicken Egg Laying Game">
   <meta property="og:description" content="点击小鸡收集稀有鸡蛋，在市场与玩家交易，升级养鸡场。Click chickens to collect rare eggs, trade in the market, upgrade your farm.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://0dca8f01.gggxiaoji.pages.dev/">
+  <meta property="og:url" content="https://chickgamehub.online/">
   <meta property="og:site_name" content="Chicken Egg Game">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:locale:alternate" content="en_US">
@@ -40,12 +40,12 @@
   <meta name="twitter:description" content="点击小鸡收集稀有鸡蛋，在市场与玩家交易，升级养鸡场。">
   
   <!-- Canonical URL -->
-  <link rel="canonical" href="https://0dca8f01.gggxiaoji.pages.dev/">
+  <link rel="canonical" href="https://chickgamehub.online/">
   
   <!-- Alternate Language Links -->
-  <link rel="alternate" hreflang="zh" href="https://0dca8f01.gggxiaoji.pages.dev/?lang=zh">
-  <link rel="alternate" hreflang="en" href="https://0dca8f01.gggxiaoji.pages.dev/?lang=en">
-  <link rel="alternate" hreflang="x-default" href="https://0dca8f01.gggxiaoji.pages.dev/">
+  <link rel="alternate" hreflang="zh" href="https://chickgamehub.online/?lang=zh">
+  <link rel="alternate" hreflang="en" href="https://chickgamehub.online/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://chickgamehub.online/">
   
   <title>小鸡生蛋游戏 - 免费在线HTML5小游戏 | Chicken Egg Laying Game - Free Online HTML5 Game</title>
   
@@ -86,14 +86,14 @@
       // 在页面加载后恢复数据
       window.addEventListener('load', function() {
         setTimeout(function() {
-          // 恢夏localStorage
+          // 恢复localStorage
           sensitiveKeys.forEach(key => {
             if (tempStore[key]) {
               localStorage.setItem(key, tempStore[key]);
             }
           });
           
-          // 恢夏sessionStorage
+          // 恢复sessionStorage
           sensitiveKeys.forEach(key => {
             if (tempStore['session_' + key]) {
               sessionStorage.setItem(key, tempStore['session_' + key]);
@@ -672,7 +672,7 @@
           <label class="checkbox-wrapper">
             <input type="checkbox" id="agreeTerms" required />
             <span class="checkbox-label">
-              我已阅读并同意 <a href="#" class="link">服务条款</a> 和 <a href="#" class="link">隐私政策</a>
+              我已阅读并同意 <a href="/terms.html" class="link" target="_blank">服务条款</a> 和 <a href="/privacy.html" class="link" target="_blank">隐私政策</a>
             </span>
           </label>
         </div>
@@ -893,22 +893,14 @@
         </ul>
       </div>
 
-      <!-- 关键词链接 -->
+      <!-- 游戏类型 -->
       <div class="footer-section">
-        <h3>热门搜索 | Popular Keywords</h3>
+        <h3>游戏分类 | Game Categories</h3>
         <div class="footer-tags">
-          <a href="#" class="footer-tag">egg games online</a>
-          <a href="#" class="footer-tag">play egg games</a>
-          <a href="#" class="footer-tag">free egg games</a>
-          <a href="#" class="footer-tag">online egg games for kids</a>
-          <a href="#" class="footer-tag">egg hunting games</a>
-          <a href="#" class="footer-tag">fun egg games</a>
-          <a href="#" class="footer-tag">best egg games online</a>
-          <a href="#" class="footer-tag">egg-themed games</a>
-          <a href="#" class="footer-tag">virtual egg games</a>
-          <a href="#" class="footer-tag">idle game</a>
-          <a href="#" class="footer-tag">clicker game</a>
-          <a href="#" class="footer-tag">browser game</a>
+          <a href="#" class="footer-tag">放置游戏 Idle Game</a>
+          <a href="#" class="footer-tag">点击游戏 Clicker Game</a>
+          <a href="#" class="footer-tag">HTML5游戏</a>
+          <a href="#" class="footer-tag">浏览器游戏</a>
         </div>
       </div>
 
@@ -916,9 +908,9 @@
       <div class="footer-bottom">
         <p>© 2025 <strong>Chicken Egg Game</strong> | 小鸡生蛋游戏 | All Rights Reserved</p>
         <p>
-          <a href="#" class="footer-link">隐私政策</a> | 
-          <a href="#" class="footer-link">服务条款</a> | 
-          <a href="mailto:weixinyongjiu@gmail.com" class="footer-link">联系我们</a>
+          <a href="/privacy.html" class="footer-link">隐私政策</a> | 
+          <a href="/terms.html" class="footer-link">服务条款</a> | 
+          <a href="#" class="footer-link" id="contactLink">联系我们</a>
         </p>
       </div>
     </div>
@@ -939,14 +931,14 @@
     "name": "Chicken Egg Laying Game",
     "alternateName": "小鸡生蛋游戏",
     "description": "免费在线HTML5小游戏，点击小鸡收集稀有鸡蛋，在市场与玩家交易，升级养鸡场。Free online HTML5 idle game featuring egg collection, market trading, and farm upgrades.",
-    "url": "https://0dca8f01.gggxiaoji.pages.dev/",
-    "image": "https://0dca8f01.gggxiaoji.pages.dev/chick/chick.webp",
+    "url": "https://chickgamehub.online/",
+    "image": "https://chickgamehub.online/chick/chick.webp",
     "gamePlatform": ["Web Browser", "HTML5", "Desktop", "Mobile"],
     "genre": ["Idle Game", "Clicker Game", "Simulation", "Trading", "Casual"],
     "inLanguage": ["zh-CN", "en-US"],
     "applicationCategory": "Game",
     "operatingSystem": "Any (Web Browser)",
-    "keywords": "鸡蛋, 小游戏, HTML5游戏, H5游戏, 在线游戏, 模拟市场, 交易, 放置游戏, egg game, chicken game, HTML5 game, online game, market simulation, trading, idle game, egg games online, play egg games, free egg games, online egg games for kids, egg hunting games, egg decoration games, fun egg games, best egg games online, egg-themed games, virtual egg games",
+    "keywords": "小鸡生蛋游戏, HTML5游戏, 在线游戏, 放置游戏, 点击游戏, egg game, chicken game, HTML5 game, online game, idle game, clicker game",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -960,19 +952,11 @@
     "contentRating": "General",
     "publisher": {
       "@type": "Organization",
-      "name": "Xiaoji Game Team",
-      "email": "weixinyongjiu@gmail.com"
+      "name": "Xiaoji Game Team"
     },
     "datePublished": "2025-09-30",
     "dateModified": "2025-10-17",
     "version": "3.0.0",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "1024",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
     "gameItem": [
       {
         "@type": "Thing",

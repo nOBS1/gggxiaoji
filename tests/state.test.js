@@ -6,19 +6,53 @@
 import { safeLoadImportedData } from '../src/js/state.js';
 import { CONFIG } from '../src/js/config.js';
 
+/**
+ * 测试辅助函数：验证字段值
+ * @param {object} result - safeLoadImportedData 的返回结果
+ * @param {string} category - 字段类别（'dailyTasks' 或 'upgrades'）
+ * @param {string} field - 字段名
+ * @param {*} expectedValue - 期望值
+ */
+function expectFieldValue(result, category, field, expectedValue) {
+  expect(result).not.toBeNull();
+  expect(result[category][field]).toBe(expectedValue);
+}
+
+/**
+ * 测试辅助函数：创建测试数据
+ * @param {string} category - 字段类别
+ * @param {object} overrides - 要覆盖的字段
+ */
+function createTestData(category, overrides = {}) {
+  const defaults = {
+    dailyTasks: {
+      clicks: 50,
+      sellSilver: 10,
+      clickTaskClaimed: true,
+      sellTaskClaimed: false
+    },
+    upgrades: {
+      level: 5,
+      feed: 1,
+      clickPower: 3,
+      idleRate: 10,
+      luckyChance: 5,
+      autoSell: 2,
+      goldBonus: 8
+    }
+  };
+  
+  return {
+    [category]: { ...defaults[category], ...overrides }
+  };
+}
+
 describe('safeLoadImportedData - dailyTasks 字段验证', () => {
   
   test('应该正确加载有效的 dailyTasks 数据', () => {
-    const validData = {
-      dailyTasks: {
-        clicks: 50,
-        sellSilver: 10,
-        clickTaskClaimed: true,
-        sellTaskClaimed: false
-      }
-    };
-    
+    const validData = createTestData('dailyTasks');
     const result = safeLoadImportedData(validData);
+    
     expect(result).not.toBeNull();
     expect(result.dailyTasks.clicks).toBe(50);
     expect(result.dailyTasks.sellSilver).toBe(10);
@@ -26,63 +60,25 @@ describe('safeLoadImportedData - dailyTasks 字段验证', () => {
     expect(result.dailyTasks.sellTaskClaimed).toBe(false);
   });
 
-  test('应该拒绝 clicks 为字符串类型，使用默认值 0', () => {
-    const invalidData = {
-      dailyTasks: {
-        clicks: "100",  // 错误类型：字符串而非数字
-        sellSilver: 5,
-        clickTaskClaimed: false,
-        sellTaskClaimed: false
-      }
-    };
-    
+  // 参数化测试：类型错误应该回落到默认值
+  test.each([
+    ['clicks', "100", 0, '字符串'],
+    ['sellSilver', true, 0, '布尔'],
+    ['clickTaskClaimed', 1, false, '数字'],
+    ['sellTaskClaimed', "false", false, '字符串']
+  ])('应该拒绝 %s 为%s类型，使用默认值', (field, invalidValue, expectedDefault) => {
+    const invalidData = createTestData('dailyTasks', { [field]: invalidValue });
     const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.dailyTasks.clicks).toBe(0); // 应该回落到默认值
-    expect(result.dailyTasks.sellSilver).toBe(5); // 其他字段正常
-  });
-
-  test('应该拒绝 clickTaskClaimed 为数字类型，使用默认值 false', () => {
-    const invalidData = {
-      dailyTasks: {
-        clicks: 30,
-        sellSilver: 2,
-        clickTaskClaimed: 1,  // 错误类型：数字而非布尔
-        sellTaskClaimed: false
-      }
-    };
-    
-    const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.dailyTasks.clickTaskClaimed).toBe(false); // 应该回落到默认值
-    expect(result.dailyTasks.clicks).toBe(30); // 其他字段正常
-  });
-
-  test('应该拒绝 sellSilver 为布尔类型，使用默认值 0', () => {
-    const invalidData = {
-      dailyTasks: {
-        clicks: 20,
-        sellSilver: true,  // 错误类型：布尔而非数字
-        clickTaskClaimed: false,
-        sellTaskClaimed: true
-      }
-    };
-    
-    const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.dailyTasks.sellSilver).toBe(0); // 应该回落到默认值
-    expect(result.dailyTasks.sellTaskClaimed).toBe(true); // 其他字段正常
+    expectFieldValue(result, 'dailyTasks', field, expectedDefault);
   });
 
   test('应该处理多个字段类型错误，全部回落到默认值', () => {
-    const invalidData = {
-      dailyTasks: {
-        clicks: "invalid",
-        sellSilver: null,
-        clickTaskClaimed: "true",
-        sellTaskClaimed: 0
-      }
-    };
+    const invalidData = createTestData('dailyTasks', {
+      clicks: "invalid",
+      sellSilver: null,
+      clickTaskClaimed: "true",
+      sellTaskClaimed: 0
+    });
     
     const result = safeLoadImportedData(invalidData);
     expect(result).not.toBeNull();
@@ -117,53 +113,28 @@ describe('safeLoadImportedData - dailyTasks 字段验证', () => {
     expect(result.dailyTasks.clickTaskClaimed).toBe(false);
   });
 
-  test('应该将负数的 clicks 和 sellSilver 钳位到 0', () => {
-    const invalidData = {
-      dailyTasks: {
-        clicks: -50,
-        sellSilver: -10,
-        clickTaskClaimed: false,
-        sellTaskClaimed: false
-      }
-    };
+  // 参数化测试：数值边界处理
+  test.each([
+    ['负数应钳位到 0', { clicks: -50, sellSilver: -10 }, { clicks: 0, sellSilver: 0 }],
+    ['小数应向下取整', { clicks: 99.9, sellSilver: 15.7 }, { clicks: 99, sellSilver: 15 }]
+  ])('应该处理数值边界：%s', (description, input, expected) => {
+    const invalidData = createTestData('dailyTasks', {
+      ...input,
+      clickTaskClaimed: false,
+      sellTaskClaimed: false
+    });
     
     const result = safeLoadImportedData(invalidData);
     expect(result).not.toBeNull();
-    expect(result.dailyTasks.clicks).toBe(0);
-    expect(result.dailyTasks.sellSilver).toBe(0);
-  });
-
-  test('应该将小数的 clicks 和 sellSilver 向下取整', () => {
-    const invalidData = {
-      dailyTasks: {
-        clicks: 99.9,
-        sellSilver: 15.7,
-        clickTaskClaimed: true,
-        sellTaskClaimed: false
-      }
-    };
-    
-    const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.dailyTasks.clicks).toBe(99);
-    expect(result.dailyTasks.sellSilver).toBe(15);
+    expect(result.dailyTasks.clicks).toBe(expected.clicks);
+    expect(result.dailyTasks.sellSilver).toBe(expected.sellSilver);
   });
 });
 
 describe('safeLoadImportedData - upgrades 字段验证', () => {
   
   test('应该正确加载有效的 upgrades 数据', () => {
-    const validData = {
-      upgrades: {
-        level: 5,
-        feed: 1,
-        clickPower: 3,
-        idleRate: 10,
-        luckyChance: 5,
-        autoSell: 2,
-        goldBonus: 8
-      }
-    };
+    const validData = createTestData('upgrades');
     
     const result = safeLoadImportedData(validData);
     expect(result).not.toBeNull();
@@ -173,121 +144,46 @@ describe('safeLoadImportedData - upgrades 字段验证', () => {
     expect(result.upgrades.idleRate).toBe(10);
   });
 
-  test('应该将超过 maxLevel 的 level 钳位到 maxLevel (20)', () => {
-    const invalidData = {
-      upgrades: {
-        level: 999,  // 超过最大等级 20
-        feed: 0,
-        clickPower: 0,
-        idleRate: 0,
-        luckyChance: 0,
-        autoSell: 0,
-        goldBonus: 0
-      }
-    };
-    
+  // 参数化测试：超过最大值应钳位
+  test.each([
+    ['level', 999, CONFIG.UPGRADES.level.maxLevel, 'maxLevel'],
+    ['feed', 100, CONFIG.UPGRADES.feed.maxLevel, 'maxLevel'],
+    ['clickPower', 9999, CONFIG.UPGRADES.clickPower.maxLevel, 'maxLevel'],
+    ['idleRate', 9999, CONFIG.UPGRADES.idleRate.maxLevel, 'maxLevel'],
+    ['luckyChance', 9999, CONFIG.UPGRADES.luckyChance.maxLevel, 'maxLevel'],
+    ['autoSell', 9999, CONFIG.UPGRADES.autoSell.maxLevel, 'maxLevel'],
+    ['goldBonus', 9999, CONFIG.UPGRADES.goldBonus.maxLevel, 'maxLevel']
+  ])('应该将超过 %s 的 %s 钳位到 %s', (field, excessValue, expectedMax) => {
+    const invalidData = createTestData('upgrades', { [field]: excessValue });
     const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.upgrades.level).toBe(CONFIG.UPGRADES.level.maxLevel); // 应该钳位到 20
+    expectFieldValue(result, 'upgrades', field, expectedMax);
   });
 
   test('应该将低于 minLevel 的 level 钳位到 1', () => {
-    const invalidData = {
-      upgrades: {
-        level: 0,  // 低于最小等级 1
-        feed: 1,
-        clickPower: 5,
-        idleRate: 3,
-        luckyChance: 2,
-        autoSell: 1,
-        goldBonus: 4
-      }
-    };
-    
+    const invalidData = createTestData('upgrades', { level: 0 });
     const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.upgrades.level).toBe(1); // 应该钳位到 1
+    expectFieldValue(result, 'upgrades', 'level', 1);
   });
 
-  test('应该将超过 maxLevel 的 feed 钳位到 maxLevel (2)', () => {
-    const invalidData = {
-      upgrades: {
-        level: 10,
-        feed: 100,  // 超过最大等级 2
-        clickPower: 5,
-        idleRate: 8,
-        luckyChance: 3,
-        autoSell: 4,
-        goldBonus: 6
-      }
-    };
-    
+  // 参数化测试：负数应钳位到 0
+  test.each([
+    ['feed', -5, 0],
+    ['clickPower', -10, 0],
+    ['idleRate', -20, 0]
+  ])('应该将负数的 %s 钳位到 0', (field, negativeValue, expectedMin) => {
+    const invalidData = createTestData('upgrades', { [field]: negativeValue });
     const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.upgrades.feed).toBe(CONFIG.UPGRADES.feed.maxLevel); // 应该钳位到 2
+    expectFieldValue(result, 'upgrades', field, expectedMin);
   });
 
-  test('应该将负数的 feed/clickPower/idleRate 钳位到 0', () => {
-    const invalidData = {
-      upgrades: {
-        level: 5,
-        feed: -5,
-        clickPower: -10,
-        idleRate: -20,
-        luckyChance: 5,
-        autoSell: 3,
-        goldBonus: 7
-      }
-    };
-    
+  // 参数化测试：字符串类型应回落到默认值
+  test.each([
+    ['level', "10", 1],
+    ['feed', "max", 0]
+  ])('应该拒绝字符串类型的 %s，回落到最小值', (field, stringValue, expectedMin) => {
+    const invalidData = createTestData('upgrades', { [field]: stringValue });
     const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.upgrades.feed).toBe(0);
-    expect(result.upgrades.clickPower).toBe(0);
-    expect(result.upgrades.idleRate).toBe(0);
-  });
-
-  test('应该将超过各自 maxLevel 的所有升级字段钳位', () => {
-    const invalidData = {
-      upgrades: {
-        level: 9999,
-        feed: 9999,
-        clickPower: 9999,
-        idleRate: 9999,
-        luckyChance: 9999,
-        autoSell: 9999,
-        goldBonus: 9999
-      }
-    };
-    
-    const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.upgrades.level).toBe(CONFIG.UPGRADES.level.maxLevel);
-    expect(result.upgrades.feed).toBe(CONFIG.UPGRADES.feed.maxLevel);
-    expect(result.upgrades.clickPower).toBe(CONFIG.UPGRADES.clickPower.maxLevel);
-    expect(result.upgrades.idleRate).toBe(CONFIG.UPGRADES.idleRate.maxLevel);
-    expect(result.upgrades.luckyChance).toBe(CONFIG.UPGRADES.luckyChance.maxLevel);
-    expect(result.upgrades.autoSell).toBe(CONFIG.UPGRADES.autoSell.maxLevel);
-    expect(result.upgrades.goldBonus).toBe(CONFIG.UPGRADES.goldBonus.maxLevel);
-  });
-
-  test('应该拒绝字符串类型的升级字段，回落到最小值', () => {
-    const invalidData = {
-      upgrades: {
-        level: "10",  // 字符串而非数字
-        feed: "max",
-        clickPower: 5,
-        idleRate: 3,
-        luckyChance: 2,
-        autoSell: 1,
-        goldBonus: 4
-      }
-    };
-    
-    const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.upgrades.level).toBe(1);  // level 最小值是 1
-    expect(result.upgrades.feed).toBe(0);   // 其他最小值是 0
+    expectFieldValue(result, 'upgrades', field, expectedMin);
   });
 
   test('应该处理 upgrades 字段缺失，使用默认值', () => {
@@ -303,28 +199,19 @@ describe('safeLoadImportedData - upgrades 字段验证', () => {
     expect(result.upgrades.clickPower).toBe(0);
   });
 
-  test('应该将小数升级等级向下取整', () => {
-    const invalidData = {
-      upgrades: {
-        level: 10.9,
-        feed: 1.5,
-        clickPower: 7.2,
-        idleRate: 15.8,
-        luckyChance: 8.3,
-        autoSell: 5.7,
-        goldBonus: 12.1
-      }
-    };
-    
+  // 参数化测试：小数应向下取整
+  test.each([
+    ['level', 10.9, 10],
+    ['feed', 1.5, 1],
+    ['clickPower', 7.2, 7],
+    ['idleRate', 15.8, 15],
+    ['luckyChance', 8.3, 8],
+    ['autoSell', 5.7, 5],
+    ['goldBonus', 12.1, 12]
+  ])('应该将小数 %s 向下取整', (field, floatValue, expected) => {
+    const invalidData = createTestData('upgrades', { [field]: floatValue });
     const result = safeLoadImportedData(invalidData);
-    expect(result).not.toBeNull();
-    expect(result.upgrades.level).toBe(10);
-    expect(result.upgrades.feed).toBe(1);
-    expect(result.upgrades.clickPower).toBe(7);
-    expect(result.upgrades.idleRate).toBe(15);
-    expect(result.upgrades.luckyChance).toBe(8);
-    expect(result.upgrades.autoSell).toBe(5);
-    expect(result.upgrades.goldBonus).toBe(12);
+    expectFieldValue(result, 'upgrades', field, expected);
   });
 
   test('应该处理混合无效数据：类型错误+超出边界', () => {
@@ -354,30 +241,15 @@ describe('safeLoadImportedData - upgrades 字段验证', () => {
 
 describe('safeLoadImportedData - 原型污染防护', () => {
   
-  test('应该拒绝包含 __proto__ 的数据', () => {
+  // 参数化测试：危险属性应被拒绝
+  test.each([
+    ['__proto__', { isAdmin: true }],
+    ['constructor', { prototype: { isAdmin: true } }],
+    ['prototype', { isAdmin: true }]
+  ])('应该拒绝包含 %s 的数据', (dangerousKey, dangerousValue) => {
     const maliciousData = {
       coins: 100,
-      "__proto__": { isAdmin: true }
-    };
-    
-    const result = safeLoadImportedData(maliciousData);
-    expect(result).toBeNull(); // 应该返回 null
-  });
-
-  test('应该拒绝包含 constructor 的数据', () => {
-    const maliciousData = {
-      coins: 100,
-      "constructor": { prototype: { isAdmin: true } }
-    };
-    
-    const result = safeLoadImportedData(maliciousData);
-    expect(result).toBeNull();
-  });
-
-  test('应该拒绝包含 prototype 的数据', () => {
-    const maliciousData = {
-      coins: 100,
-      "prototype": { isAdmin: true }
+      [dangerousKey]: dangerousValue
     };
     
     const result = safeLoadImportedData(maliciousData);
