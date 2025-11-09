@@ -101,7 +101,7 @@ export const i18n = {
     resetConfirm: '确定要重置游戏吗？所有进度将被清除！',
     
     // 公告
-    announcementMain: '欢迎来到小游戏·小鸡生蛋！点击小鸡开始你的养鸡之旅！',
+    announcementMain: '🎮 小鸡生蛋 v4.0 - 数字合成版！像2048一样轻松摸鱼，合成即产蛋～',
     
     // 更新日志
     changelog: '更新日志',
@@ -325,7 +325,7 @@ export const i18n = {
     resetConfirm: 'Are you sure you want to reset the game? All progress will be lost!',
     
     // Announcement
-    announcementMain: 'Welcome to Chicken Egg Laying Game! Click the chicken to start your journey!',
+    announcementMain: '🎮 Chicken Egg Laying v4.0 - Merge Edition! Like 2048, merge numbers to lay eggs~',
     
     // Changelog
     changelog: 'Changelog',
