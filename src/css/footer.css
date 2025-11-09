@@ -122,6 +122,12 @@
   font-weight: 700;
 }
 
+.footer-tagline {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
 /* 响应式设计 */
 @media (min-width: 768px) {
   .footer-container {

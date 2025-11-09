@@ -7,6 +7,7 @@ import '../css/main.css';
 import { CONFIG } from './config.js';
 import { i18n, t } from './i18n.js';
 import { state, saveGame, loadGame } from './state.js';
+import { MergeManager } from './merge/mergeManager.js';
 import { 
   handleClick,
   sellEgg,
@@ -43,7 +44,7 @@ import { router, ROUTES, getRouteByTab } from './router.js';
 // ==================== 初始化 ====================
 
 function init() {
-  console.log('🐔 小鸡生蛋 加载中...');
+  console.log('🐔 小鸡生蛋 v4.0 - 数字合成版 加载中...');
   
   // 加载游戏数据
   loadGame();
@@ -60,6 +61,9 @@ function init() {
   
   // 初始化UI
   updateAllDisplays();
+  
+  // 初始化合成游戏
+  initMergeGame();
   
   // 绑定事件
   initEvents();
@@ -413,6 +417,25 @@ function setupRouting() {
   });
 
   router.init();
+}
+
+// ==================== 合成游戏初始化 ====================
+
+let mergeGameInstance = null;
+
+function initMergeGame() {
+  const container = document.getElementById('mergeGameContainer');
+  if (!container) {
+    console.warn('[MergeGame] 容器未找到，跳过初始化');
+    return;
+  }
+  
+  try {
+    mergeGameInstance = new MergeManager(container);
+    console.log('✅ 合成游戏初始化完成');
+  } catch (error) {
+    console.error('❌ 合成游戏初始化失败:', error);
+  }
 }
 
 // ==================== 定时器 ====================
