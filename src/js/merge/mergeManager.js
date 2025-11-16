@@ -14,6 +14,7 @@ import {
 } from './mergeReward.js';
 import { state, saveGame } from '../state.js';
 import { CONFIG } from '../config.js';
+import { i18n, t } from '../i18n.js';
 
 export class MergeManager {
   constructor(containerElement) {
@@ -54,20 +55,21 @@ export class MergeManager {
   }
 
   render() {
+    const lang = state.language || 'zh';
     this.container.innerHTML = `
       <div class="merge-game-header">
         <div class="merge-score-container">
           <div class="merge-score-box">
-            <span class="merge-score-label">得分</span>
+            <span class="merge-score-label">${t(i18n, lang, 'mergeScore')}</span>
             <span class="merge-score-value" id="mergeScore">0</span>
           </div>
           <div class="merge-score-box">
-            <span class="merge-score-label">最高</span>
+            <span class="merge-score-label">${t(i18n, lang, 'mergeBest')}</span>
             <span class="merge-score-value" id="mergeBestScore">${state.mergeGame.bestScore}</span>
           </div>
         </div>
         <div class="merge-controls">
-          <button class="merge-btn" id="mergeNewGameBtn">🔄 新游戏</button>
+          <button class="merge-btn" id="mergeNewGameBtn">🔄 ${t(i18n, lang, 'mergeNewGame')}</button>
         </div>
       </div>
 
@@ -78,13 +80,13 @@ export class MergeManager {
       </div>
 
       <p class="merge-hint">
-        💡 使用方向键 ↑↓←→ 或滑动屏幕来移动数字
+        💡 ${t(i18n, lang, 'mergeHint')}
       </p>
 
       <div class="merge-session-stats">
-        <div class="merge-session-title">🥚 本局产蛋</div>
+        <div class="merge-session-title">🥚 ${t(i18n, lang, 'mergeSessionEggs')}</div>
         <div class="merge-session-eggs" id="mergeSessionEggs">
-          <span style="color: #999;">开始游戏后显示...</span>
+          <span style="color: #999;">${t(i18n, lang, 'mergeSessionStart')}</span>
         </div>
       </div>
     `;
@@ -116,6 +118,12 @@ export class MergeManager {
   attachEventListeners() {
     // 键盘控制 - 阻止方向键默认滚动行为
     this.keydownHandler = (e) => {
+      // 只在主界面标签页时才处理键盘事件
+      const mainTab = document.querySelector('.tab-content[data-content="main"]');
+      if (!mainTab || !mainTab.classList.contains('active')) {
+        return; // 不在主界面，不处理
+      }
+      
       // 先阻止所有方向键的默认行为
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.key)) {
         e.preventDefault();
@@ -174,7 +182,8 @@ export class MergeManager {
 
     // 新游戏按钮
     document.getElementById('mergeNewGameBtn').addEventListener('click', () => {
-      if (confirm('确定要开始新游戏吗？当前进度将丢失。')) {
+      const lang = state.language || 'zh';
+      if (confirm(t(i18n, lang, 'mergeNewGameConfirm'))) {
         this.startNewGame();
       }
     });
@@ -298,7 +307,8 @@ export class MergeManager {
     });
 
     if (!hasEggs) {
-      html = '<span style="color: #999;">暂无产蛋</span>';
+      const lang = state.language || 'zh';
+      html = `<span style="color: #999;">${t(i18n, lang, 'mergeNoEggs')}</span>`;
     }
 
     container.innerHTML = html;
@@ -335,19 +345,20 @@ export class MergeManager {
   handleGameOver() {
     const finalScore = this.game.getScore();
     const stats = getSessionStats();
+    const lang = state.language || 'zh';
 
     // 创建游戏结束遮罩
     const overlay = document.createElement('div');
     overlay.className = 'merge-game-over';
     overlay.innerHTML = `
-      <div class="merge-game-over-title">游戏结束</div>
+      <div class="merge-game-over-title">${t(i18n, lang, 'mergeGameOver')}</div>
       <div class="merge-game-over-score">
-        <div>得分: ${finalScore}</div>
-        <div>最高数字: ${this.game.getMaxTile()}</div>
+        <div>${t(i18n, lang, 'mergeScore')}: ${finalScore}</div>
+        <div>${t(i18n, lang, 'mergeHighestTile')}: ${this.game.getMaxTile()}</div>
       </div>
       <div class="merge-game-over-buttons">
-        <button class="merge-btn" id="mergeRestartBtn">🔄 再来一局</button>
-        <button class="merge-btn" id="mergeDoneBtn">✅ 完成</button>
+        <button class="merge-btn" id="mergeRestartBtn">🔄 ${t(i18n, lang, 'mergeRestart')}</button>
+        <button class="merge-btn" id="mergeDoneBtn">✅ ${t(i18n, lang, 'mergeDone')}</button>
       </div>
     `;
 

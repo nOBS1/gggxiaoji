@@ -40,11 +40,16 @@ import {
 } from './market.js';
 import { renderCoinHistory } from './coinHistory.js';
 import { router, ROUTES, getRouteByTab } from './router.js';
+import { initGuestAuth } from './guest-auth.js';
 
 // ==================== 初始化 ====================
 
 function init() {
   console.log('🐔 小鸡生蛋 v4.0 - 数字合成版 加载中...');
+  
+  // 初始化游客系统（自动创建匿名账号）
+  const guestInfo = initGuestAuth();
+  console.log('✅ 游客登录成功:', guestInfo.nickname);
   
   // 加载游戏数据
   loadGame();
@@ -133,15 +138,17 @@ function initEvents() {
     });
   });
   
-  // 点击小鸡
+  // 点击小鸡（仅当元素存在时）
   const chickenContainer = document.getElementById('chickenContainer');
-  chickenContainer.addEventListener('click', (e) => {
-    // 首次点击时初始化音效系统
-    initAudio();
-    
-    handleClick(e.clientX, e.clientY);
-    updateAllDisplays();
-  });
+  if (chickenContainer) {
+    chickenContainer.addEventListener('click', (e) => {
+      // 首次点击时初始化音效系统
+      initAudio();
+      
+      handleClick(e.clientX, e.clientY);
+      updateAllDisplays();
+    });
+  }
   
   // 键盘支持（空格键和回车键）
   document.addEventListener('keydown', (e) => {
@@ -245,6 +252,14 @@ function initEvents() {
   const langToggle = document.getElementById('langToggle');
   langToggle.addEventListener('click', () => {
     state.language = state.language === 'zh' ? 'en' : 'zh';
+    
+    // 重新渲染合成游戏界面（如果存在）
+    if (mergeGameInstance) {
+      mergeGameInstance.render();
+      mergeGameInstance.renderTiles();
+      mergeGameInstance.updateSessionStats();
+    }
+    
     updateAllDisplays();
     saveGame();
   });

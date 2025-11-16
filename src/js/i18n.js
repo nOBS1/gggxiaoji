@@ -105,6 +105,11 @@ export const i18n = {
     
     // 更新日志
     changelog: '更新日志',
+    changelogV400Item1: '🎮 全新游戏模式！从点击游戏升级为2048风格数字合成游戏',
+    changelogV400Item2: '🥚 自动产蛋机制：合成数字即可自动获得对应稀有度的鸡蛋',
+    changelogV400Item3: '⌨️ 支持键盘和触屏操作，适配多种设备',
+    changelogV400Item4: '🌍 完整的国际化支持，所有界面支持中英文切换',
+    changelogV400Item5: '📊 实时统计本局产蛋数据，随时查看收益',
     changelogV210Item1: '✨ 添加真实音效系统，体验更佳',
     changelogV210Item2: '🐔 替换为真实小鸡和鸡蛋图片',
     changelogV210Item3: '🌍 优化国际化支持，流畅切换中英文',
@@ -125,6 +130,30 @@ export const i18n = {
     guideTasksDesc: '每日完成任务可获得额外奖励，别忘记领取哦！',
     guideMarket: '🛒 市场交易',
     guideMarketDesc: '在市场与其他玩家交易稀有鸡蛋，可以买入或卖出紫蛋、金蛋和黑蛋。',
+    
+    // 游戏指南 - v4.0 合成版
+    guideMergeTitle: '数字合成玩法',
+    guideMergeDesc: '使用方向键或滑动屏幕移动数字，相同数字碰撞即可合成更大数字（2+2=4, 4+4=8...最高2048）',
+    guideEggTitle: '自动产蛋',
+    guideEggDesc: '每次合成成功自动产出对应鸡蛋：2/4=白蛋、8/16=棕蛋、32/64=银蛋、128/256=金蛋、512/1024=紫蛋、2048=黑蛋',
+    guideUpgradeTitle: '升级系统',
+    guideUpgradeDesc: '升级小鸡等级提升合成奖励倍数，幸运加成提升稀有蛋产量！',
+    guideMarketTitle: '市场交易',
+    guideMarketDesc: '在市场与其他玩家交易稀有鸡蛋，可以买入或卖出紫蛋、金蛋和黑蛋。',
+    
+    // 合成游戏
+    mergeScore: '得分',
+    mergeBest: '最高',
+    mergeNewGame: '新游戏',
+    mergeHint: '使用方向键 ↑↓←→ 或滑动屏幕来移动数字',
+    mergeSessionEggs: '本局产蛋',
+    mergeSessionStart: '开始游戏后显示...',
+    mergeNoEggs: '暂无产蛋',
+    mergeNewGameConfirm: '确定要开始新游戏吗？当前进度将丢失。',
+    mergeGameOver: '游戏结束',
+    mergeHighestTile: '最高数字',
+    mergeRestart: '再来一局',
+    mergeDone: '完成',
     
     // 市场交易
     market: '🛍️ 市场',
@@ -224,7 +253,35 @@ export const i18n = {
     registerLink: '立即注册',
     hasAccount: '已有账号？',
     loginLink: '立即登录',
-    passwordStrength: '密码强度'
+    passwordStrength: '密码强度',
+    
+    // Footer
+    footerAbout: '🐔 关于游戏',
+    footerAboutDesc: '小鸡生蛋是一款免费的数字合成游戏。像2048一样合成数字自动产蛋，升级你的养鸡场，在市场与其他玩家交易。',
+    footerLinks: '🔗 快速链接',
+    footerPrivacy: '隐私政策',
+    footerTerms: '服务条款',
+    footerContact: '联系我们',
+    footerCopyright: '© 2025 小鸡生蛋游戏',
+    footerMadeWith: 'Made with ❤️ by Xiaoji Game Team',
+    
+    // Cookie
+    cookieTitle: '🍪 我们使用Cookie',
+    cookieDesc: '我们使用Cookie来改善您的浏览体验、分析网站流量并展示相关广告。',
+    cookieLearnMore: '了解更多',
+    cookieAcceptAll: '✔️ 接受全部',
+    cookieRejectAll: '❌ 拒绝全部',
+    cookieCustomize: '⚙️ 自定义',
+    cookieSettingsTitle: '🔒 Cookie设置',
+    cookieNecessary: '必要Cookie',
+    cookieRequired: '必需',
+    cookieNecessaryDesc: '这些Cookie对于网站的基本功能是必需的，包括登录状态、语言偏好和游戏数据存储。无法禁用。',
+    cookieAnalytics: '分析Cookie',
+    cookieAnalyticsDesc: '帮助我们了解访客如何使用网站，以便改进用户体验。使用Google Analytics收集匿名统计数据。',
+    cookieAdvertising: '广告Cookie',
+    cookieAdvertisingDesc: '用于展示相关广告并支持游戏运营。由Google AdSense提供。',
+    cookieCancel: '取消',
+    cookieSave: '保存设置'
   },
   en: {
     // Basic
@@ -329,6 +386,11 @@ export const i18n = {
     
     // Changelog
     changelog: 'Changelog',
+    changelogV400Item1: '🎮 Brand new game mode! Upgraded from clicker to 2048-style merge puzzle',
+    changelogV400Item2: '🥚 Auto egg production: merge numbers to automatically get eggs by rarity',
+    changelogV400Item3: '⌨️ Keyboard and touch support for multiple devices',
+    changelogV400Item4: '🌍 Full internationalization support with Chinese/English switching',
+    changelogV400Item5: '📊 Real-time session statistics to track your earnings',
     changelogV210Item1: '✨ Added real sound effects for better experience',
     changelogV210Item2: '🐔 Replaced with real chicken and egg images',
     changelogV210Item3: '🌍 Optimized i18n support with smooth language switching',
@@ -349,6 +411,30 @@ export const i18n = {
     guideTasksDesc: 'Complete daily tasks for extra rewards. Don\'t forget to claim them!',
     guideMarket: '🛒 Market Trading',
     guideMarketDesc: 'Trade rare eggs with other players in the market. You can buy or sell purple, gold, and black eggs.',
+    
+    // Game Guide - v4.0 Merge Edition
+    guideMergeTitle: 'Number Merge Gameplay',
+    guideMergeDesc: 'Use arrow keys or swipe to move numbers. Same numbers merge into larger ones (2+2=4, 4+4=8...up to 2048)',
+    guideEggTitle: 'Auto Egg Production',
+    guideEggDesc: 'Each successful merge automatically produces eggs: 2/4=white, 8/16=brown, 32/64=silver, 128/256=gold, 512/1024=purple, 2048=black',
+    guideUpgradeTitle: 'Upgrade System',
+    guideUpgradeDesc: 'Upgrade chicken level to boost merge rewards, lucky bonus increases rare egg production!',
+    guideMarketTitle: 'Market Trading',
+    guideMarketDesc: 'Trade rare eggs with other players in the market. Buy or sell purple, gold, and black eggs.',
+    
+    // Merge Game
+    mergeScore: 'Score',
+    mergeBest: 'Best',
+    mergeNewGame: 'New Game',
+    mergeHint: 'Use arrow keys ↑↓←→ or swipe to move numbers',
+    mergeSessionEggs: 'Session Eggs',
+    mergeSessionStart: 'Start playing to see...',
+    mergeNoEggs: 'No eggs yet',
+    mergeNewGameConfirm: 'Start a new game? Current progress will be lost.',
+    mergeGameOver: 'Game Over',
+    mergeHighestTile: 'Highest Tile',
+    mergeRestart: 'Play Again',
+    mergeDone: 'Done',
     
     // Market Trading
     market: '🛍️ Market',
@@ -448,7 +534,35 @@ export const i18n = {
     registerLink: 'Register now',
     hasAccount: 'Already have an account?',
     loginLink: 'Login now',
-    passwordStrength: 'Password Strength'
+    passwordStrength: 'Password Strength',
+    
+    // Footer
+    footerAbout: '🐔 About',
+    footerAboutDesc: 'Chicken Egg Laying is a free merge puzzle game. Like 2048, merge numbers to automatically lay eggs, upgrade your farm, and trade with other players in the market.',
+    footerLinks: '🔗 Quick Links',
+    footerPrivacy: 'Privacy Policy',
+    footerTerms: 'Terms of Service',
+    footerContact: 'Contact Us',
+    footerCopyright: '© 2025 Chicken Egg Game',
+    footerMadeWith: 'Made with ❤️ by Xiaoji Game Team',
+    
+    // Cookie
+    cookieTitle: '🍪 We Use Cookies',
+    cookieDesc: 'We use cookies to improve your browsing experience, analyze site traffic, and show relevant ads.',
+    cookieLearnMore: 'Learn More',
+    cookieAcceptAll: '✔️ Accept All',
+    cookieRejectAll: '❌ Reject All',
+    cookieCustomize: '⚙️ Customize',
+    cookieSettingsTitle: '🔒 Cookie Settings',
+    cookieNecessary: 'Necessary Cookies',
+    cookieRequired: 'Required',
+    cookieNecessaryDesc: 'These cookies are essential for basic website functionality, including login status, language preferences, and game data storage. Cannot be disabled.',
+    cookieAnalytics: 'Analytics Cookies',
+    cookieAnalyticsDesc: 'Help us understand how visitors use the site to improve user experience. Anonymous statistics collected via Google Analytics.',
+    cookieAdvertising: 'Advertising Cookies',
+    cookieAdvertisingDesc: 'Used to show relevant ads and support game operations. Provided by Google AdSense.',
+    cookieCancel: 'Cancel',
+    cookieSave: 'Save Settings'
   }
 };
 
