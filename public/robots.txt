@@ -1,0 +1,69 @@
+# robots.txt for Chicken Egg Game / 小鸡生蛋游戏
+# Last updated: 2025-10-17
+
+# 允许所有搜索引擎爬虫
+User-agent: *
+Allow: /
+
+# 优先抓取重要页面
+Allow: /#main
+Allow: /#market
+Allow: /#shop
+Allow: /#upgrade
+Allow: /#inventory
+Allow: /#tasks
+
+# 不允许抓取的资源
+Disallow: /api/
+Disallow: /src/js/
+Disallow: /node_modules/
+Disallow: /*.json$
+Disallow: /*.log$
+
+# Google 特殊规则
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bing 特殊规则  
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Baidu 百度爬虫
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+# Sitemap 位置
+Sitemap: https://0dca8f01.gggxiaoji.pages.dev/sitemap.xml
+Sitemap: https://gggxiaoji.pages.dev/sitemap.xml
+
+# AI 爬虫配置
+# OpenAI GPT
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 1
+
+# Google Bard/Gemini
+User-agent: Google-Extended
+Allow: /
+
+# Anthropic Claude
+User-agent: anthropic-ai
+Allow: /
+
+# Common AI Crawlers
+User-agent: CCBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Meta AI
+User-agent: FacebookBot
+Allow: /
+
+# 推荐抓取频率：每天一次
+# Contact: weixinyongjiu@gmail.com
+# Website: https://0dca8f01.gggxiaoji.pages.dev

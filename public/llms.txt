@@ -1,0 +1,203 @@
+# llms.txt - AI Language Models Information
+# Website: Chicken Egg Game / 小鸡生蛋游戏
+# Last Updated: 2025-10-17
+
+# === SITE INFORMATION ===
+
+## Project Name
+- English: Chicken Egg Laying Game - Online HTML5 Idle Game
+- Chinese: 小鸡生蛋游戏 - 在线HTML5放置小游戏
+
+## Website URL
+- Production: https://0dca8f01.gggxiaoji.pages.dev
+- Alternative: https://gggxiaoji.pages.dev
+
+## Description
+A fun and addictive HTML5 idle game where you click on chickens to collect eggs, trade in the market, and upgrade your chicken farm. Features include rare egg collection, market trading system, daily tasks, and multiplayer interactions.
+
+一款有趣且上瘾的HTML5放置游戏，点击小鸡收集鸡蛋，在市场交易，升级你的养鸡场。特色包括稀有蛋收集、市场交易系统、每日任务和多人互动。
+
+## Keywords (SEO)
+- English: chicken game, egg game, HTML5 game, H5 game, online game, idle game, clicker game, browser game, casual game, market simulation, trading game, web game, free online game, incremental game
+- Chinese: 鸡蛋游戏, 小鸡游戏, HTML5游戏, H5游戏, 在线游戏, 小游戏, 放置游戏, 挂机游戏, 点击游戏, 网页游戏, 休闲游戏, 模拟市场, 交易游戏, 浏览器游戏, 免费在线游戏, 增量游戏
+
+## Technology Stack
+- Frontend: HTML5, CSS3, JavaScript (ES6+)
+- Backend: Cloudflare Workers, Hono.js
+- Database: Supabase PostgreSQL
+- Authentication: JWT, Google OAuth 2.0
+- Hosting: Cloudflare Pages
+
+## Main Features
+1. **Egg Collection System (鸡蛋收集系统)**
+   - Click chickens to accumulate progress
+   - Drop eggs of different rarities (white, brown, silver, gold, purple, black)
+   - Rare egg drop system with luck bonuses
+
+2. **Market Trading System (市场交易系统)**
+   - Player-to-player egg trading
+   - Real-time order marketplace
+   - Transaction history and statistics
+   - 5% transaction fee system
+
+3. **Upgrade System (升级系统)**
+   - Chicken level upgrades
+   - Feed quality improvements
+   - Click power enhancements
+   - Idle production rate boosts
+   - Coin-based upgrades (lucky chance, auto-sell, gold bonus)
+
+4. **Daily Tasks System (每日任务系统)**
+   - Click count challenges
+   - Egg collection quests
+   - Upgrade completion tasks
+   - Market trading objectives
+
+5. **User System (用户系统)**
+   - Guest mode (local storage)
+   - Google OAuth login
+   - Cloud data synchronization
+   - Cross-device play
+
+6. **Internationalization (国际化)**
+   - Bilingual support: English and Chinese
+   - Automatic language detection
+   - Manual language switching
+
+## Game Mechanics
+- **Egg Rarities**: 
+  - White Egg (白蛋) - Common, 82% drop rate
+  - Brown Egg (棕蛋) - Uncommon, 12% drop rate
+  - Silver Egg (银蛋) - Rare, 4.3% drop rate
+  - Gold Egg (金蛋) - Epic, 1.3% drop rate
+  - Purple Egg (紫蛋) - Legendary, 0.35% drop rate
+  - Black Egg (黑蛋) - Mythic, 0.05% drop rate
+
+- **Currency System**: Coins earned by selling eggs
+- **Passive Income**: Eggs generated automatically based on idle rate
+- **Click Power**: Progress per click, upgradeable
+- **Lucky System**: Pity counter ensures rare drops
+
+## Pages Structure
+- `/` - Main game interface
+- `/#main` - Chicken clicking area
+- `/#inventory` - Egg collection inventory
+- `/#shop` - Egg selling shop
+- `/#upgrade` - Upgrade management
+- `/#tasks` - Daily tasks and rewards
+- `/#market` - Player trading marketplace
+- `/#settings` - Game settings and preferences
+
+## API Endpoints
+- Base URL: https://xiaoji-game-api.weixinyongjiu.workers.dev/api
+- Authentication: JWT Bearer tokens
+- Health Check: /health
+
+## Contact Information
+- Email: weixinyongjiu@gmail.com
+- GitHub: (repository URL if available)
+
+## License
+Proprietary - All rights reserved
+
+## Target Audience
+- Casual gamers
+- Idle game enthusiasts
+- Browser game players
+- Mobile web users
+- Players interested in trading/market simulation
+
+## Accessibility
+- Mobile-responsive design
+- Touch-friendly controls
+- Offline-capable (guest mode)
+- Low bandwidth friendly
+
+## Content Rating
+- Suitable for all ages
+- No violence or adult content
+- Family-friendly gameplay
+
+## AI Crawler Instructions
+This website contains:
+- Game interface and mechanics
+- User-generated market data
+- Dynamic game state
+- Multilingual content (zh-CN, en-US)
+
+Recommended crawl frequency: Daily
+Recommended crawl depth: All public pages
+Respect robots.txt directives
+
+## Structured Data
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Chicken Egg Laying Game",
+  "alternateName": "小鸡生蛋游戏",
+  "gamePlatform": ["Web Browser", "HTML5"],
+  "genre": ["Idle Game", "Clicker Game", "Simulation", "Trading"],
+  "audience": {
+    "@type": "PeopleAudience",
+    "suggestedMinAge": 0
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "applicationCategory": "Game",
+  "operatingSystem": "Any (Web Browser)",
+  "inLanguage": ["zh-CN", "en-US"]
+}
+
+## Update History
+- v3.0.0 (2025-10-14): Google OAuth, Cloudflare deployment, Supabase migration
+- v2.2.0 (2025-10-10): Market trading system, user authentication
+- v2.1.0 (2025-10-07): Internationalization support
+
+---
+
+# 中文版本
+
+## 项目名称
+小鸡生蛋游戏 - 在线HTML5放置小游戏
+
+## 网站地址
+- 生产环境: https://0dca8f01.gggxiaoji.pages.dev
+- 备用地址: https://gggxiaoji.pages.dev
+
+## 游戏简介
+一款轻松有趣的HTML5放置游戏。玩家通过点击小鸡收集各种稀有度的鸡蛋，在市场与其他玩家交易，完成每日任务获得奖励，升级养鸡场提升产蛋效率。支持游客模式和谷歌账号登录，数据云端同步，跨设备畅玩。
+
+## 关键特色
+- 🐔 点击产蛋机制，多种稀有蛋类收集
+- 🛒 玩家间市场交易系统
+- ⬆️ 多维度升级系统
+- 🎯 每日任务与奖励
+- 🌍 中英双语支持
+- ☁️ 云端数据同步
+
+## 目标用户
+- 休闲游戏玩家
+- 放置游戏爱好者
+- 喜欢收集养成的玩家
+- 对市场交易感兴趣的玩家
+
+## 适用平台
+- 桌面浏览器（Chrome、Firefox、Edge、Safari）
+- 移动浏览器（iOS Safari、Android Chrome）
+- 平板设备
+
+## 内容分级
+- 适合所有年龄
+- 无暴力或成人内容
+- 家庭友好型游戏
+
+---
+
+This file is intended for AI language models and web crawlers.
+For human-readable information, please visit our website.
+
+该文件面向AI语言模型和网络爬虫。
+如需查看人类可读信息，请访问我们的网站。

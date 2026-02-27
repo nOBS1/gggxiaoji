@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>自动化测试 - 小鸡生蛋</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #f59e0b;
+      padding-bottom: 10px;
+    }
+    .btn {
+      background: #f59e0b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .btn:hover {
+      background: #d97706;
+    }
+    .log-container {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 5px;
+      max-height: 600px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      margin-top: 20px;
+    }
+    .log-entry {
+      margin: 2px 0;
+      padding: 2px 0;
+    }
+    .log-INFO { color: #4ec9b0; }
+    .log-WARN { color: #dcdcaa; }
+    .log-ERROR { color: #f48771; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: #f59e0b;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🐔 小鸡生蛋 - 日志查看器</h1>
+    
+    <div>
+      <button class="btn" onclick="window.open('/', '_blank')">在新标签打开游戏</button>
+      <button class="btn" onclick="viewLogs()">查看日志</button>
+      <button class="btn" onclick="clearDisplay()">清空显示</button>
+    </div>
+    
+    <div style="margin: 20px 0; padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #f59e0b;">
+      <strong>💡 使用说明：</strong>
+      <ol style="margin: 10px 0;">
+        <li>在新标签中打开游戏</li>
+        <li>在浏览器控制台（F12）执行操作</li>
+        <li>使用 <code>window._exportLogs()</code> 导出日志</li>
+        <li>日志已自动保存到内存中</li>
+      </ol>
+    </div>
+    
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalLogs">0</div>
+        <div class="stat-label">总日志数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="errorCount">0</div>
+        <div class="stat-label">错误数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="warnCount">0</div>
+        <div class="stat-label">警告数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="testStatus">待运行</div>
+        <div class="stat-label">测试状态</div>
+      </div>
+    </div>
+    
+    <div class="log-container" id="logContainer">
+      <div>日志将显示在这里...</div>
+    </div>
+  </div>
+
+  <script>
+    function viewLogs() {
+      const instructions = `
+📝 查看日志的方法：
+
+1. 在游戏页面按 F12 打开浏览器控制台
+
+2. 在控制台输入以下命令：
+
+   // 查看所有日志
+   window._logger.getLogs()
+   
+   // 查看统计
+   window._logger.getStats()
+   
+   // 导出日志到文件
+   window._exportLogs()
+   
+   // 只看错误
+   window._logger.filterLogs('ERROR')
+   
+   // 搜索关键词
+   window._logger.filterLogs(null, 'market')
+
+3. 日志会自动保存在内存中（最多5000条）
+
+4. 导出的日志文件会自动下载到本地
+      `;
+      
+      const logContainer = document.getElementById('logContainer');
+      logContainer.innerHTML = '<pre style="color: #4ec9b0; white-space: pre-wrap;">' + instructions + '</pre>';
+      
+      // 更新统计显示
+      document.getElementById('totalLogs').textContent = '在控制台查看';
+      document.getElementById('errorCount').textContent = '-';
+      document.getElementById('warnCount').textContent = '-';
+      document.getElementById('testStatus').textContent = '使用控制台';
+    }
+    
+    function clearDisplay() {
+      document.getElementById('logContainer').innerHTML = '<div>日志将显示在这里...</div>';
+      document.getElementById('totalLogs').textContent = '0';
+      document.getElementById('errorCount').textContent = '0';
+      document.getElementById('warnCount').textContent = '0';
+      document.getElementById('testStatus').textContent = '待运行';
+    }
+    
+    // 显示测试URL信息
+    window.addEventListener('DOMContentLoaded', () => {
+      const logContainer = document.getElementById('logContainer');
+      logContainer.innerHTML = `
+        <div style="color: #4ec9b0;">
+          <h3>🧪 测试功能列表</h3>
+          
+          <h4>1. 路由系统测试</h4>
+          <p>在浏览器地址栏直接输入以下URL测试路由：</p>
+          <ul>
+            <li><a href="/" target="_blank" style="color: #569cd6;">http://localhost:3000/</a> - 主页</li>
+            <li><a href="/backpack" target="_blank" style="color: #569cd6;">http://localhost:3000/backpack</a> - 背包</li>
+            <li><a href="/market" target="_blank" style="color: #569cd6;">http://localhost:3000/market</a> - 市场</li>
+            <li><a href="/shop" target="_blank" style="color: #569cd6;">http://localhost:3000/shop</a> - 商店</li>
+          </ul>
+          
+          <h4>2. 市场功能测试（无需登录）</h4>
+          <p>直接访问 <a href="/market" target="_blank" style="color: #569cd6;">http://localhost:3000/market</a></p>
+          <p>✅ 不登录也能浏览市场订单列表</p>
+          <p>✅ 可以筛选、排序订单</p>
+          <p>⚠️ 创建和购买订单需要登录</p>
+          
+          <h4>3. 日志系统测试</h4>
+          <p>在游戏页面打开控制台（F12）运行：</p>
+          <pre style="background: #2d2d2d; padding: 10px; border-radius: 5px; margin: 10px 0;">
+// 查看所有日志
+window._logger.getLogs()
+
+// 导出日志
+window._exportLogs()
+
+// 查看统计
+window._logger.getStats()
+          </pre>
+          
+          <h4>4. 完整功能测试流程</h4>
+          <ol>
+            <li>打开游戏：<a href="/" target="_blank" style="color: #569cd6;">点击这里</a></li>
+            <li>不登录直接访问：<a href="/market" target="_blank" style="color: #569cd6;">市场页面</a></li>
+            <li>验证可以看到订单列表</li>
+            <li>尝试筛选不同稀有度</li>
+            <li>按 F12 打开控制台</li>
+            <li>运行 <code>window._exportLogs()</code> 导出日志</li>
+          </ol>
+          
+          <p style="margin-top: 20px; color: #dcdcaa;">💡 所有操作都会自动记录到日志系统中</p>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>

@@ -4,7 +4,7 @@
  */
 
 import { CONFIG } from './config.js';
-import { state, saveGame, safeLoadImportedData } from './state.js';
+import { state, saveGame, logCoinChange } from './state.js';
 import { showFloatText, showDropNotification } from './ui.js';
 
 // ==================== 工具函数 ====================
@@ -162,6 +162,11 @@ export function sellEgg(rarity, amount = 1, silent = false) {
   state.coins = safeAdd(state.coins, coins);
   state.totalEggsSold = safeAdd(state.totalEggsSold, amount);
   
+  // 记录金币变动
+  if (!silent) {
+    logCoinChange(coins, 'sell', `${amount}x ${CONFIG.RARITIES[rarity].name}`);
+  }
+  
   if (rarity === 'silver') {
     state.dailyTasks.sellSilver += amount;
   }
@@ -234,6 +239,9 @@ export function doUpgrade(upgradeKey) {
       return false;
     }
     state.coins -= cost;
+    
+    // 记录金币变动
+    logCoinChange(-cost, 'upgrade', config.name);
   } else {
     // 普通蛋升级
     // 检查资源
@@ -472,47 +480,6 @@ export function playSound(type) {
 }
 
 // ==================== 存档管理 ====================
-
-export function exportSave() {
-  const data = JSON.stringify(state, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `xiaoji-save-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-export function importSave(file, onSuccess, onError) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      
-      // 使用安全加载函数，防止原型污染
-      const safeData = safeLoadImportedData(data);
-      
-      if (!safeData) {
-        console.error('❌ 导入失败：检测到不安全的存档数据');
-        if (onError) onError(new Error('检测到不安全的存档数据'));
-        return;
-      }
-      
-      Object.assign(state, safeData);
-      
-      // 强制重置 isResetting 标记
-      state.isResetting = false;
-      
-      saveGame();
-      if (onSuccess) onSuccess();
-    } catch (err) {
-      console.error('❌ 导入错误:', err);
-      if (onError) onError(err);
-    }
-  };
-  reader.readAsText(file);
-}
 
 export function resetGame() {
   // 设置重置标记，防止定时器在刷新前保存数据

@@ -7,6 +7,7 @@ import '../css/main.css';
 import { CONFIG } from './config.js';
 import { i18n, t } from './i18n.js';
 import { state, saveGame, loadGame } from './state.js';
+import { MergeManager } from './merge/mergeManager.js';
 import { 
   handleClick,
   sellEgg,
@@ -15,17 +16,40 @@ import {
   watchAd,
   processPassiveIncome,
   calculateOfflineEarnings,
-  exportSave,
-  importSave,
   resetGame,
   initAudio
 } from './gameLogic.js';
 import { updateAllDisplays, showFloatText } from './ui.js';
+import {
+  initMarketUI,
+  renderMarketOrders,
+  renderMyOrders,
+  renderTransactions,
+  renderMarketStats,
+  fetchMarketOrders,
+  fetchMyOrders,
+  fetchTransactions,
+  fetchMarketStats,
+  createOrder,
+  buyOrder,
+  cancelOrder,
+  handleFilterChange,
+  handleSortChange,
+  startAutoRefresh,
+  stopAutoRefresh
+} from './market.js';
+import { renderCoinHistory } from './coinHistory.js';
+import { router, ROUTES, getRouteByTab } from './router.js';
+import { initGuestAuth } from './guest-auth.js';
 
 // ==================== 初始化 ====================
 
 function init() {
-  console.log('🐔 小鸡生蛋 加载中...');
+  console.log('🐔 小鸡生蛋 v4.0 - 数字合成版 加载中...');
+  
+  // 初始化游客系统（自动创建匿名账号）
+  const guestInfo = initGuestAuth();
+  console.log('✅ 游客登录成功:', guestInfo.nickname);
   
   // 加载游戏数据
   loadGame();
@@ -43,8 +67,12 @@ function init() {
   // 初始化UI
   updateAllDisplays();
   
+  // 初始化合成游戏
+  initMergeGame();
+  
   // 绑定事件
   initEvents();
+  setupRouting();
   
   // 启动被动产蛋定时器
   startPassiveIncome();
@@ -66,30 +94,61 @@ function init() {
 
 // ==================== 事件绑定 ====================
 
+async function activateTab(tabName) {
+  const targetTab = tabName || 'main';
+  const previousTab = document.querySelector('.tab-btn.active')?.dataset.tab;
+  const tabButton = document.querySelector(`.tab-btn[data-tab="${targetTab}"]`);
+  const tabContent = document.querySelector(`.tab-content[data-content="${targetTab}"]`);
+
+  if (!tabButton || !tabContent) {
+    if (targetTab !== 'main') {
+      return activateTab('main');
+    }
+    console.warn('[UI] 无法找到标签页:', targetTab);
+    return;
+  }
+
+  if (previousTab === 'market' && targetTab !== 'market') {
+    stopAutoRefresh();
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn === tabButton);
+  });
+
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.toggle('active', content === tabContent);
+  });
+
+  if (targetTab === 'market') {
+    await initMarketUI();
+    startAutoRefresh();
+  }
+
+  updateAllDisplays();
+}
+
 function initEvents() {
   // 标签页切换
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      
-      btn.classList.add('active');
       const tab = btn.dataset.tab;
-      document.querySelector(`[data-content="${tab}"]`).classList.add('active');
-      
-      updateAllDisplays();
+      const route = getRouteByTab(tab) || ROUTES.HOME;
+      router.navigate(route);
     });
   });
   
-  // 点击小鸡
+  // 点击小鸡（仅当元素存在时）
   const chickenContainer = document.getElementById('chickenContainer');
-  chickenContainer.addEventListener('click', (e) => {
-    // 首次点击时初始化音效系统
-    initAudio();
-    
-    handleClick(e.clientX, e.clientY);
-    updateAllDisplays();
-  });
+  if (chickenContainer) {
+    chickenContainer.addEventListener('click', (e) => {
+      // 首次点击时初始化音效系统
+      initAudio();
+      
+      handleClick(e.clientX, e.clientY);
+      updateAllDisplays();
+    });
+  }
   
   // 键盘支持（空格键和回车键）
   document.addEventListener('keydown', (e) => {
@@ -110,7 +169,7 @@ function initEvents() {
   });
   
   // 使用事件委托处理动态生成的按钮
-  document.body.addEventListener('click', (e) => {
+  document.body.addEventListener('click', async (e) => {
     const target = e.target;
     
     // 处理卖出按钮
@@ -135,6 +194,26 @@ function initEvents() {
       const taskId = target.dataset.task;
       if (claimTask(taskId)) {
         updateAllDisplays();
+      }
+    }
+    
+    // 购买订单
+    if (target.dataset.action === 'buy-order') {
+      const orderId = target.dataset.orderId;
+      if (await buyOrder(orderId)) {
+        // buyOrder 已经更新了本地状态，直接刷新显示
+        updateAllDisplays();
+        renderMarketOrders();
+      }
+    }
+    
+    // 取消订单
+    if (target.dataset.action === 'cancel-order') {
+      const orderId = target.dataset.orderId;
+      if (await cancelOrder(orderId)) {
+        // cancelOrder 已经更新了本地状态，直接刷新显示
+        updateAllDisplays();
+        renderMyOrders();
       }
     }
   });
@@ -173,39 +252,18 @@ function initEvents() {
   const langToggle = document.getElementById('langToggle');
   langToggle.addEventListener('click', () => {
     state.language = state.language === 'zh' ? 'en' : 'zh';
+    
+    // 重新渲染合成游戏界面（如果存在）
+    if (mergeGameInstance) {
+      mergeGameInstance.render();
+      mergeGameInstance.renderTiles();
+      mergeGameInstance.updateSessionStats();
+    }
+    
     updateAllDisplays();
     saveGame();
   });
   
-  // 导出存档
-  const exportBtn = document.getElementById('exportBtn');
-  exportBtn.addEventListener('click', () => {
-    exportSave();
-  });
-  
-  // 导入存档
-  const importBtn = document.getElementById('importBtn');
-  const importFile = document.getElementById('importFile');
-  
-  importBtn.addEventListener('click', () => {
-    importFile.click();
-  });
-  
-  importFile.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    importSave(
-      file,
-      () => {
-        updateAllDisplays();
-        alert(t(i18n, state.language, 'importSuccess'));
-      },
-      () => {
-        alert(t(i18n, state.language, 'importFailed'));
-      }
-    );
-  });
   
   // 重置游戏
   const resetBtn = document.getElementById('resetBtn');
@@ -215,6 +273,19 @@ function initEvents() {
       resetGame();
     }
   });
+  
+  // 联系我们邮件混淆处理
+  const contactLink = document.getElementById('contactLink');
+  if (contactLink) {
+    contactLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      // 混淆邮箱地址
+      const u = 'weixinyongjiu';
+      const d = 'gmail';
+      const c = 'com';
+      window.location.href = `mailto:${u}@${d}.${c}`;
+    });
+  }
   
   // 公告关闭
   const closeAnnouncement = document.getElementById('closeAnnouncement');
@@ -252,6 +323,134 @@ function initEvents() {
       updateAllDisplays();
     }
   });
+  
+  // ==================== 市场交易事件 ====================
+  
+  // 市场子标签页切换
+  document.querySelectorAll('.market-tab-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.market-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.market-tab-content').forEach(c => c.classList.remove('active'));
+      
+      btn.classList.add('active');
+      const tab = btn.dataset.marketTab;
+      document.querySelector(`[data-market-content="${tab}"]`).classList.add('active');
+      
+      // 加载对应数据
+      if (tab === 'marketplace') {
+        await fetchMarketOrders();
+        await fetchMarketStats();  // 确保先获取统计数据
+        renderMarketOrders();
+        renderMarketStats();
+      } else if (tab === 'my-orders') {
+        await fetchMyOrders();
+        renderMyOrders();
+      } else if (tab === 'transactions') {
+        await fetchTransactions();
+        renderTransactions();
+      } else if (tab === 'coin-history') {
+        renderCoinHistory();
+      }
+    });
+  });
+  
+  // 创建订单
+  const createOrderBtn = document.getElementById('createOrderBtn');
+  createOrderBtn?.addEventListener('click', async () => {
+    const rarity = document.getElementById('createOrderRarity').value;
+    const quantity = parseInt(document.getElementById('createOrderQuantity').value);
+    const price = parseInt(document.getElementById('createOrderPrice').value);
+    
+    if (await createOrder(rarity, quantity, price)) {
+      // 清空表单
+      document.getElementById('createOrderQuantity').value = '';
+      document.getElementById('createOrderPrice').value = '';
+      document.getElementById('feePreview').style.display = 'none';
+      renderMarketOrders();
+    }
+  });
+  
+  // 手续费预览
+  const priceInput = document.getElementById('createOrderPrice');
+  priceInput?.addEventListener('input', (e) => {
+    const price = parseInt(e.target.value) || 0;
+    const fee = Math.floor(price * 0.05);
+    const receive = price - fee;
+    
+    const preview = document.getElementById('feePreview');
+    if (price > 0) {
+      preview.style.display = 'block';
+      document.getElementById('listingPrice').textContent = `${price} 💰`;
+      document.getElementById('feeAmount').textContent = `${fee} 💰`;
+      document.getElementById('receiveAmount').textContent = `${receive} 💰`;
+    } else {
+      preview.style.display = 'none';
+    }
+  });
+  
+  // 筛选按钮
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      await handleFilterChange(btn.dataset.filter);
+      renderMarketOrders();
+    });
+  });
+  
+  // 排序选择
+  document.getElementById('sortBy')?.addEventListener('change', async (e) => {
+    const sortBy = e.target.value;
+    const sortOrder = document.getElementById('sortOrder').value;
+    await handleSortChange(sortBy, sortOrder);
+    renderMarketOrders();
+  });
+  
+  document.getElementById('sortOrder')?.addEventListener('change', async (e) => {
+    const sortBy = document.getElementById('sortBy').value;
+    const sortOrder = e.target.value;
+    await handleSortChange(sortBy, sortOrder);
+    renderMarketOrders();
+  });
+}
+
+function setupRouting() {
+  const routeTabPairs = [
+    [ROUTES.HOME, 'main'],
+    [ROUTES.BACKPACK, 'inventory'],
+    [ROUTES.SHOP, 'shop'],
+    [ROUTES.MARKET, 'market'],
+    [ROUTES.UPGRADE, 'upgrade'],
+    [ROUTES.UPGRADES, 'upgrade'],
+    [ROUTES.TASKS, 'tasks'],
+    [ROUTES.SETTINGS, 'settings']
+  ];
+
+  routeTabPairs.forEach(([route, tab]) => {
+    if (!route || !tab) return;
+    router.register(route, () => activateTab(tab));
+  });
+
+  router.init();
+}
+
+// ==================== 合成游戏初始化 ====================
+
+let mergeGameInstance = null;
+
+function initMergeGame() {
+  const container = document.getElementById('mergeGameContainer');
+  if (!container) {
+    console.warn('[MergeGame] 容器未找到，跳过初始化');
+    return;
+  }
+  
+  try {
+    mergeGameInstance = new MergeManager(container);
+    console.log('✅ 合成游戏初始化完成');
+  } catch (error) {
+    console.error('❌ 合成游戏初始化失败:', error);
+  }
 }
 
 // ==================== 定时器 ====================

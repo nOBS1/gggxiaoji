@@ -4,6 +4,7 @@ import { CONFIG } from './config.js';
 const DEFAULT_STATE = {
   eggs: { white: 0, brown: 0, silver: 0, gold: 0, purple: 0, black: 0 },
   coins: 0,
+  coinHistory: [],  // 金币变动记录
   upgrades: { 
     level: 1, 
     feed: 0, 
@@ -41,7 +42,7 @@ export const state = {
 
 // 安全的白名单字段
 const SAFE_FIELDS = [
-  'eggs', 'coins', 'upgrades', 'peckProgress', 'idleEggAccumulator',
+  'eggs', 'coins', 'coinHistory', 'upgrades', 'peckProgress', 'idleEggAccumulator',
   'lastIdleTick', 'totalClicks', 'totalEggsSold', 'blackPityCounter',
   'adCooldown', 'adWatchedToday', 'lastAdDate', 'dailyTasks',
   'soundEnabled', 'language', 'isKeyPressed'
@@ -195,6 +196,35 @@ function resetStateToDefault() {
   state.isKeyPressed = false;
   
   console.log('✅ 状态已重置为默认值');
+}
+
+/**
+ * 记录金币变动
+ * @param {number} amount - 变动数量（正数为增加，负数为减少）
+ * @param {string} type - 变动类型：sell/buy/upgrade/ad/market_buy/market_sell/task
+ * @param {string} description - 描述
+ */
+export function logCoinChange(amount, type, description = '') {
+  if (!state.coinHistory) {
+    state.coinHistory = [];
+  }
+  
+  const entry = {
+    timestamp: Date.now(),
+    amount,
+    type,
+    description,
+    balance: state.coins  // 记录变动后的余额
+  };
+  
+  state.coinHistory.unshift(entry);  // 最新的在前面
+  
+  // 只保留最近500条记录
+  if (state.coinHistory.length > 500) {
+    state.coinHistory = state.coinHistory.slice(0, 500);
+  }
+  
+  console.log(`[CoinHistory] ${amount > 0 ? '+' : ''}${amount} ${type}: ${description}`);
 }
 
 export function saveGame() {

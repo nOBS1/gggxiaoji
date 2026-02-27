@@ -1,0 +1,18 @@
+-- ==================== 禁用 RLS（仅开发环境）====================
+-- 用于开发环境测试，生产环境不要执行此脚本！
+
+-- 禁用所有表的 RLS
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles DISABLE ROW LEVEL SECURITY;
+ALTER TABLE inventory DISABLE ROW LEVEL SECURITY;
+ALTER TABLE upgrades DISABLE ROW LEVEL SECURITY;
+ALTER TABLE stats DISABLE ROW LEVEL SECURITY;
+ALTER TABLE daily_tasks DISABLE ROW LEVEL SECURITY;
+ALTER TABLE ad_runs DISABLE ROW LEVEL SECURITY;
+ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions DISABLE ROW LEVEL SECURITY;
+
+-- 验证 RLS 状态
+SELECT tablename, rowsecurity 
+FROM pg_tables 
+WHERE schemaname = 'public';

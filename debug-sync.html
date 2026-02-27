@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地数据同步调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .error {
+            color: #f44336;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .warning {
+            color: #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 本地数据同步调试工具</h1>
+
+    <div class="section">
+        <h2>1. 检查本地游戏数据</h2>
+        <button onclick="checkLocalData()">检查本地数据</button>
+        <pre id="localDataResult">点击按钮检查...</pre>
+    </div>
+
+    <div class="section">
+        <h2>2. 检查认证状态</h2>
+        <button onclick="checkAuth()">检查认证</button>
+        <pre id="authResult">点击按钮检查...</pre>
+    </div>
+
+    <div class="section">
+        <h2>3. 手动触发同步</h2>
+        <button onclick="manualSync()">立即同步</button>
+        <pre id="syncResult">点击按钮同步...</pre>
+    </div>
+
+    <div class="section">
+        <h2>4. 创建测试数据</h2>
+        <button onclick="createTestData()">创建测试数据</button>
+        <button onclick="clearLocalData()">清空本地数据</button>
+        <pre id="testDataResult">点击按钮操作...</pre>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8787/api';
+
+        function checkLocalData() {
+            const result = document.getElementById('localDataResult');
+            const savedData = localStorage.getItem('xiaoji-game-v2');
+            
+            if (!savedData) {
+                result.innerHTML = '<span class="warning">⚠️ 未找到本地游戏数据 (xiaoji-game-v2)</span>';
+                return;
+            }
+
+            try {
+                const gameState = JSON.parse(savedData);
+                
+                const hasValidData = (
+                    (gameState.coins && gameState.coins > 0) ||
+                    (gameState.eggs && Object.values(gameState.eggs).some(qty => qty > 0)) ||
+                    (gameState.upgrades && Object.values(gameState.upgrades).some(level => level > 0))
+                );
+
+                result.innerHTML = `
+<span class="${hasValidData ? 'success' : 'error'}">
+${hasValidData ? '✅ 找到有效的本地数据' : '❌ 本地数据为空'}
+</span>
+
+<strong>游戏数据:</strong>
+${JSON.stringify(gameState, null, 2)}
+
+<strong>分析:</strong>
+- 金币: ${gameState.coins || 0}
+- 鸡蛋: ${JSON.stringify(gameState.eggs || {})}
+- 升级: ${JSON.stringify(gameState.upgrades || {})}
+- 总点击: ${gameState.totalClicks || 0}
+- 总卖出: ${gameState.totalEggsSold || 0}
+                `;
+            } catch (e) {
+                result.innerHTML = `<span class="error">❌ 数据解析失败: ${e.message}</span>`;
+            }
+        }
+
+        function checkAuth() {
+            const result = document.getElementById('authResult');
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            const userInfo = localStorage.getItem('user_info');
+
+            if (!token) {
+                result.innerHTML = '<span class="error">❌ 未登录（没有 token）</span>';
+                return;
+            }
+
+            try {
+                const user = JSON.parse(userInfo);
+                result.innerHTML = `
+<span class="success">✅ 已登录</span>
+
+<strong>Token:</strong> ${token.substring(0, 20)}...
+<strong>用户信息:</strong>
+${JSON.stringify(user, null, 2)}
+                `;
+            } catch (e) {
+                result.innerHTML = `<span class="error">❌ 用户信息解析失败: ${e.message}</span>`;
+            }
+        }
+
+        async function manualSync() {
+            const result = document.getElementById('syncResult');
+            result.innerHTML = '⏳ 正在同步...';
+
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            if (!token) {
+                result.innerHTML = '<span class="error">❌ 未登录，无法同步</span>';
+                return;
+            }
+
+            const savedData = localStorage.getItem('xiaoji-game-v2');
+            if (!savedData) {
+                result.innerHTML = '<span class="warning">⚠️ 没有本地数据需要同步</span>';
+                return;
+            }
+
+            try {
+                const gameState = JSON.parse(savedData);
+                
+                const localData = {
+                    eggs: gameState.eggs || {},
+                    coins: gameState.coins || 0,
+                    upgrades: gameState.upgrades || {},
+                    stats: {
+                        totalClicks: gameState.totalClicks || 0,
+                        totalEggsSold: gameState.totalEggsSold || 0,
+                    },
+                    blackPityCounter: gameState.blackPityCounter || 0,
+                };
+
+                console.log('[手动同步] 发送数据:', localData);
+
+                const response = await fetch(`${API_BASE_URL}/game/sync-local-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ localData })
+                });
+
+                const responseData = await response.json();
+
+                if (response.ok && responseData.success) {
+                    result.innerHTML = `
+<span class="success">✅ 同步成功！</span>
+
+<strong>响应:</strong>
+${JSON.stringify(responseData, null, 2)}
+                    `;
+                } else {
+                    result.innerHTML = `
+<span class="error">❌ 同步失败</span>
+
+<strong>错误:</strong>
+${JSON.stringify(responseData.error || responseData, null, 2)}
+                    `;
+                }
+            } catch (e) {
+                result.innerHTML = `<span class="error">❌ 同步异常: ${e.message}</span>`;
+                console.error('同步错误:', e);
+            }
+        }
+
+        function createTestData() {
+            const result = document.getElementById('testDataResult');
+            
+            const testData = {
+                eggs: {
+                    white: 10,
+                    brown: 5,
+                    silver: 2,
+                    gold: 1,
+                    purple: 0,
+                    black: 0
+                },
+                coins: 500,
+                upgrades: {
+                    level: 3,
+                    feed: 1,
+                    clickPower: 2,
+                    idleRate: 1,
+                    luckyChance: 0,
+                    autoSell: 0,
+                    goldBonus: 0
+                },
+                peckProgress: 50,
+                idleEggAccumulator: 0,
+                lastIdleTick: Date.now(),
+                totalClicks: 100,
+                totalEggsSold: 20,
+                blackPityCounter: 5
+            };
+
+            localStorage.setItem('xiaoji-game-v2', JSON.stringify(testData));
+            result.innerHTML = `
+<span class="success">✅ 测试数据已创建！</span>
+
+${JSON.stringify(testData, null, 2)}
+            `;
+        }
+
+        function clearLocalData() {
+            const result = document.getElementById('testDataResult');
+            localStorage.removeItem('xiaoji-game-v2');
+            result.innerHTML = '<span class="success">✅ 本地数据已清空</span>';
+        }
+
+        // 页面加载时自动检查
+        window.addEventListener('load', () => {
+            checkLocalData();
+            checkAuth();
+        });
+    </script>
+</body>
+</html>
