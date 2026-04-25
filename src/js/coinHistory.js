@@ -6,6 +6,27 @@
 import { state } from './state.js';
 import { t, i18n } from './i18n.js';
 
+function renderMarketIcon(name, extraClass = '') {
+  const classes = ['market-ui-icon', `market-ui-icon-${name}`];
+  if (extraClass) {
+    classes.push(extraClass);
+  }
+  return `<span class="${classes.join(' ')}" aria-hidden="true"></span>`;
+}
+
+function renderCoinAmount(value, extraClass = '') {
+  const classes = ['market-coin-amount'];
+  if (extraClass) {
+    classes.push(extraClass);
+  }
+  return `
+    <span class="${classes.join(' ')}">
+      ${renderMarketIcon('wallet', 'market-ui-icon-inline')}
+      <span>${value}</span>
+    </span>
+  `;
+}
+
 /**
  * 格式化时间
  */
@@ -54,7 +75,7 @@ export function renderCoinHistory() {
   if (!state.coinHistory || state.coinHistory.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">💰</div>
+        <div class="empty-icon">${renderMarketIcon('wallet', 'market-ui-icon-empty')}</div>
         <p>${t(i18n, state.language, 'noCoinHistory')}</p>
       </div>
     `;
@@ -69,13 +90,13 @@ export function renderCoinHistory() {
     return `
       <div class="coin-history-card ${isPositive ? 'positive' : 'negative'}">
         <div class="coin-history-icon">
-          ${isPositive ? '📈' : '📉'}
+          ${renderMarketIcon(isPositive ? 'up' : 'down', 'coin-history-icon-sprite')}
         </div>
         <div class="coin-history-info">
           <div class="coin-history-header">
             <span class="coin-history-type">${typeName}</span>
             <span class="coin-history-amount ${isPositive ? 'positive' : 'negative'}">
-              ${isPositive ? '+' : ''}${entry.amount} 💰
+              ${renderCoinAmount(`${isPositive ? '+' : ''}${entry.amount}`)}
             </span>
           </div>
           <div class="coin-history-details">
@@ -83,7 +104,7 @@ export function renderCoinHistory() {
             <span class="coin-history-time">${formatTime(entry.timestamp)}</span>
           </div>
           <div class="coin-history-balance">
-            ${t(i18n, state.language, 'balance')}: ${entry.balance} 💰
+            ${t(i18n, state.language, 'balance')}: ${renderCoinAmount(entry.balance)}
           </div>
         </div>
       </div>

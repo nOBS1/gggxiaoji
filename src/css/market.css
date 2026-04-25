@@ -1536,3 +1536,880 @@
     font-size: 11px;
   }
 }
+
+/* ==================== Pixel Trading Theme ==================== */
+
+.market-container {
+  max-width: 1480px;
+  padding: 28px;
+  background: linear-gradient(180deg, #12151c 0%, #1a1f27 100%);
+  border: 1px solid #303744;
+  border-radius: 14px;
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.28);
+}
+
+.market-ui-icon,
+.market-art,
+.market-hero-chart {
+  display: block;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+
+.market-ui-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+}
+
+.market-ui-icon-inline {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.market-ui-icon-empty {
+  width: 78px;
+  height: 78px;
+}
+
+.market-ui-icon-chart {
+  background-image: url('/ui/market/chart-candles-icon.png');
+}
+
+.market-ui-icon-chart-line {
+  background-image: url('/ui/market/chart-line-green-icon.png');
+}
+
+.market-ui-icon-chart-bear {
+  background-image: url('/ui/market/chart-candles-down-icon.png');
+}
+
+.market-ui-icon-chart-volume {
+  background-image: url('/ui/market/chart-volume-icon.png');
+}
+
+.market-ui-icon-wallet {
+  background-image: url('/ui/market/wallet.png');
+}
+
+.market-ui-icon-alert {
+  background-image: url('/ui/market/alert-triangle.png');
+}
+
+.market-ui-icon-info {
+  background-image: url('/ui/market/info-icon.png');
+}
+
+.market-ui-icon-up {
+  background-image: url('/ui/market/arrow-up-medium.png');
+}
+
+.market-ui-icon-down {
+  background-image: url('/ui/market/arrow-down-medium.png');
+}
+
+.market-ui-icon-triangle-up {
+  background-image: url('/ui/market/triangle-up-large.png');
+}
+
+.market-ui-icon-triangle-down {
+  background-image: url('/ui/market/triangle-down-large.png');
+}
+
+.market-title-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.stat-icon-sprite,
+.my-stat-icon-sprite,
+.tx-icon-sprite,
+.coin-history-icon-sprite {
+  width: 32px;
+  height: 32px;
+}
+
+.order-art-icon {
+  width: 54px;
+  height: 54px;
+}
+
+.rarity-stat-inline-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.market-coin-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.market-coin-amount-muted {
+  opacity: 0.78;
+}
+
+.market-coin-amount-strong {
+  color: #f5be4a;
+}
+
+.market-tabs {
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.market-tab-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1px solid #364152;
+  border-radius: 8px;
+  background: #1a2230;
+  color: #d7dee9;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.market-tab-btn::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+}
+
+.market-tab-btn[data-market-tab="marketplace"]::before {
+  background-image: url('/ui/market/chart-candles-icon.png');
+}
+
+.market-tab-btn[data-market-tab="my-orders"]::before {
+  background-image: url('/ui/market/wallet.png');
+}
+
+.market-tab-btn[data-market-tab="transactions"]::before {
+  background-image: url('/ui/market/triangle-up-large.png');
+}
+
+.market-tab-btn[data-market-tab="coin-history"]::before {
+  background-image: url('/ui/market/chart-volume-icon.png');
+}
+
+.market-tab-btn:hover {
+  background: #202a39;
+  color: #ffffff;
+}
+
+.market-tab-btn.active {
+  background: #f4efe6;
+  color: #111827;
+  border-color: #f4efe6;
+  box-shadow: inset 0 -4px 0 #4bb161;
+}
+
+.market-hero {
+  margin-bottom: 24px;
+}
+
+.market-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.88fr) minmax(0, 1.2fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.market-hero-chart,
+.market-hero-center {
+  min-height: 180px;
+  padding: 14px;
+  border: 1px solid #2e3948;
+  border-radius: 10px;
+  background-color: #121924;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 26px rgba(0, 0, 0, 0.22);
+}
+
+.market-art-chart-candles {
+  background-image: url('/ui/market/chart-candles-large.png');
+}
+
+.market-art-chart-line {
+  background-image: url('/ui/market/chart-line-blue-large.png');
+}
+
+.market-hero-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.market-hero-badges,
+.market-hero-stocks {
+  display: grid;
+  gap: 12px;
+}
+
+.market-hero-badges {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+}
+
+.market-hero-stocks {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.market-art-buy {
+  background-image: url('/ui/market/button-buy.png');
+  aspect-ratio: 196 / 82;
+}
+
+.market-art-sell {
+  background-image: url('/ui/market/button-sell.png');
+  aspect-ratio: 178 / 82;
+}
+
+.market-art-wallet {
+  background-image: url('/ui/market/wallet.png');
+  aspect-ratio: 128 / 114;
+}
+
+.market-art-stock {
+  min-height: 82px;
+}
+
+.market-art-stock-apple {
+  background-image: url('/ui/market/stock-card-apple.png');
+}
+
+.market-art-stock-msft {
+  background-image: url('/ui/market/stock-card-msft.png');
+}
+
+.market-art-stock-btc {
+  background-image: url('/ui/market/stock-card-btc.png');
+}
+
+.market-loading {
+  flex-direction: column;
+  gap: 12px;
+  min-height: 108px;
+  margin-bottom: 24px;
+  border: 1px solid #2e3948;
+  border-radius: 10px;
+  background: #111720;
+  color: #d7dee9;
+}
+
+.market-loading .loading-spinner {
+  width: min(280px, 100%);
+  height: 30px;
+  border: none;
+  border-radius: 0;
+  background: url('/ui/market/progress-green-half.png') center / contain no-repeat;
+  animation: marketPulse 1.2s steps(2) infinite;
+}
+
+@keyframes marketPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.create-order-section,
+.advanced-stats,
+.my-stats-container,
+.price-filter-controls,
+.quantity-filter-controls,
+.pagination-container,
+.market-tab-content[data-market-content="coin-history"] > .coin-history-header {
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: none;
+}
+
+.create-order-section,
+.advanced-stats,
+.my-stats-container {
+  padding: 50px 28px 28px;
+  background-image: url('/ui/market/window-large.png');
+}
+
+.price-filter-controls,
+.quantity-filter-controls,
+.pagination-container,
+.market-tab-content[data-market-content="coin-history"] > .coin-history-header {
+  padding: 42px 24px 20px;
+  background-image: url('/ui/market/window-medium.png');
+}
+
+.create-order-section h3,
+.advanced-stats-title,
+.my-stats-title,
+.market-tab-content[data-market-content="coin-history"] > .coin-history-header h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+  color: #1a2433;
+}
+
+.market-tab-content[data-market-content="coin-history"] > .coin-history-header h3::before,
+.price-filter-label::before,
+.quantity-filter-label::before,
+.fee-label::before,
+.fee-hint::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+}
+
+.market-tab-content[data-market-content="coin-history"] > .coin-history-header h3::before,
+.fee-row:first-child .fee-label::before,
+.price-filter-label::before {
+  background-image: url('/ui/market/wallet.png');
+}
+
+.fee-deduction .fee-label::before {
+  background-image: url('/ui/market/arrow-down-medium.png');
+}
+
+.fee-total .fee-label::before {
+  background-image: url('/ui/market/arrow-up-medium.png');
+}
+
+.quantity-filter-label::before {
+  background-image: url('/ui/market/chart-volume-icon.png');
+}
+
+.fee-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-hint::before {
+  background-image: url('/ui/market/info-icon.png');
+}
+
+.market-controls {
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.market-orders-grid {
+  gap: 18px;
+}
+
+.market-order-card,
+.stat-card,
+.my-stat-card,
+.my-order-card,
+.transaction-card,
+.coin-history-card,
+.rarity-stat-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #324054;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #1a2230 0%, #141b24 100%);
+  color: #f4f7fb;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 24px rgba(0, 0, 0, 0.16);
+}
+
+.stat-card,
+.my-stat-card {
+  padding: 18px;
+}
+
+.stat-card .stat-content,
+.my-stat-card .my-stat-content {
+  padding-bottom: 18px;
+}
+
+.stat-card::after,
+.my-stat-card::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 14px;
+  height: 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  opacity: 0.92;
+}
+
+.stat-card-open::after,
+.my-stat-card::after {
+  background-image: url('/ui/market/progress-green-half.png');
+}
+
+.stat-card-sold::after {
+  background-image: url('/ui/market/progress-blue-half.png');
+}
+
+.stat-card-volume::after {
+  background-image: url('/ui/market/progress-gold-half.png');
+}
+
+.stat-card-fee::after {
+  background-image: url('/ui/market/progress-blue-low.png');
+}
+
+.my-stat-card.highlight::after {
+  background-image: url('/ui/market/progress-gold-half.png');
+}
+
+.stat-icon,
+.my-stat-icon,
+.tx-icon,
+.coin-history-icon,
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-value,
+.my-stat-value,
+.order-title,
+.tx-header span:first-child,
+.coin-history-type {
+  color: #f8fbff;
+}
+
+.order-seller,
+.tx-details,
+.coin-history-desc,
+.coin-history-time,
+.my-stat-label,
+.stat-card .stat-label,
+.coin-history-balance {
+  color: #a9b6c7;
+}
+
+.my-stat-label {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.market-order-card,
+.transaction-card {
+  padding: 20px;
+}
+
+.my-order-card {
+  padding: 18px 20px;
+}
+
+.order-art-accent {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.order-header {
+  position: relative;
+  z-index: 1;
+}
+
+.order-egg-img,
+.order-egg-img-small,
+.rarity-stat-icon {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.order-details {
+  position: relative;
+  z-index: 1;
+}
+
+.order-stat {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.order-stat .stat-label,
+.order-stat .stat-value {
+  font-size: 14px;
+}
+
+.order-price,
+.tx-price {
+  color: #f5be4a;
+}
+
+.market-action-btn {
+  min-height: 44px;
+}
+
+.market-action-btn-buy,
+#createOrderBtn {
+  background: linear-gradient(180deg, #47b44a 0%, #2f8536 100%);
+  border: 1px solid #74d164;
+  color: #ffffff;
+}
+
+.market-action-btn-danger {
+  background: linear-gradient(180deg, #db5b51 0%, #992f2c 100%);
+  border: 1px solid #f08c82;
+}
+
+.btn,
+.filter-btn,
+.price-filter-btn,
+.quantity-filter-btn,
+.pagination-btn,
+.page-number,
+.btn-search,
+.btn-clear,
+.btn-apply-price {
+  border-radius: 6px;
+  border: 1px solid #324054;
+  background: #1b2230;
+  color: #eef4fb;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 3px 0 rgba(0, 0, 0, 0.24);
+}
+
+.btn:hover,
+.filter-btn:hover,
+.price-filter-btn:hover,
+.quantity-filter-btn:hover,
+.pagination-btn:hover:not(:disabled),
+.page-number:hover,
+.btn-search:hover,
+.btn-clear:hover,
+.btn-apply-price:hover {
+  transform: translateY(-1px);
+}
+
+.filter-btn.active,
+.price-filter-btn.active,
+.quantity-filter-btn.active,
+.page-number.active {
+  background: #f4efe6;
+  color: #152133;
+  border-color: #f4efe6;
+}
+
+.btn-search,
+.btn-clear {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+}
+
+.btn-search::before,
+.btn-clear::before {
+  content: '';
+  position: absolute;
+  inset: 11px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+
+.btn-search::before {
+  background-image: url('/ui/market/chart-line-blue-icon.png');
+}
+
+.btn-clear::before {
+  inset: 9px;
+  background-image: url('/ui/market/alert-stop.png');
+}
+
+.search-input,
+.sort-select,
+.page-size-select,
+#createOrderRarity,
+#createOrderQuantity,
+#createOrderPrice,
+.price-input {
+  border: none;
+  color: #f4f7fb;
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  box-shadow: none;
+  appearance: none;
+}
+
+.search-input,
+.sort-select,
+.page-size-select,
+#createOrderRarity,
+#createOrderQuantity,
+#createOrderPrice {
+  min-height: 54px;
+  padding: 0 18px;
+}
+
+.search-input {
+  background-image: url('/ui/market/input-large.png');
+}
+
+.sort-select,
+.page-size-select,
+#createOrderRarity,
+#createOrderQuantity,
+#createOrderPrice {
+  background-image: url('/ui/market/input-medium.png');
+}
+
+.price-input {
+  min-height: 48px;
+  padding: 0 14px;
+  background-image: url('/ui/market/input-small.png');
+}
+
+.search-input::placeholder,
+.price-input::placeholder,
+#createOrderQuantity::placeholder,
+#createOrderPrice::placeholder {
+  color: #7e8ca1;
+}
+
+.search-input:focus,
+.sort-select:focus,
+.page-size-select:focus,
+#createOrderRarity:focus,
+#createOrderQuantity:focus,
+#createOrderPrice:focus,
+.price-input:focus {
+  outline: none;
+  filter: brightness(1.08);
+}
+
+.fee-preview {
+  border: 1px solid #dbc279;
+  box-shadow: none;
+}
+
+.fee-row,
+.rarity-stat-row,
+.coin-history-balance {
+  background: rgba(17, 24, 39, 0.06);
+}
+
+.rarity-stat-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.price-range-bar {
+  height: 38px;
+  padding: 0 16px;
+  border: none;
+  background: url('/ui/market/progress-blue-full.png') center / 100% 100% no-repeat;
+}
+
+.price-min-marker,
+.price-max-marker,
+.price-avg-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.price-min-marker {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+}
+
+.price-max-marker {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+}
+
+.price-avg-marker {
+  top: 50%;
+}
+
+.price-min-marker .market-ui-icon,
+.price-max-marker .market-ui-icon,
+.price-avg-marker .market-ui-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.empty-state {
+  padding: 72px 20px;
+  border: 1px dashed #314255;
+  border-radius: 10px;
+  background: rgba(12, 18, 28, 0.55);
+}
+
+.market-tab-content[data-market-content="coin-history"] > .coin-history-header p {
+  color: #5e6b80;
+}
+
+.coin-history-card {
+  background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+  color: #1f2937;
+}
+
+.coin-history-card .coin-history-header {
+  margin-bottom: 10px;
+}
+
+.coin-history-card .coin-history-type,
+.coin-history-card .coin-history-desc {
+  color: #263244;
+}
+
+.coin-history-card .coin-history-balance {
+  color: #5c6878;
+}
+
+.coin-history-amount,
+.tx-price {
+  font-size: 18px;
+}
+
+.coin-history-amount.positive {
+  color: #0f8c4a;
+}
+
+.coin-history-amount.negative {
+  color: #cf3c34;
+}
+
+@media (max-width: 1100px) {
+  .market-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .market-hero-stocks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .market-container {
+    padding: 18px;
+  }
+
+  .market-tabs {
+    gap: 10px;
+  }
+
+  .market-tab-btn {
+    min-height: 48px;
+    padding: 0 14px;
+  }
+
+  .market-hero-chart,
+  .market-hero-center {
+    min-height: 148px;
+  }
+
+  .market-hero-badges,
+  .market-hero-stocks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .market-art-wallet {
+    max-width: 104px;
+    justify-self: center;
+  }
+
+  .create-order-section,
+  .advanced-stats,
+  .my-stats-container {
+    padding: 42px 18px 18px;
+  }
+
+  .price-filter-controls,
+  .quantity-filter-controls,
+  .pagination-container,
+  .market-tab-content[data-market-content="coin-history"] > .coin-history-header {
+    padding: 34px 16px 16px;
+  }
+
+  .search-input,
+  .sort-select,
+  .page-size-select,
+  #createOrderRarity,
+  #createOrderQuantity,
+  #createOrderPrice {
+    min-height: 48px;
+  }
+
+  .btn-search,
+  .btn-clear {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 520px) {
+  .market-hero-grid {
+    gap: 12px;
+  }
+
+  .market-hero-chart,
+  .market-hero-center {
+    min-height: 118px;
+    padding: 10px;
+  }
+
+  .market-hero-badges,
+  .market-hero-stocks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .market-art-stock {
+    min-height: 52px;
+  }
+
+  .market-order-card,
+  .transaction-card,
+  .my-order-card {
+    padding: 16px;
+  }
+
+  .market-action-btn,
+  #createOrderBtn {
+    width: 100%;
+  }
+}

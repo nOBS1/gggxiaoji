@@ -34,12 +34,12 @@ export const CONFIG = {
   
   // 稀有度定义
   RARITIES: {
-    white: { nameKey: 'rarityWhite', emoji: '🥚', image: '/eggs/White-egg.png', price: 1, baseWeight: 8200 },
-    brown: { nameKey: 'rarityBrown', emoji: '🥜', image: '/eggs/Brown-egg.png', price: 2, baseWeight: 1200 },
-    silver: { nameKey: 'raritySilver', emoji: '⚪', image: '/eggs/Silver-egg.png', price: 5, baseWeight: 430 },
-    gold: { nameKey: 'rarityGold', emoji: '🥇', image: '/eggs/Gold-egg.png', price: 15, baseWeight: 130 },
-    purple: { nameKey: 'rarityPurple', emoji: '🟣', image: '/eggs/Purple-egg.png', price: 40, baseWeight: 35 },
-    black: { nameKey: 'rarityBlack', emoji: '⚫', image: '/eggs/Black-egg.png', price: 200, baseWeight: 5 }
+    white: { nameKey: 'rarityWhite', emoji: '🥚', image: '/eggs/White-egg-v2.png', price: 1, baseWeight: 8200 },
+    brown: { nameKey: 'rarityBrown', emoji: '🥜', image: '/eggs/Brown-egg-v2.png', price: 2, baseWeight: 1200 },
+    silver: { nameKey: 'raritySilver', emoji: '⚪', image: '/eggs/Silver-egg-v2.png', price: 5, baseWeight: 430 },
+    gold: { nameKey: 'rarityGold', emoji: '🥇', image: '/eggs/Gold-egg-v2.png', price: 15, baseWeight: 130 },
+    purple: { nameKey: 'rarityPurple', emoji: '🟣', image: '/eggs/Purple-egg-v2.png', price: 40, baseWeight: 35 },
+    black: { nameKey: 'rarityBlack', emoji: '⚫', image: '/eggs/Black-egg-v2.png', price: 200, baseWeight: 5 }
   },
 
   // 升级配置

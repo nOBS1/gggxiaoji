@@ -30,6 +30,13 @@ market.get('/orders', async (c) => {
   try {
     const supabase = getSupabase(c.env);
     
+    // 调试日志：检查环境变量
+    console.log('[Market Orders] Environment check:', {
+      hasSupabaseUrl: !!c.env.SUPABASE_URL,
+      hasSupabaseKey: !!c.env.SUPABASE_ANON_KEY,
+      urlPrefix: c.env.SUPABASE_URL?.substring(0, 30),
+    });
+    
     // 构建查询（暂时不关联 profiles，避免外键问题）
     let query = supabase
       .from('orders')

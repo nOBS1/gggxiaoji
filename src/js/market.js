@@ -351,6 +351,36 @@ export async function fetchMarketStats() {
 
 // ==================== UI 更新函数 ====================
 
+function renderMarketIcon(name, extraClass = '') {
+  const classes = ['market-ui-icon', `market-ui-icon-${name}`];
+  if (extraClass) {
+    classes.push(extraClass);
+  }
+  return `<span class="${classes.join(' ')}" aria-hidden="true"></span>`;
+}
+
+function renderCoinAmount(value, extraClass = '') {
+  const classes = ['market-coin-amount'];
+  if (extraClass) {
+    classes.push(extraClass);
+  }
+  return `
+    <span class="${classes.join(' ')}">
+      ${renderMarketIcon('wallet', 'market-ui-icon-inline')}
+      <span>${value}</span>
+    </span>
+  `;
+}
+
+function renderEmptyState(iconName, textKey) {
+  return `
+    <div class="empty-state">
+      <div class="empty-icon">${renderMarketIcon(iconName, 'market-ui-icon-empty')}</div>
+      <p data-i18n="${textKey}">${t(i18n, state.language, textKey)}</p>
+    </div>
+  `;
+}
+
 /**
  * 渲染市场订单列表
  */
@@ -359,19 +389,22 @@ export function renderMarketOrders() {
   if (!container) return;
 
   if (marketState.orders.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📦</div>
-        <p data-i18n="noOrdersAvailable">${t(i18n, state.language, 'noOrdersAvailable')}</p>
-      </div>
-    `;
+    container.innerHTML = renderEmptyState('alert', 'noOrdersAvailable');
     return;
   }
 
   container.innerHTML = marketState.orders.map(order => {
     const rarityData = CONFIG.RARITIES[order.rarity];
+    const chartIcon = order.rarity === 'black'
+      ? 'chart-bear'
+      : order.rarity === 'gold'
+        ? 'chart-line'
+        : 'chart';
     return `
     <div class="market-order-card" data-rarity="${order.rarity}">
+      <div class="order-art-accent">
+        ${renderMarketIcon(chartIcon, 'order-art-icon')}
+      </div>
       <div class="order-header">
         <img src="${rarityData.image}" alt="${order.rarity}" class="order-egg-img" />
         <div class="order-info">
@@ -386,18 +419,18 @@ export function renderMarketOrders() {
         </div>
         <div class="order-stat">
           <span class="stat-label">${t(i18n, state.language, 'totalPrice')}</span>
-          <span class="stat-value">${order.price_coins} 💰</span>
+          <span class="stat-value">${renderCoinAmount(order.price_coins)}</span>
         </div>
         <div class="order-stat">
           <span class="stat-label">${t(i18n, state.language, 'unitPrice')}</span>
-          <span class="stat-value">${order.unitPrice} 💰</span>
+          <span class="stat-value">${renderCoinAmount(order.unitPrice)}</span>
         </div>
         <div class="order-stat">
           <span class="stat-label">${t(i18n, state.language, 'fee')}</span>
-          <span class="stat-value text-muted">${order.fee} 💰</span>
+          <span class="stat-value text-muted">${renderCoinAmount(order.fee, 'market-coin-amount-muted')}</span>
         </div>
       </div>
-      <button class="btn btn-primary" data-action="buy-order" data-order-id="${order.id}">
+      <button class="btn btn-primary market-action-btn market-action-btn-buy" data-action="buy-order" data-order-id="${order.id}">
         ${t(i18n, state.language, 'buyNow')}
       </button>
     </div>
@@ -461,45 +494,48 @@ function renderMyOrdersStats(stats) {
   
   container.innerHTML = `
     <div class="my-stats-container">
-      <h3 class="my-stats-title">📈 个人统计</h3>
+      <h3 class="my-stats-title">
+        ${renderMarketIcon('chart-line', 'market-ui-icon-inline market-title-icon')}
+        <span>个人统计</span>
+      </h3>
       <div class="my-stats-grid">
         <div class="my-stat-card">
-          <div class="my-stat-icon">📋</div>
+          <div class="my-stat-icon">${renderMarketIcon('chart', 'my-stat-icon-sprite')}</div>
           <div class="my-stat-content">
             <div class="my-stat-value">${stats.totalOrders}</div>
             <div class="my-stat-label">总订单数</div>
           </div>
         </div>
         <div class="my-stat-card">
-          <div class="my-stat-icon">🟢</div>
+          <div class="my-stat-icon">${renderMarketIcon('triangle-up', 'my-stat-icon-sprite')}</div>
           <div class="my-stat-content">
             <div class="my-stat-value">${stats.openOrders}</div>
             <div class="my-stat-label">待售订单</div>
           </div>
         </div>
         <div class="my-stat-card">
-          <div class="my-stat-icon">✅</div>
+          <div class="my-stat-icon">${renderMarketIcon('info', 'my-stat-icon-sprite')}</div>
           <div class="my-stat-content">
             <div class="my-stat-value">${stats.soldOrders}</div>
             <div class="my-stat-label">已售订单</div>
           </div>
         </div>
         <div class="my-stat-card highlight">
-          <div class="my-stat-icon">💰</div>
+          <div class="my-stat-icon">${renderMarketIcon('wallet', 'my-stat-icon-sprite')}</div>
           <div class="my-stat-content">
-            <div class="my-stat-value">${stats.totalRevenue} 💰</div>
+            <div class="my-stat-value">${renderCoinAmount(stats.totalRevenue, 'market-coin-amount-strong')}</div>
             <div class="my-stat-label">总收益</div>
           </div>
         </div>
         <div class="my-stat-card">
-          <div class="my-stat-icon">📉</div>
+          <div class="my-stat-icon">${renderMarketIcon('chart-bear', 'my-stat-icon-sprite')}</div>
           <div class="my-stat-content">
-            <div class="my-stat-value">${stats.avgPrice}</div>
+            <div class="my-stat-value">${renderCoinAmount(stats.avgPrice)}</div>
             <div class="my-stat-label">平均售价</div>
           </div>
         </div>
         <div class="my-stat-card">
-          <div class="my-stat-icon">🥚</div>
+          <div class="my-stat-icon">${renderMarketIcon('chart-volume', 'my-stat-icon-sprite')}</div>
           <div class="my-stat-content">
             <div class="my-stat-value">${stats.totalQuantity}</div>
             <div class="my-stat-label">售出数量</div>
@@ -522,12 +558,7 @@ export function renderMyOrders() {
   if (!container) return;
 
   if (marketState.myOrders.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📭</div>
-        <p data-i18n="noMyOrders">${t(i18n, state.language, 'noMyOrders')}</p>
-      </div>
-    `;
+    container.innerHTML = renderEmptyState('wallet', 'noMyOrders');
     return;
   }
 
@@ -542,9 +573,9 @@ export function renderMyOrders() {
           <span class="order-status status-${order.status}">${t(i18n, state.language, `status_${order.status}`)}</span>
         </div>
       </div>
-      <div class="order-price">${order.price_coins} 💰</div>
+      <div class="order-price">${renderCoinAmount(order.price_coins, 'market-coin-amount-strong')}</div>
       ${order.status === 'open' ? `
-        <button class="btn btn-danger btn-sm" data-action="cancel-order" data-order-id="${order.id}">
+        <button class="btn btn-danger btn-sm market-action-btn market-action-btn-danger" data-action="cancel-order" data-order-id="${order.id}">
           ${t(i18n, state.language, 'cancel')}
         </button>
       ` : ''}
@@ -561,12 +592,7 @@ export function renderTransactions() {
   if (!container) return;
 
   if (marketState.transactions.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📜</div>
-        <p data-i18n="noTransactions">${t(i18n, state.language, 'noTransactions')}</p>
-      </div>
-    `;
+    container.innerHTML = renderEmptyState('info', 'noTransactions');
     return;
   }
 
@@ -575,11 +601,11 @@ export function renderTransactions() {
     console.log('[Market] Transaction timestamp:', tx.created_at, typeof tx.created_at);
     return `
       <div class="transaction-card">
-        <div class="tx-icon">${isBuyer ? '📥' : '📤'}</div>
+        <div class="tx-icon">${renderMarketIcon(isBuyer ? 'down' : 'up', 'tx-icon-sprite')}</div>
         <div class="tx-info">
           <div class="tx-header">
             <span>${t(i18n, state.language, `egg_${tx.rarity}`)} x${tx.quantity}</span>
-            <span class="tx-price">${tx.price_total} 💰</span>
+            <span class="tx-price">${renderCoinAmount(tx.price_total, 'market-coin-amount-strong')}</span>
           </div>
           <div class="tx-details">
             <span class="tx-type">${isBuyer ? t(i18n, state.language, 'bought') : t(i18n, state.language, 'sold')}</span>
@@ -605,29 +631,29 @@ export function renderMarketStats() {
   // 基础统计卡片
   const basicStats = `
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
+      <div class="stat-card stat-card-open">
+        <div class="stat-icon">${renderMarketIcon('chart', 'stat-icon-sprite')}</div>
         <div class="stat-content">
           <div class="stat-value">${stats.openOrders || 0}</div>
           <div class="stat-label">${t(i18n, state.language, 'activeOrders')}</div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">✅</div>
+      <div class="stat-card stat-card-sold">
+        <div class="stat-icon">${renderMarketIcon('triangle-up', 'stat-icon-sprite')}</div>
         <div class="stat-content">
           <div class="stat-value">${stats.soldOrders || 0}</div>
           <div class="stat-label">${t(i18n, state.language, 'completedTrades')}</div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">💰</div>
+      <div class="stat-card stat-card-volume">
+        <div class="stat-icon">${renderMarketIcon('wallet', 'stat-icon-sprite')}</div>
         <div class="stat-content">
-          <div class="stat-value">${stats.totalVolume || 0}</div>
+          <div class="stat-value">${renderCoinAmount(stats.totalVolume || 0)}</div>
           <div class="stat-label">${t(i18n, state.language, 'totalVolume')}</div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">📈</div>
+      <div class="stat-card stat-card-fee">
+        <div class="stat-icon">${renderMarketIcon('chart-line', 'stat-icon-sprite')}</div>
         <div class="stat-content">
           <div class="stat-value">${marketState.stats.feeRate * 100}%</div>
           <div class="stat-label">${t(i18n, state.language, 'tradingFee')}</div>
@@ -639,7 +665,10 @@ export function renderMarketStats() {
   // 稀有度统计
   const rarityStatsHtml = Object.keys(byRarity).length > 0 ? `
     <div class="advanced-stats">
-      <h3 class="advanced-stats-title">🎯 稀有度统计</h3>
+      <h3 class="advanced-stats-title">
+        ${renderMarketIcon('chart-volume', 'market-ui-icon-inline market-title-icon')}
+        <span>稀有度统计</span>
+      </h3>
       <div class="rarity-stats-grid">
         ${Object.entries(byRarity).map(([rarity, data]) => {
           const rarityConfig = CONFIG.RARITIES[rarity];
@@ -660,28 +689,46 @@ export function renderMarketStats() {
               </div>
               <div class="rarity-stat-data">
                 <div class="rarity-stat-row">
-                  <span class="rarity-stat-label">📉 在售:</span>
+                  <span class="rarity-stat-label">
+                    ${renderMarketIcon('chart-bear', 'market-ui-icon-inline rarity-stat-inline-icon')}
+                    <span>在售</span>
+                  </span>
                   <span class="rarity-stat-value">${data.count || 0}</span>
                 </div>
                 <div class="rarity-stat-row">
-                  <span class="rarity-stat-label">💰 均价:</span>
-                  <span class="rarity-stat-value">${Math.round(avgPrice)}</span>
+                  <span class="rarity-stat-label">
+                    ${renderMarketIcon('wallet', 'market-ui-icon-inline rarity-stat-inline-icon')}
+                    <span>均价</span>
+                  </span>
+                  <span class="rarity-stat-value">${renderCoinAmount(Math.round(avgPrice))}</span>
                 </div>
                 <div class="rarity-stat-row">
-                  <span class="rarity-stat-label">🔽 最低:</span>
-                  <span class="rarity-stat-value">${minPrice}</span>
+                  <span class="rarity-stat-label">
+                    ${renderMarketIcon('down', 'market-ui-icon-inline rarity-stat-inline-icon')}
+                    <span>最低</span>
+                  </span>
+                  <span class="rarity-stat-value">${renderCoinAmount(minPrice)}</span>
                 </div>
                 <div class="rarity-stat-row">
-                  <span class="rarity-stat-label">🔼 最高:</span>
-                  <span class="rarity-stat-value">${maxPrice}</span>
+                  <span class="rarity-stat-label">
+                    ${renderMarketIcon('up', 'market-ui-icon-inline rarity-stat-inline-icon')}
+                    <span>最高</span>
+                  </span>
+                  <span class="rarity-stat-value">${renderCoinAmount(maxPrice)}</span>
                 </div>
               </div>
               <!-- 价格趋势指示器 -->
               <div class="price-trend-indicator">
                 <div class="price-range-bar">
-                  <div class="price-min-marker" title="最低价: ${minPrice}">🔽</div>
-                  <div class="price-avg-marker" style="left: ${avgPosition}%" title="均价: ${Math.round(avgPrice)}">📊</div>
-                  <div class="price-max-marker" title="最高价: ${maxPrice}">🔼</div>
+                  <div class="price-min-marker" title="最低价: ${minPrice}">
+                    ${renderMarketIcon('down')}
+                  </div>
+                  <div class="price-avg-marker" style="left: ${avgPosition}%" title="均价: ${Math.round(avgPrice)}">
+                    ${renderMarketIcon('chart-line')}
+                  </div>
+                  <div class="price-max-marker" title="最高价: ${maxPrice}">
+                    ${renderMarketIcon('up')}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1059,7 +1106,7 @@ function showRefreshIndicator() {
       animation: slideIn 0.3s ease-out;
     `;
     indicator.innerHTML = `
-      <div class="loading-spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
+      ${renderMarketIcon('chart-volume', 'market-ui-icon-inline')}
       <span>刷新中...</span>
     `;
     document.body.appendChild(indicator);

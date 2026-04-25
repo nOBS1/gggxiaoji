@@ -27,8 +27,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="小鸡生蛋游戏 - 免费在线HTML5小游戏，点击小鸡收集稀有鸡蛋，市场交易，云端同步。Chicken Egg Game - Free online HTML5 idle game with market trading and cloud sync.">
-  <meta name="keywords" content="小鸡生蛋游戏,HTML5游戏,在线游戏,放置游戏,点击游戏,egg game,chicken game,HTML5 game,online game,idle game,clicker game">
+  <meta name="description" content="小鸡生蛋游戏 - 最受欢迎的免费HTML5在线游戏！玩数字合成小鸡游戏，收集稀有鸡蛋，体验放置游戏的乐趣。这款小鸡生蛋游戏支持市场交易，云端同步，是您休闲娱乐的最佳选择。Chicken Egg Game - Free online HTML5 idle game with merge gameplay and market trading.">
+  <meta name="keywords" content="小鸡生蛋游戏,小鸡游戏,生蛋游戏,HTML5游戏,在线小游戏,免费游戏,放置游戏,挂机游戏,数字合成游戏,2048游戏,鸡蛋游戏,休闲游戏,网页游戏,chicken egg game,egg laying game,HTML5 game,online game,idle game,clicker game,merge game,2048 game">
   <meta name="author" content="Xiaoji Game">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
@@ -42,6 +42,7 @@
   <meta property="og:description" content="点击小鸡收集稀有鸡蛋，在市场与玩家交易，升级养鸡场。Click chickens to collect rare eggs, trade in the market, upgrade your farm.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://chickgamehub.online/">
+  <meta property="og:image" content="https://chickgamehub.online/chick/chick-v2.png">
   <meta property="og:site_name" content="Chicken Egg Game">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:locale:alternate" content="en_US">
@@ -50,6 +51,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="小鸡生蛋游戏 - 免费在线HTML5小游戏">
   <meta name="twitter:description" content="点击小鸡收集稀有鸡蛋，在市场与玩家交易，升级养鸡场。">
+  <meta name="twitter:image" content="https://chickgamehub.online/chick/chick-v2.png">
   
   <!-- Canonical URL -->
   <link rel="canonical" href="https://chickgamehub.online/">
@@ -59,7 +61,7 @@
   <link rel="alternate" hreflang="en" href="https://chickgamehub.online/?lang=en">
   <link rel="alternate" hreflang="x-default" href="https://chickgamehub.online/">
   
-  <title>小鸡生蛋游戏 - 免费在线HTML5小游戏 | Chicken Egg Laying Game - Free Online HTML5 Game</title>
+  <title>小鸡生蛋游戏 - 免费HTML5在线游戏 | 数字合成放置游戏 | Chicken Egg Laying Game - Free Online HTML5 Idle Game</title>
   
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐔</text></svg>">
@@ -71,6 +73,7 @@
   <link rel="stylesheet" href="src/css/footer.css" />
   <link rel="stylesheet" href="src/css/cookie-consent.css" />
   <link rel="stylesheet" href="src/css/merge.css" />
+  <link rel="stylesheet" href="src/css/seo-content.css" />
   
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5747890927688294"
@@ -79,7 +82,7 @@
 <body>
   <!-- 顶部导航栏 -->
   <header class="header">
-  <h1 class="title" data-i18n="title">🐔 鸡蛋模拟器</h1>
+  <h1 class="title" data-i18n="title">🐔 小鸡生蛋游戏 - 数字合成鸡蛋模拟器</h1>
     <div class="stats-bar">
       <div class="stat-item">
         <span class="label" data-i18n="totalEggs">总蛋数</span>: 
@@ -242,7 +245,7 @@
         <button class="market-tab-btn active" data-market-tab="marketplace" data-i18n="marketPlace">市场广场</button>
         <button class="market-tab-btn" data-market-tab="my-orders" data-i18n="myOrders">我的订单</button>
         <button class="market-tab-btn" data-market-tab="transactions" data-i18n="transactions">交易记录</button>
-        <button class="market-tab-btn" data-market-tab="coin-history" data-i18n="coinHistory">💰 金币记录</button>
+        <button class="market-tab-btn" data-market-tab="coin-history" data-i18n="coinHistory">金币记录</button>
       </div>
 
       <!-- 加载状态 -->
@@ -252,6 +255,25 @@
 
       <!-- 市场广场标签页 -->
       <div class="market-tab-content active" data-market-content="marketplace">
+        <div class="market-hero" aria-hidden="true">
+          <div class="market-hero-grid">
+            <div class="market-hero-chart market-art-chart-candles"></div>
+            <div class="market-hero-center">
+              <div class="market-hero-badges">
+                <div class="market-art market-art-buy"></div>
+                <div class="market-art market-art-sell"></div>
+                <div class="market-art market-art-wallet"></div>
+              </div>
+              <div class="market-hero-stocks">
+                <div class="market-art market-art-stock market-art-stock-apple"></div>
+                <div class="market-art market-art-stock market-art-stock-msft"></div>
+                <div class="market-art market-art-stock market-art-stock-btc"></div>
+              </div>
+            </div>
+            <div class="market-hero-chart market-art-chart-line"></div>
+          </div>
+        </div>
+
         <!-- 市场统计 -->
         <div class="market-stats">
           <div id="marketStats"></div>
@@ -284,19 +306,19 @@
           <div class="fee-preview" id="feePreview" style="display: none;">
             <div class="fee-info">
               <div class="fee-row">
-                <span class="fee-label" data-i18n="listingPrice">💰 挂单价格</span>
+                <span class="fee-label" data-i18n="listingPrice">挂单价格</span>
                 <span class="fee-value" id="listingPrice">0</span>
               </div>
               <div class="fee-row fee-deduction">
-                <span class="fee-label" data-i18n="platformFee">📉 平台手续费 (5%)</span>
+                <span class="fee-label" data-i18n="platformFee">平台手续费 (5%)</span>
                 <span class="fee-value">-<span id="feeAmount">0</span></span>
               </div>
               <div class="fee-row fee-total">
-                <span class="fee-label" data-i18n="youWillReceive">✅ 您将收到</span>
+                <span class="fee-label" data-i18n="youWillReceive">您将收到</span>
                 <span class="fee-value fee-highlight" id="receiveAmount">0</span>
               </div>
             </div>
-            <p class="fee-hint" data-i18n="feeHint">💡 手续费用于维持市场运营</p>
+            <p class="fee-hint" data-i18n="feeHint">手续费用于维持市场运营</p>
           </div>
         </div>
 
@@ -310,8 +332,8 @@
           </div>
           <div class="search-controls">
             <input type="text" id="searchInput" class="search-input" placeholder="搜索卖家昵称..." data-i18n-placeholder="searchPlaceholder" />
-            <button class="btn-search" id="searchBtn">🔍</button>
-            <button class="btn-clear" id="clearSearchBtn" style="display: none;">✖</button>
+            <button class="btn-search" id="searchBtn" type="button" aria-label="搜索"></button>
+            <button class="btn-clear" id="clearSearchBtn" type="button" style="display: none;" aria-label="清除"></button>
           </div>
           <div class="sort-controls">
             <select class="sort-select" id="sortBy">
@@ -328,7 +350,7 @@
         
         <!-- 价格筛选 -->
         <div class="price-filter-controls">
-          <div class="price-filter-label">💰 价格筛选：</div>
+          <div class="price-filter-label">价格筛选：</div>
           <div class="price-quick-filters">
             <button class="price-filter-btn active" data-price-range="all">全部</button>
             <button class="price-filter-btn" data-price-range="0-100">&lt;100</button>
@@ -346,7 +368,7 @@
         
         <!-- 数量筛选 -->
         <div class="quantity-filter-controls">
-          <div class="quantity-filter-label">📦 数量筛选：</div>
+          <div class="quantity-filter-label">数量筛选：</div>
           <div class="quantity-quick-filters">
             <button class="quantity-filter-btn active" data-quantity-range="all">全部</button>
             <button class="quantity-filter-btn" data-quantity-range="1-5">1-5个</button>
@@ -851,6 +873,99 @@
     </div>
   </div>
 
+  <!-- SEO内容区块 -->
+  <section class="seo-content-section">
+    <div class="seo-content-container">
+      <h2>🎮 什么是小鸡生蛋游戏？</h2>
+      <p>
+        <strong>小鸡生蛋游戏</strong>是一款创新的<strong>免费HTML5在线游戏</strong>，结合了<strong>数字合成游戏</strong>（类似2048）和<strong>放置游戏</strong>的玩法特色。玩家通过合成数字自动产出鸡蛋，体验这款独特的<strong>小鸡游戏</strong>带来的乐趣。
+      </p>
+      
+      <h3>🥚 游戏特色</h3>
+      <ul>
+        <li><strong>数字合成玩法</strong>：这款<strong>合成游戏</strong>采用2048风格的数字合成机制，简单易上手</li>
+        <li><strong>自动产蛋系统</strong>：每次成功合成都会自动产出对应稀有度的鸡蛋，真正的<strong>放置游戏</strong>体验</li>
+        <li><strong>市场交易</strong>：与其他玩家交易稀有鸡蛋，享受<strong>在线游戏</strong>的社交乐趣</li>
+        <li><strong>云端同步</strong>：支持Google账号登录，游戏进度云端保存</li>
+        <li><strong>多平台支持</strong>：完美适配桌面和移动设备的<strong>HTML5游戏</strong></li>
+      </ul>
+      
+      <h3>🎯 为什么选择这款小鸡生蛋游戏？</h3>
+      <p>
+        作为一款<strong>免费在线游戏</strong>，小鸡生蛋游戏无需下载安装，打开浏览器即可畅玩。不同于传统的<strong>点击游戏</strong>，我们的<strong>数字合成游戏</strong>玩法更具策略性和趣味性。无论您是<strong>放置游戏</strong>爱好者还是<strong>休闲游戏</strong>玩家，都能在这款<strong>小鸡游戏</strong>中找到乐趣。
+      </p>
+      
+      <h3>🌟 最受欢迎的HTML5在线游戏</h3>
+      <p>
+        小鸡生蛋游戏凭借其创新的<strong>合成游戏</strong>机制、可爱的小鸡形象和丰富的游戏内容，已成为最受欢迎的<strong>HTML5小游戏</strong>之一。快来加入数万名玩家，一起体验这款令人上瘾的<strong>小鸡生蛋游戏</strong>吧！
+      </p>
+      
+      <div class="seo-tags">
+        <span class="seo-tag">免费游戏</span>
+        <span class="seo-tag">在线游戏</span>
+        <span class="seo-tag">HTML5游戏</span>
+        <span class="seo-tag">放置游戏</span>
+        <span class="seo-tag">数字合成游戏</span>
+        <span class="seo-tag">小鸡游戏</span>
+        <span class="seo-tag">鸡蛋游戏</span>
+        <span class="seo-tag">休闲游戏</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 常见问题（FAQ）区块 -->
+  <section class="faq-section">
+    <div class="faq-container">
+      <h2>❓ 关于小鸡生蛋游戏的常见问题</h2>
+      
+      <div class="faq-item">
+        <h3>什么是小鸡生蛋游戏？</h3>
+        <p>
+          <strong>小鸡生蛋游戏</strong>是一款创新的<strong>免费HTML5在线游戏</strong>，
+          结合了<strong>数字合成游戏</strong>（类似2048）和<strong>放置游戏</strong>的玩法。
+          玩家通过合成数字自动产出鸡蛋，是一款非常受欢迎的<strong>小鸡游戏</strong>。
+        </p>
+      </div>
+      
+      <div class="faq-item">
+        <h3>如何玩这款小鸡游戏？</h3>
+        <p>
+          这款<strong>数字合成游戏</strong>非常简单！使用方向键或滑动屏幕移动数字，
+          相同数字碰撞即可合成。每次成功合成都会自动产出鸡蛋。作为一款<strong>HTML5游戏</strong>，
+          无需下载即可在浏览器中畅玩。
+        </p>
+      </div>
+      
+      <div class="faq-item">
+        <h3>这款在线游戏需要付费吗？</h3>
+        <p>
+          不需要！<strong>小鸡生蛋游戏</strong>是一款完全<strong>免费的在线游戏</strong>。
+          您可以免费畅玩所有功能，包括市场交易、云端同步等高级功能。
+        </p>
+      </div>
+      
+      <div class="faq-item">
+        <h3>这款放置游戏支持哪些平台？</h3>
+        <p>
+          作为一款<strong>HTML5在线游戏</strong>，<strong>小鸡生蛋游戏</strong>支持所有现代浏览器，
+          包括桌面电脑、平板和手机。这款<strong>小鸡游戏</strong>完美适配各种屏幕尺寸。
+        </p>
+      </div>
+      
+      <div class="faq-item">
+        <h3>为什么选择这款小鸡生蛋游戏？</h3>
+        <p>
+          ✅ 完全免费的<strong>在线小游戏</strong><br>
+          ✅ 创新的<strong>数字合成游戏</strong>玩法<br>
+          ✅ 轻松的<strong>放置游戏</strong>体验<br>
+          ✅ 社交化的市场交易系统<br>
+          ✅ 跨平台的<strong>HTML5游戏</strong>技术<br>
+          ✅ 云端同步，随时随地玩<strong>小鸡游戏</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- 页脚 -->
   <footer class="seo-footer">
     <div class="footer-container">
@@ -858,7 +973,7 @@
       <div class="footer-section">
         <h3 data-i18n="footerAbout">🐔 关于游戏</h3>
         <p data-i18n="footerAboutDesc">
-          小鸡生蛋是一款免费的数字合成游戏。像2048一样合成数字自动产蛋，升级你的养鸡场，在市场与其他玩家交易。
+          <strong>小鸡生蛋游戏</strong>是一款创新的<strong>免费HTML5在线游戏</strong>。作为一款结合了<strong>数字合成游戏</strong>和<strong>放置游戏</strong>特色的<strong>小鸡游戏</strong>，玩家可以像玩2048一样合成数字自动产出鸡蛋，升级你的养鸡场，在市场与其他玩家交易稀有鸡蛋。立即开始这款最受欢迎的<strong>在线小游戏</strong>！
         </p>
       </div>
 
@@ -979,7 +1094,7 @@
     "alternateName": "小鸡生蛋游戏",
     "description": "免费在线HTML5小游戏，点击小鸡收集稀有鸡蛋，在市场与玩家交易，升级养鸡场。Free online HTML5 idle game featuring egg collection, market trading, and farm upgrades.",
     "url": "https://chickgamehub.online/",
-    "image": "https://chickgamehub.online/chick/chick.webp",
+    "image": "https://chickgamehub.online/chick/chick-v2.png",
     "gamePlatform": ["Web Browser", "HTML5", "Desktop", "Mobile"],
     "genre": ["Idle Game", "Clicker Game", "Simulation", "Trading", "Casual"],
     "inLanguage": ["zh-CN", "en-US"],
