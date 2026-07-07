@@ -7,19 +7,11 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'terser',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'game-logic': ['./src/js/gameLogic.js'],
-          'ui': ['./src/js/ui.js']
-        }
-      }
-    }
+    minify: 'terser'
   },
   server: {
     port: 3000,
-    open: true,
+    open: false,
     host: true
   },
   preview: {

@@ -58,8 +58,6 @@ export class MergeGame {
     let moved = false;
     let mergedTiles = []; // 记录合并的格子信息
 
-    const oldGrid = JSON.parse(JSON.stringify(this.grid));
-
     switch (direction) {
       case 'up':
         moved = this.moveUp(mergedTiles);
