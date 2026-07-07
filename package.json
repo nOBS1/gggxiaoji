@@ -1,7 +1,7 @@
 {
-  "name": "xiaoji-idle-game",
+  "name": "merge-block-game",
   "version": "3.0.0",
-  "description": "小趣闻·啄米鸡 - 一款轻度挂机网页小游戏",
+  "description": "合成方块 - 一款轻量 2048 风格网页小游戏",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,9 +14,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "keywords": [
-    "idle-game",
-    "chicken",
-    "incremental-game",
+    "merge-game",
+    "2048",
+    "puzzle-game",
     "web-game"
   ],
   "author": "Your Name",

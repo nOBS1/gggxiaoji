@@ -1,13 +1,109 @@
-/**
- * 主样式文件
- * 导入所有CSS模块
- */
+* {
+  box-sizing: border-box;
+}
 
-/* 基础样式 - 包含CSS变量、全局样式、布局 */
-@import './base.css';
+html {
+  min-height: 100%;
+  background: #eef4f2;
+}
 
-/* 组件样式 - 包含所有UI组件 */
-@import './components.css';
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: #172033;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Microsoft YaHei", sans-serif;
+  letter-spacing: 0;
+  background:
+    linear-gradient(180deg, #eef4f2 0%, #e7eef7 44%, #f6f7f4 100%);
+}
 
-/* 响应式样式和动画 */
-@import './responsive.css';
+button {
+  font: inherit;
+}
+
+.app-shell {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  align-items: center;
+  padding: 28px 18px;
+}
+
+.game-panel {
+  width: min(620px, 100%);
+  margin: 0 auto;
+}
+
+.game-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.game-kicker {
+  margin: 0 0 6px;
+  color: #25636d;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.game-hero h1 {
+  margin: 0;
+  color: #172033;
+  font-size: clamp(2.4rem, 10vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.secondary-action {
+  min-height: 40px;
+  border: 1px solid #b6c4cf;
+  border-radius: 8px;
+  padding: 0 14px;
+  color: #172033;
+  background: rgba(255, 255, 255, 0.76);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.secondary-action:hover {
+  border-color: #25636d;
+  background: #ffffff;
+}
+
+.secondary-action:active {
+  transform: translateY(1px);
+}
+
+.secondary-action:focus-visible,
+.merge-btn:focus-visible {
+  outline: 3px solid rgba(37, 99, 109, 0.35);
+  outline-offset: 3px;
+}
+
+@media (max-width: 560px) {
+  .app-shell {
+    align-items: start;
+    padding: 18px 12px;
+  }
+
+  .game-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .secondary-action {
+    width: 100%;
+  }
+}

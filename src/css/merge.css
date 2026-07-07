@@ -1,291 +1,210 @@
-/* 2048合成游戏样式 */
-
-/* 阻止整个游戏容器被方向键滚动 */
 .merge-game-container {
-  max-width: 500px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #faf8ef;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overscroll-behavior: contain; /* 防止滚动链 */
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  border: 1px solid rgba(23, 32, 51, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 18px 50px rgba(26, 44, 63, 0.16);
+  overscroll-behavior: contain;
 }
 
 .merge-game-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .merge-score-container {
-  display: flex;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(84px, 1fr));
+  gap: 10px;
 }
 
 .merge-score-box {
-  background: #bbada0;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
+  min-height: 58px;
+  display: grid;
+  align-content: center;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #ffffff;
   text-align: center;
-  min-width: 80px;
+  background: #244653;
 }
 
 .merge-score-label {
-  font-size: 13px;
-  text-transform: uppercase;
-  opacity: 0.8;
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  opacity: 0.78;
 }
 
 .merge-score-value {
-  font-size: 24px;
-  font-weight: bold;
   display: block;
-}
-
-.merge-controls {
-  display: flex;
-  gap: 10px;
+  font-size: clamp(1.2rem, 5vw, 1.7rem);
+  font-weight: 850;
+  line-height: 1.1;
 }
 
 .merge-btn {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  background: #8f7a66;
-  color: white;
-  font-size: 14px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 750;
+  background: #25636d;
   cursor: pointer;
-  transition: background 0.2s;
+  white-space: nowrap;
+  transition:
+    background 0.16s ease,
+    transform 0.16s ease;
 }
 
 .merge-btn:hover {
-  background: #9f8a76;
+  background: #1d5661;
 }
 
 .merge-btn:active {
-  transform: scale(0.95);
+  transform: translateY(1px);
 }
 
-/* 网格容器 */
+.merge-btn-muted {
+  color: #172033;
+  background: #dce7e3;
+}
+
+.merge-btn-muted:hover {
+  background: #c9d9d4;
+}
+
 .merge-grid-container {
-  background: #bbada0;
-  border-radius: 10px;
-  padding: 15px;
   position: relative;
-  aspect-ratio: 1;
-  max-width: 100%;
-  touch-action: none; /* 禁用触摸默认行为 */
-  user-select: none; /* 禁止选中 */
-}
-
-.merge-grid {
-  position: relative; /* 为绝对定位的数字格子提供参照 */
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  gap: 15px;
   width: 100%;
-  height: 100%;
-}
-
-/* 网格单元格（背景） */
-.merge-cell {
-  background: rgba(238, 228, 218, 0.35);
-  border-radius: 5px;
-  /* 不需要 position, 由 grid 布局控制 */
-}
-
-/* 数字格子 */
-.merge-tile {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 55px;
-  font-weight: bold;
-  border-radius: 5px;
-  transition: all 0.15s ease-in-out;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  padding: 12px;
+  background: #223747;
+  touch-action: none;
   user-select: none;
 }
 
-/* 新格子出现动画 */
-.merge-tile-new {
-  animation: appear 0.2s ease-in-out;
+.merge-grid {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 12px;
 }
 
-@keyframes appear {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* 合并动画 */
-.merge-tile-merged {
-  animation: merge 0.2s ease-in-out;
-}
-
-@keyframes merge {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* 游戏提示 */
-.merge-hint {
-  text-align: center;
-  margin-top: 15px;
-  color: #776e65;
-  font-size: 14px;
-}
-
-/* 本局统计 */
-.merge-session-stats {
-  margin-top: 20px;
-  padding: 15px;
-  background: white;
+.merge-cell {
+  min-width: 0;
+  min-height: 0;
   border-radius: 8px;
-  border: 2px solid #bbada0;
+  background: rgba(226, 238, 236, 0.18);
 }
 
-.merge-session-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #776e65;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.merge-session-eggs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-}
-
-.merge-session-egg-item {
+.merge-tile {
+  position: absolute;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  background: #faf8ef;
-  border-radius: 5px;
-  font-size: 14px;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  transition:
+    left 0.14s ease,
+    top 0.14s ease,
+    transform 0.14s ease,
+    background 0.14s ease;
 }
 
-.merge-session-egg-emoji {
-  font-size: 18px;
+.merge-status {
+  min-height: 22px;
+  margin-top: 10px;
+  color: #4d5c6b;
+  font-size: 0.92rem;
+  text-align: center;
 }
 
-.merge-session-egg-count {
-  font-weight: bold;
-  color: #776e65;
-}
-
-/* 游戏结束遮罩 */
 .merge-game-over {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(238, 228, 218, 0.95);
+  inset: 0;
+  z-index: 10;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  border-radius: 10px;
-  z-index: 100;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 8px;
+  padding: 24px;
+  color: #172033;
+  text-align: center;
+  background: rgba(242, 247, 246, 0.94);
 }
 
 .merge-game-over-title {
-  font-size: 48px;
-  font-weight: bold;
-  color: #776e65;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
+  font-size: clamp(2rem, 10vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1;
 }
 
 .merge-game-over-score {
-  font-size: 24px;
-  color: #776e65;
-  margin-bottom: 30px;
+  display: grid;
+  gap: 4px;
+  margin-bottom: 22px;
+  color: #324254;
+  font-size: clamp(1rem, 4vw, 1.25rem);
+  font-weight: 700;
 }
 
 .merge-game-over-buttons {
   display: flex;
-  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* 产蛋飞行动画 */
-@keyframes eggFly {
-  0% {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--target-x), var(--target-y)) scale(0.5);
-    opacity: 0;
-  }
-}
-
-.egg-fly-animation {
-  position: fixed;
-  font-size: 24px;
-  animation: eggFly 0.8s ease-in-out forwards;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* 响应式设计 */
-@media (max-width: 600px) {
+@media (max-width: 560px) {
   .merge-game-container {
-    padding: 10px;
-    max-width: 100%;
+    padding: 12px;
+  }
+
+  .merge-game-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .merge-score-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .merge-grid-container {
-    padding: 10px;
+    padding: 9px;
   }
 
   .merge-grid {
-    gap: 10px;
+    gap: 9px;
   }
 
-  .merge-tile {
-    font-size: 40px;
-  }
-
-  .merge-score-box {
-    padding: 8px 15px;
-    min-width: 70px;
-  }
-
-  .merge-score-value {
-    font-size: 20px;
+  .merge-btn {
+    width: 100%;
   }
 }
 
-/* 触摸设备优化 */
 @media (hover: none) {
   .merge-btn:hover {
-    background: #8f7a66;
+    background: #25636d;
   }
-  
-  .merge-btn:active {
-    background: #9f8a76;
+
+  .merge-btn-muted:hover {
+    background: #dce7e3;
   }
 }
