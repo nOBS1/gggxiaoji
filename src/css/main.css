@@ -2,6 +2,42 @@
   box-sizing: border-box;
 }
 
+:root {
+  --duration-stagger: 40ms;
+  --duration-micro: 80ms;
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --duration-medium: 350ms;
+  --duration-slow: 400ms;
+  --duration-very-slow: 500ms;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: ease-in-out;
+  --ease-out: ease-out;
+  --ease-linear: linear;
+  --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --ease-bounce-strong: cubic-bezier(0.34, 3.85, 0.64, 1);
+  --distance-micro: 4px;
+  --distance-small: 6px;
+  --distance-base: 8px;
+  --distance-medium: 12px;
+  --distance-large: 30px;
+  --scale-large: 0.96;
+  --scale-medium: 0.97;
+  --scale-small: 0.98;
+  --scale-tiny: 0.99;
+  --blur-small: 2px;
+  --blur-medium: 3px;
+  --blur-large: 8px;
+  --tilt-perspective: 1000px;
+  --tilt-return: 1000ms;
+  --tilt-return-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tilt-follow: 400ms;
+  --tilt-follow-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tilt-glare-opacity: 0.32;
+  --tilt-glare-fade: 300ms;
+  --tilt-glare-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 html {
   min-height: 100%;
   background: #eef4f2;
@@ -33,7 +69,7 @@ button {
 }
 
 .game-panel {
-  width: min(620px, 100%);
+  width: min(1120px, 100%);
   margin: 0 auto;
 }
 
@@ -72,9 +108,9 @@ button {
   cursor: pointer;
   white-space: nowrap;
   transition:
-    background 0.16s ease,
-    border-color 0.16s ease,
-    transform 0.16s ease;
+    background var(--duration-quick) var(--ease-out),
+    border-color var(--duration-quick) var(--ease-out),
+    transform var(--duration-quick) var(--ease-out);
 }
 
 .secondary-action:hover {
@@ -87,7 +123,8 @@ button {
 }
 
 .secondary-action:focus-visible,
-.merge-btn:focus-visible {
+.primary-action:focus-visible,
+.synth-button:focus-visible {
   outline: 3px solid rgba(37, 99, 109, 0.35);
   outline-offset: 3px;
 }

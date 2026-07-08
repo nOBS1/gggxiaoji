@@ -1,7 +1,7 @@
 {
-  "name": "merge-block-game",
+  "name": "three-kingdoms-card-game",
   "version": "3.0.0",
-  "description": "合成方块 - 一款轻量 2048 风格网页小游戏",
+  "description": "三国卡牌合成 - 拆卡包、收集武将、重复卡升星的网页小游戏",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,9 +14,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "keywords": [
-    "merge-game",
-    "2048",
-    "puzzle-game",
+    "card-game",
+    "three-kingdoms",
+    "pack-opening",
     "web-game"
   ],
   "author": "Your Name",
@@ -33,5 +33,8 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "animejs": "^4.5.0"
   }
 }

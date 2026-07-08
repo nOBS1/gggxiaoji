@@ -1,22 +1,16 @@
 import '../css/main.css';
-import '../css/merge.css';
-import { MergeManager } from './merge/mergeManager.js';
-
-let mergeGame = null;
+import '../css/cards.css';
+import { CardGame } from './cardGame.js';
 
 function init() {
-  const container = document.getElementById('mergeGameContainer');
+  const root = document.getElementById('cardGameRoot');
+  if (!root) return;
 
-  if (!container) {
-    console.error('[MergeGame] 找不到游戏容器');
-    return;
-  }
+  const game = new CardGame(root);
 
-  mergeGame = new MergeManager(container);
-
-  document.getElementById('resetBestBtn')?.addEventListener('click', () => {
-    if (confirm('确定清除最高分吗？')) {
-      mergeGame.resetBestScore();
+  document.getElementById('resetGameBtn')?.addEventListener('click', () => {
+    if (confirm('确定重置卡牌存档吗？')) {
+      game.reset();
     }
   });
 }

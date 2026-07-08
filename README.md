@@ -1,14 +1,14 @@
-# 合成方块小游戏
+# 三国卡牌合成
 
-一个轻量的 2048 风格网页小游戏。使用方向键或触屏滑动移动方块，合成更大的数字，挑战最高分。
+一个轻量的纯前端网页小游戏：拆卡包收集三国武将，重复卡用于合成升星，卡牌战力会随星级提升。
 
 ## 功能
 
-- 4x4 合成方块棋盘
-- 键盘方向键和移动端滑动操作
-- 当前得分与本地最高分记录
-- 新游戏与清除最高分
-- 纯前端静态部署，无后端、无登录、无广告、无第三方市场系统
+- 初始 6 个卡包，每包 5 张卡
+- 刘备、关羽、张飞、诸葛亮、曹操、孙权六张三国武将卡
+- 重复 3 张同名卡可合成升 1 星，最高 5 星
+- 一键合成、领取补给、本地存档与重置存档
+- Anime.js 拆包与升星动画，transitions.dev motion token 与卡片 hover tilt
 
 ## 快速开始
 
@@ -32,17 +32,19 @@ npm run lint
 ```text
 .
 ├── index.html
+├── public/
+│   └── cards/
+│       └── three-kingdoms-card-sheet.png
 ├── src/
 │   ├── css/
 │   │   ├── main.css
-│   │   └── merge.css
+│   │   └── cards.css
 │   └── js/
 │       ├── main.js
-│       └── merge/
-│           ├── mergeCore.js
-│           └── mergeManager.js
+│       ├── cardGame.js
+│       └── cardGameCore.js
 ├── tests/
-│   └── mergeCore.test.js
+│   └── cardGameCore.test.js
 ├── vite.config.js
 └── vitest.config.js
 ```
