@@ -27,7 +27,10 @@
             <p class="game-kicker">Three Kingdoms Tactics</p>
             <h1 id="gameTitle">三国卡牌演武</h1>
           </div>
-          <button class="secondary-action" id="resetGameBtn" type="button">重置养成</button>
+          <div class="game-hero-actions">
+            <button class="secondary-action" id="rulesBtn" type="button" aria-haspopup="dialog">玩法</button>
+            <button class="secondary-action" id="resetGameBtn" type="button">重置养成</button>
+          </div>
         </header>
 
         <nav class="game-view-nav" aria-label="游戏模式">
@@ -48,6 +51,56 @@
         </div>
       </section>
     </main>
+
+    <div class="rules-overlay" id="rulesOverlay" hidden>
+      <section
+        class="rules-dialog t-modal"
+        id="rulesDialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rulesTitle"
+        aria-describedby="rulesSummary"
+      >
+        <header class="rules-header">
+          <div>
+            <p class="game-kicker">HOW TO PLAY</p>
+            <h2 id="rulesTitle">演武玩法</h2>
+          </div>
+          <button class="rules-close" id="rulesCloseBtn" type="button" aria-label="关闭玩法">×</button>
+        </header>
+
+        <p class="rules-summary" id="rulesSummary">收集并合成三国武将，在三阵位战场击破敌方主将。</p>
+
+        <div class="rules-grid">
+          <article class="rules-step">
+            <span>01</span>
+            <h3>拆包养成</h3>
+            <p>开局拥有 6 个卡包，每包获得 5 张武将。每日补给每 24 小时可领取 3 个卡包。</p>
+          </article>
+          <article class="rules-step">
+            <span>02</span>
+            <h3>重复合成</h3>
+            <p>首次获得武将即解锁 1 星；集齐 3 张同名重复卡可升 1 星，最高升至 5 星。</p>
+          </article>
+          <article class="rules-step">
+            <span>03</span>
+            <h3>布阵出击</h3>
+            <p>对局起手 4 张牌，可全部重抽一次。消耗军令把武将部署到 3 个阵位，军令上限每回合提升 1 点。</p>
+          </article>
+          <article class="rules-step">
+            <span>04</span>
+            <h3>击破主将</h3>
+            <p>武将通常要到下一回合才能攻击；先清除敌方武将，才能攻击主将。率先将对方 30 点生命降为 0 即获胜。</p>
+          </article>
+        </div>
+
+        <div class="rules-notes" aria-label="关键规则">
+          <p><strong>交战：</strong>武将互攻时双方同时受到对方攻击力伤害。</p>
+          <p><strong>突袭：</strong>带有“突袭”的武将登场回合即可攻击。</p>
+          <p><strong>疲劳：</strong>牌库耗尽后继续抽牌，主将会受到逐次增加的伤害。</p>
+        </div>
+      </section>
+    </div>
 
     <script type="module" src="/src/js/main.js"></script>
   </body>
