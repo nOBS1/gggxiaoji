@@ -1,10 +1,10 @@
 # 三国卡牌合成
 
-一个轻量的纯前端网页小游戏：拆卡包收集三国武将，重复卡用于合成升星，卡牌战力会随星级提升。
+一个轻量的纯前端三国卡牌游戏：拆卡包收集武将、重复卡升星，并在虎牢关演武场进行回合制 PVE 对战。
 
 ## 对战开发状态
 
-回合制对战的阶段 A 规则引擎已经建立，包括 12 张战团、军令、三个阵位、出牌、攻击、武将技能、阵亡、疲劳与胜负判定。当前页面仍保持拆包和升星玩法，对战界面将在下一阶段接入。
+回合制规则引擎与第一版 PVE 界面已经接通，包括起手全换、12 张演武战团、军令、三个阵位、出牌、攻击、基础 AI、武将技能、阵亡、疲劳与胜负判定。战团编辑和更多关卡将在后续阶段加入。
 
 完整规则与开发顺序见 [`docs/GAME_PLAN.md`](docs/GAME_PLAN.md)，统一术语见 [`CONTEXT.md`](CONTEXT.md)。
 
@@ -13,7 +13,8 @@
 - 初始 6 个卡包，每包 5 张卡
 - 刘备、关羽、张飞、诸葛亮、曹操、孙权六张三国武将卡
 - 重复 3 张同名卡可合成升 1 星，最高 5 星
-- 一键合成、领取补给、本地存档与重置存档
+- 一键合成、每 24 小时领取补给、本地存档与重置存档
+- 虎牢关回合制 PVE、起手换牌、三阵位战场与基础 AI
 - Anime.js 拆包与升星动画，transitions.dev motion token 与卡片 hover tilt
 
 ## 快速开始
@@ -47,17 +48,21 @@ npm run lint
 │       └── command-hall-bg.png
 ├── src/
 │   ├── css/
+│   │   ├── battle.css
 │   │   ├── main.css
 │   │   └── cards.css
 │   └── js/
 │       ├── battle/
+│       │   ├── battleAi.js
 │       │   ├── battleCore.js
 │       │   ├── cardDefinitions.js
-│       │   └── skillEffects.js
+│       │   ├── skillEffects.js
+│       │   └── battleGame.js
 │       ├── main.js
 │       ├── cardGame.js
 │       └── cardGameCore.js
 ├── tests/
+│   ├── battleAi.test.js
 │   ├── battleCore.test.js
 │   ├── battleSimulation.test.js
 │   ├── battleStateTransitions.test.js

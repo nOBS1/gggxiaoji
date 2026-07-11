@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="三国卡牌合成小游戏。拆卡包收集武将，消耗重复卡合成升星。"
+      content="三国回合制卡牌游戏。拆包收集武将、合成升星，并在演武场进行回合制对战。"
     />
-    <title>三国卡牌合成</title>
+    <title>三国卡牌演武</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>策</text></svg>"
@@ -18,13 +18,28 @@
       <section class="game-panel" aria-labelledby="gameTitle">
         <header class="game-hero">
           <div>
-            <p class="game-kicker">Three Kingdoms Cards</p>
-            <h1 id="gameTitle">三国卡牌合成</h1>
+            <p class="game-kicker">Three Kingdoms Tactics</p>
+            <h1 id="gameTitle">三国卡牌演武</h1>
           </div>
-          <button class="secondary-action" id="resetGameBtn" type="button">重置存档</button>
+          <button class="secondary-action" id="resetGameBtn" type="button">重置养成</button>
         </header>
 
-        <div id="cardGameRoot"></div>
+        <nav class="game-view-nav" aria-label="游戏模式">
+          <div class="t-tabs" role="tablist" aria-label="游戏模式切换">
+            <span class="t-tabs-pill" aria-hidden="true"></span>
+            <button class="t-tab" id="collectionTab" role="tab" aria-selected="true" aria-controls="collectionView" type="button">养成</button>
+            <button class="t-tab" id="battleTab" role="tab" aria-selected="false" aria-controls="battleView" type="button">对战</button>
+          </div>
+        </nav>
+
+        <div class="game-view-stack">
+          <section class="game-view t-panel-slide" id="collectionView" role="tabpanel" aria-labelledby="collectionTab" data-open="true">
+            <div id="cardGameRoot"></div>
+          </section>
+          <section class="game-view t-panel-slide" id="battleView" role="tabpanel" aria-labelledby="battleTab" data-open="false" hidden>
+            <div id="battleGameRoot"></div>
+          </section>
+        </div>
       </section>
     </main>
 

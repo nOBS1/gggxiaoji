@@ -95,7 +95,7 @@ export function playCard(battle, side, instanceId, position) {
 
   const card = battle[side].hand[handIndex];
   const definition = getBattleCardDefinition(card.cardId);
-  const cost = Math.max(0, definition.cost - battle[side].nextCardDiscount);
+  const cost = getEffectiveCardCost(battle, side, card);
   if (battle[side].command < cost) return failure(battle, 'NOT_ENOUGH_COMMAND');
 
   const next = cloneBattle(battle);
@@ -157,6 +157,41 @@ export function attack(battle, side, attackerPosition, target) {
 
   if (defeatedTarget && attacker.health > 0) applyKillSkill(attacker, next.turn);
   return success(next, { damageToAttacker, damageToTarget });
+}
+
+export function getEffectiveCardCost(battle, side, card) {
+  const definition = getBattleCardDefinition(card.cardId);
+  return Math.max(0, definition.cost - battle[side].nextCardDiscount);
+}
+
+export function getPlayableHandCards(battle, side) {
+  if (
+    battle.phase !== 'battle'
+    || battle.winner
+    || battle.activeSide !== side
+    || !battle[side].battlefield.some((unit) => unit === null)
+  ) {
+    return [];
+  }
+
+  return battle[side].hand.filter(
+    (card) => getEffectiveCardCost(battle, side, card) <= battle[side].command
+  );
+}
+
+export function getLegalAttackTargets(battle, side, attackerPosition) {
+  const defendingSide = otherSide(side);
+  const positions = battle[defendingSide].battlefield
+    .map((unit, position) => ({ unit, position }))
+    .filter(({ unit, position }) =>
+      unit && validateAttack(battle, side, attackerPosition, { type: 'unit', position }) === null
+    )
+    .map(({ position }) => position);
+
+  return {
+    commander: validateAttack(battle, side, attackerPosition, { type: 'commander' }) === null,
+    positions
+  };
 }
 
 function createSide(deck) {

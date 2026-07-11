@@ -36,6 +36,17 @@
   --tilt-glare-opacity: 0.32;
   --tilt-glare-fade: 300ms;
   --tilt-glare-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tabs-dur: 250ms;
+  --tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tabs-text-muted: rgba(255, 247, 232, 0.7);
+  --tabs-text-active: #fff7e8;
+  --tabs-bar-bg: #2f2a35;
+  --tabs-pill-bg: #9d2f25;
+  --panel-open-dur: 400ms;
+  --panel-close-dur: 350ms;
+  --panel-translate-y: 18px;
+  --panel-blur: 2px;
+  --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
@@ -69,7 +80,7 @@ button {
 }
 
 .game-panel {
-  width: min(1120px, 100%);
+  width: min(1280px, 100%);
   margin: 0 auto;
 }
 
@@ -93,8 +104,8 @@ button {
 .game-hero h1 {
   margin: 0;
   color: #172033;
-  font-size: clamp(2.4rem, 10vw, 4.5rem);
-  line-height: 0.95;
+  font-size: 2.65rem;
+  line-height: 1;
   letter-spacing: 0;
 }
 
@@ -129,6 +140,112 @@ button {
   outline-offset: 3px;
 }
 
+.secondary-action:disabled,
+.primary-action:disabled,
+.synth-button:disabled {
+  cursor: not-allowed;
+  filter: none;
+  opacity: 0.5;
+}
+
+.game-view-nav {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.game-view-stack {
+  position: relative;
+  min-width: 0;
+}
+
+.game-view[hidden] {
+  display: none;
+}
+
+.game-view.is-closing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+/* The bar is just a flex container with padding for the pill
+   to sit inside. Tabs sit on z-index: 1, the pill on z-index: 0,
+   so labels read above the pill background. */
+.t-tabs {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 48px;
+  background: var(--tabs-bar-bg);
+}
+.t-tab {
+  position: relative;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  height: 30px;
+  padding: 4px 18px;
+  color: var(--tabs-text-muted);
+  cursor: pointer;
+  border-radius: 48px;
+  z-index: 1;
+  transition: color var(--tabs-dur) var(--tabs-ease);
+}
+.t-tab:not([aria-selected="true"]):hover,
+.t-tab[aria-selected="true"] {
+  color: var(--tabs-text-active);
+}
+
+/* The pill: width + transform are written inline by JS so
+   the transition tweens between the previous and next
+   measured positions. */
+.t-tabs-pill {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: 30px;
+  width: 0;
+  background: var(--tabs-pill-bg);
+  border-radius: 48px;
+  transform: translateX(0);
+  transition:
+    transform var(--tabs-dur) var(--tabs-ease),
+    width     var(--tabs-dur) var(--tabs-ease);
+  will-change: transform, width;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.t-panel-slide {
+  transform: translateY(var(--panel-translate-y));
+  opacity: 0;
+  filter: blur(var(--panel-blur));
+  pointer-events: none;
+  transition:
+    transform var(--panel-close-dur) var(--panel-ease),
+    opacity   var(--panel-close-dur) var(--panel-ease),
+    filter    var(--panel-close-dur) var(--panel-ease);
+  will-change: transform, opacity, filter;
+}
+.t-panel-slide[data-open="true"] {
+  transform: translateY(0);
+  opacity: 1;
+  filter: blur(0);
+  pointer-events: auto;
+  transition:
+    transform var(--panel-open-dur) var(--panel-ease),
+    opacity   var(--panel-open-dur) var(--panel-ease),
+    filter    var(--panel-open-dur) var(--panel-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-tabs-pill, .t-tab { transition: none !important; }
+  .t-panel-slide { transition: none !important; }
+}
+
 @media (max-width: 560px) {
   .app-shell {
     align-items: start;
@@ -138,6 +255,10 @@ button {
   .game-hero {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .game-hero h1 {
+    font-size: 2.1rem;
   }
 
   .secondary-action {

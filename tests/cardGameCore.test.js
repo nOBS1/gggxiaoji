@@ -3,8 +3,10 @@ import {
   addCard,
   claimSupply,
   createInitialState,
+  getSupplyStatus,
   getOwnedCount,
   getTotalPower,
+  normalizeState,
   openPack,
   synthesizeCard
 } from '../src/js/cardGameCore.js';
@@ -50,10 +52,28 @@ describe('card game core', () => {
     expect(synthesizeCard(state, 'cao-cao')).toEqual({ ok: false, reason: 'NEED_COPIES' });
   });
 
-  test('claim supply adds card packs', () => {
+  test('supply can be claimed only once every 24 hours', () => {
     const state = createInitialState();
+    const claimedAt = Date.UTC(2026, 6, 11, 8, 0, 0);
 
-    expect(claimSupply(state)).toBe(9);
+    expect(claimSupply(state, claimedAt)).toMatchObject({ ok: true, total: 9 });
+    expect(claimSupply(state, claimedAt + 23 * 60 * 60 * 1000)).toMatchObject({
+      ok: false,
+      reason: 'COOLDOWN',
+      remainingMs: 60 * 60 * 1000
+    });
+    expect(getSupplyStatus(state, claimedAt + 24 * 60 * 60 * 1000).available).toBe(true);
+    expect(claimSupply(state, claimedAt + 24 * 60 * 60 * 1000)).toMatchObject({
+      ok: true,
+      total: 12
+    });
     expect(getTotalPower(state)).toBe(0);
+  });
+
+  test('old saves without a supply timestamp remain eligible', () => {
+    const state = normalizeState({ version: 1, packTickets: 2, collection: {} });
+
+    expect(state.lastSupplyClaimAt).toBeNull();
+    expect(getSupplyStatus(state, Date.UTC(2026, 6, 11)).available).toBe(true);
   });
 });

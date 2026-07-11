@@ -9,6 +9,7 @@ import {
   getCardPower,
   getMaxStar,
   getOwnedCount,
+  getSupplyStatus,
   getSynthCost,
   getTotalPower,
   normalizeState,
@@ -26,6 +27,7 @@ export class CardGame {
     this.state = this.load();
     this.message = '拆卡包获得武将，重复卡可合成升星。';
     this.render({ type: 'initial' });
+    this.supplyTimer = window.setInterval(() => this.refreshSupplyButton(), 1000);
   }
 
   load() {
@@ -38,6 +40,10 @@ export class CardGame {
 
   save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+  }
+
+  destroy() {
+    window.clearInterval(this.supplyTimer);
   }
 
   reset() {
@@ -64,7 +70,7 @@ export class CardGame {
             </div>
             <div class="action-row">
               <button class="primary-action" data-action="open-pack" type="button">拆一包</button>
-              <button class="secondary-action" data-action="claim-supply" type="button">领取补给</button>
+              ${this.renderSupplyButton()}
               <button class="secondary-action" data-action="synth-all" type="button">一键合成</button>
             </div>
             <p class="status-line">${this.message}</p>
@@ -105,6 +111,12 @@ export class CardGame {
         <strong>${value}</strong>
       </div>
     `;
+  }
+
+  renderSupplyButton(now = Date.now()) {
+    const status = getSupplyStatus(this.state, now);
+    const label = status.available ? '领取补给' : `补给 ${formatDuration(status.remainingMs)}`;
+    return `<button class="secondary-action" data-action="claim-supply" type="button" ${status.available ? '' : 'disabled'}>${label}</button>`;
   }
 
   renderLastPulls() {
@@ -193,10 +205,12 @@ export class CardGame {
     });
 
     this.root.querySelector('[data-action="claim-supply"]')?.addEventListener('click', () => {
-      const total = claimSupply(this.state);
-      this.message = `补给已到，当前卡包 ${total} 个。`;
+      const result = claimSupply(this.state);
+      this.message = result.ok
+        ? `补给已到，当前卡包 ${result.total} 个。`
+        : `补给整备中，${formatDuration(result.remainingMs)} 后可领取。`;
       this.save();
-      this.render({ type: 'supply' });
+      this.render({ type: result.ok ? 'supply' : 'error' });
     });
 
     this.root.querySelector('[data-action="synth-all"]')?.addEventListener('click', () => {
@@ -216,6 +230,14 @@ export class CardGame {
         this.render({ type: result.ok ? 'synth' : 'error', cardId });
       });
     });
+  }
+
+  refreshSupplyButton() {
+    const button = this.root.querySelector('[data-action="claim-supply"]');
+    if (!button) return;
+    const status = getSupplyStatus(this.state);
+    button.disabled = !status.available;
+    button.textContent = status.available ? '领取补给' : `补给 ${formatDuration(status.remainingMs)}`;
   }
 
   bindTiltCards() {
@@ -398,4 +420,12 @@ export class CardGame {
     if (value.endsWith('s')) return Number.parseFloat(value) * 1000;
     return fallback;
   }
+}
+
+function formatDuration(milliseconds) {
+  const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
 }

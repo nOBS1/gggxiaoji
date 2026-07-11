@@ -74,16 +74,18 @@ export const RARITY_META = {
   SSR: { label: '传说', weight: 32, dust: 28 }
 };
 
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 const PACK_SIZE = 5;
 const SYNTH_COST = 3;
 const MAX_STAR = 5;
+const SUPPLY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 export function createInitialState() {
   return {
     version: STORAGE_VERSION,
     packTickets: 6,
     packsOpened: 0,
+    lastSupplyClaimAt: null,
     lastPulls: [],
     collection: Object.fromEntries(
       CARDS.map((card) => [card.id, { owned: false, copies: 0, star: 0 }])
@@ -97,6 +99,7 @@ export function normalizeState(value) {
 
   state.packTickets = clampNumber(value.packTickets, 0, 999);
   state.packsOpened = clampNumber(value.packsOpened, 0, 99999);
+  state.lastSupplyClaimAt = normalizeTimestamp(value.lastSupplyClaimAt);
   state.lastPulls = Array.isArray(value.lastPulls)
     ? value.lastPulls.filter((id) => CARDS.some((card) => card.id === id)).slice(0, PACK_SIZE)
     : [];
@@ -183,9 +186,39 @@ export function synthesizeAll(state) {
   return upgraded;
 }
 
-export function claimSupply(state) {
+export function claimSupply(state, now = Date.now()) {
+  const status = getSupplyStatus(state, now);
+  if (!status.available) {
+    return {
+      ok: false,
+      reason: 'COOLDOWN',
+      nextClaimAt: status.nextClaimAt,
+      remainingMs: status.remainingMs
+    };
+  }
+
   state.packTickets += 3;
-  return state.packTickets;
+  state.lastSupplyClaimAt = now;
+  return {
+    ok: true,
+    total: state.packTickets,
+    nextClaimAt: now + SUPPLY_COOLDOWN_MS
+  };
+}
+
+export function getSupplyStatus(state, now = Date.now()) {
+  const lastClaimAt = normalizeTimestamp(state.lastSupplyClaimAt);
+  if (lastClaimAt === null) {
+    return { available: true, nextClaimAt: null, remainingMs: 0 };
+  }
+
+  const nextClaimAt = lastClaimAt + SUPPLY_COOLDOWN_MS;
+  const remainingMs = Math.min(SUPPLY_COOLDOWN_MS, Math.max(0, nextClaimAt - now));
+  return {
+    available: remainingMs === 0,
+    nextClaimAt,
+    remainingMs
+  };
 }
 
 export function getCardPower(card, entry) {
@@ -236,4 +269,9 @@ function clampNumber(value, min, max) {
   const number = Number.parseInt(value, 10);
   if (!Number.isFinite(number)) return min;
   return Math.max(min, Math.min(max, number));
+}
+
+function normalizeTimestamp(value) {
+  const timestamp = Number(value);
+  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
 }
